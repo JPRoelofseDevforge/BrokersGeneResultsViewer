@@ -132,6 +132,59 @@ export interface ReportAction {
   band: DomainBand;
 }
 
+export type RecommendationKind = "behaviour" | "food" | "measurement";
+
+export interface RecommendationContributor {
+  gene: string;
+  variantId: string;
+}
+
+export interface WholeReportRecommendation {
+  id: string;
+  kind: RecommendationKind;
+  title: string;
+  why: string;
+  how: string;
+  note: string | null;
+  canUnlock: string | null;
+  score: number;
+  domainIds: string[];
+  contributors: RecommendationContributor[];
+}
+
+export interface SafetyRecommendation {
+  id: string;
+  title: string;
+  why: string;
+  how: string;
+  contributor: RecommendationContributor;
+}
+
+export interface NearThresholdRecommendation {
+  id: string;
+  kind: RecommendationKind;
+  title: string;
+  score: number;
+  contributorCount: number;
+  domainCount: number;
+  reason:
+    | "below-threshold"
+    | "too-few-markers"
+    | "too-few-genes"
+    | "too-few-systems"
+    | "outside-shortlist";
+}
+
+export interface RecommendationSynthesis {
+  rulesVersion: string;
+  actionOutcome: "ready" | "insufficient-data" | "no-convergence";
+  safety: SafetyRecommendation[];
+  actions: WholeReportRecommendation[];
+  measurements: WholeReportRecommendation[];
+  nearThreshold: NearThresholdRecommendation[];
+  supplementsLocked: true;
+}
+
 export interface ProcessingReceipt {
   status: "complete";
   source: "seeded-repository" | "azure-sql";
@@ -163,6 +216,7 @@ export interface GeneReport {
   domains: DomainScore[];
   markers: ProcessedMarker[];
   priorities: ReportAction[];
+  recommendations: RecommendationSynthesis;
   groups: Array<{
     id: string;
     name: string;

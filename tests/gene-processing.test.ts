@@ -91,6 +91,9 @@ test("builds the Phase 1 report from repository records", async () => {
   assert.ok(report.receipt.calledMarkers <= report.receipt.callableMarkers);
   assert.equal(report.domains.length, 22);
   assert.equal(report.priorities.length, 3);
+  assert.ok(report.recommendations.actions.length > 0);
+  assert.ok(report.recommendations.measurements.length > 0);
+  assert.equal(report.recommendations.supplementsLocked, true);
   assert.ok(report.markers.some((marker) => marker.state === "not-called"));
 });
 

@@ -8,6 +8,7 @@ import type {
   GeneReport,
   MarkerState,
   ProcessedMarker,
+  WholeReportRecommendation,
 } from "@/lib/gene-processing/types";
 import {
   reportDisplayName,
@@ -28,6 +29,17 @@ const GROUP_NAMES: Record<string, string> = {
   sleep: "Sleep",
   exec: "Executive fitness",
   systems: "Core systems",
+};
+
+const NEAR_THRESHOLD_LABELS: Record<
+  GeneReport["recommendations"]["nearThreshold"][number]["reason"],
+  string
+> = {
+  "below-threshold": "The combined score stayed below the threshold.",
+  "too-few-markers": "Too few independent markers supported it.",
+  "too-few-genes": "The support came from too few distinct genes.",
+  "too-few-systems": "The support did not cross enough body systems.",
+  "outside-shortlist": "It qualified, but fell outside the deliberately short list.",
 };
 
 function percentage(value: number) {
@@ -213,6 +225,66 @@ function MarkerDetail({ marker }: { marker: ProcessedMarker }) {
   );
 }
 
+function recommendationGenes(recommendation: WholeReportRecommendation) {
+  return Array.from(
+    new Set(recommendation.contributors.map((contributor) => contributor.gene)),
+  ).join(" · ");
+}
+
+function RecommendationCard({
+  recommendation,
+  index,
+}: {
+  recommendation: WholeReportRecommendation;
+  index: number;
+}) {
+  return (
+    <article className="necessary-card">
+      <div className="necessary-card-top">
+        <span className="necessary-number">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <span className="necessary-kind">
+          {recommendation.kind === "measurement"
+            ? "Worth measuring"
+            : recommendation.kind}
+        </span>
+        {recommendation.canUnlock ? (
+          <span className="unlock-pill">Can unlock a next step</span>
+        ) : null}
+      </div>
+      <h3>{recommendation.title}</h3>
+      <div className="necessary-copy">
+        <div>
+          <span>Why you</span>
+          <p>{recommendation.why}</p>
+        </div>
+        <div>
+          <span>How</span>
+          <p>{recommendation.how}</p>
+        </div>
+      </div>
+      <div className="necessary-evidence">
+        <strong>
+          {recommendation.contributors.length}{" "}
+          {recommendation.contributors.length === 1 ? "marker" : "markers"} ·{" "}
+          {recommendation.domainIds.length}{" "}
+          {recommendation.domainIds.length === 1 ? "system" : "systems"}
+        </strong>
+        <span>{recommendationGenes(recommendation)}</span>
+      </div>
+      {recommendation.canUnlock ? (
+        <p className="necessary-note">
+          <b>Can unlock:</b> {recommendation.canUnlock}
+        </p>
+      ) : null}
+      {recommendation.note ? (
+        <p className="necessary-note">{recommendation.note}</p>
+      ) : null}
+    </article>
+  );
+}
+
 export function ReportDashboard({ report }: { report: GeneReport }) {
   const [activeGroup, setActiveGroup] = useState("movement");
   const [selectedDomainId, setSelectedDomainId] = useState(
@@ -286,9 +358,9 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         </a>
         <nav aria-label="Report sections">
           <a href="#overview">Overview</a>
+          <a href="#necessary">What&apos;s necessary</a>
           <a href="#systems">Systems</a>
           <a href="#markers">Markers</a>
-          <a href="#method">Method</a>
         </nav>
         <span className="header-status">
           <i aria-hidden="true" />
@@ -411,9 +483,9 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
           <small>Missing data stays missing</small>
         </div>
         <div>
-          <span>Highest-return levers</span>
-          <strong>{report.priorities.length}</strong>
-          <small>Ranked by score and coverage</small>
+          <span>Whole-report actions</span>
+          <strong>{report.recommendations.actions.length}</strong>
+          <small>Only cross-system convergence qualifies</small>
         </div>
         <div>
           <span>Unscored source calls</span>
@@ -422,33 +494,194 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         </div>
       </section>
 
-      <section className="content-section priority-section">
+      <section className="content-section necessary-section" id="necessary">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">Start here</span>
-            <h2>Your highest-return levers.</h2>
+            <span className="eyebrow">What&apos;s necessary</span>
+            <h2>One conclusion, drawn from the whole report.</h2>
           </div>
           <p>
-            These are not weaknesses. They are the systems where consistent
-            effort has the most room to land.
+            No marker recommends anything by itself. For actions, SAM looks for
+            places where several results across different systems point at the
+            same thing, then keeps the list short. Short is the point.
           </p>
         </div>
 
-        <div className="priority-grid">
-          {report.priorities.map((priority, index) => (
-            <article className="priority-card" key={priority.domainId}>
-              <div className="priority-number">0{index + 1}</div>
-              <div className="priority-score">
-                <span>{priority.domainName}</span>
-                <strong>{priority.band}</strong>
-                <em>/ 5</em>
-              </div>
-              <h3>{priority.title}</h3>
-              <p>{priority.description}</p>
-              <span className="priority-rationale">{priority.rationale}</span>
-            </article>
-          ))}
+        {report.recommendations.safety.length ? (
+          <div className="safety-recommendations">
+            <div className="tier-heading">
+              <span>Before anything else</span>
+              <p>These results are worth taking into a clinician conversation.</p>
+            </div>
+            {report.recommendations.safety.map((item) => (
+              <article className="safety-recommendation" key={item.id}>
+                <span>Safety note</span>
+                <h3>{item.title}</h3>
+                <p>{item.why}</p>
+                <strong>{item.how}</strong>
+                <small>
+                  Based on {item.contributor.gene} {item.contributor.variantId}
+                </small>
+              </article>
+            ))}
+            <p className="safety-footnote">
+              A genetic result is not a diagnosis. It is a reason to ask a
+              better question with the right professional.
+            </p>
+          </div>
+        ) : null}
+
+        <div className="necessary-tier">
+          <div className="tier-heading">
+            <span>Tier one · Do</span>
+            <p>
+              A deliberately small set of behaviours and foods supported by
+              several independent results.
+            </p>
+          </div>
+          {report.recommendations.actions.length ? (
+            <div className="necessary-grid">
+              {report.recommendations.actions.map((recommendation, index) => (
+                <RecommendationCard
+                  recommendation={recommendation}
+                  index={index}
+                  key={recommendation.id}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="necessary-empty">
+              <h3>
+                {report.recommendations.actionOutcome === "insufficient-data"
+                  ? "There is not enough readable data yet."
+                  : "Nothing reached the convergence threshold."}
+              </h3>
+              <p>
+                {report.recommendations.actionOutcome === "insufficient-data"
+                  ? "SAM will not fill the gaps with assumptions or manufacture a personalised action from incomplete calls."
+                  : "That is a real finding, not a gap. Consistency with the foundations already working for you is the useful conclusion."}
+              </p>
+            </div>
+          )}
         </div>
+
+        <div className="necessary-tier">
+          <div className="tier-heading">
+            <span>Tier two · Know</span>
+            <p>
+              Measurements that could replace uncertainty with an actual
+              number. These are discussion prompts, not diagnoses.
+            </p>
+          </div>
+          {report.recommendations.measurements.length ? (
+            <div className="necessary-grid measurement-grid">
+              {report.recommendations.measurements.map(
+                (recommendation, index) => (
+                  <RecommendationCard
+                    recommendation={recommendation}
+                    index={index}
+                    key={recommendation.id}
+                  />
+                ),
+              )}
+            </div>
+          ) : (
+            <div className="necessary-empty">
+              <h3>No extra measurement earned a place.</h3>
+              <p>
+                Your readable results did not justify adding a test to this
+                short list.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="supplement-lock">
+          <div>
+            <span className="eyebrow">Tier three · Only if measured</span>
+            <h3>Genetics alone does not unlock a supplement.</h3>
+            <p>
+              A result can justify measuring something. Only a measured need,
+              interpreted in context, can justify what happens next.
+            </p>
+          </div>
+          <div className="locked-gates" aria-label="Locked supplement gates">
+            {[
+              "Vitamin D",
+              "B-vitamin support",
+              "Iron",
+              "Vitamin B12",
+            ].map((label) => (
+              <span key={label}>
+                <i aria-hidden="true">×</i>
+                {label}
+                <small>Locked</small>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {report.recommendations.nearThreshold.length ? (
+          <details className="near-threshold">
+            <summary>
+              What nearly made the list
+              <span>{report.recommendations.nearThreshold.length}</span>
+            </summary>
+            <p className="tier-intro">
+              These ideas were considered, then cut because the evidence did
+              not clear every rule.
+            </p>
+            <div>
+              {report.recommendations.nearThreshold.map((item) => (
+                <article className="near-threshold-row" key={item.id}>
+                  <div>
+                    <span>{item.kind}</span>
+                    <strong>{item.title}</strong>
+                  </div>
+                  <p>{NEAR_THRESHOLD_LABELS[item.reason]}</p>
+                  <small>
+                    {item.contributorCount}{" "}
+                    {item.contributorCount === 1 ? "marker" : "markers"} ·{" "}
+                    {item.domainCount}{" "}
+                    {item.domainCount === 1 ? "system" : "systems"}
+                  </small>
+                </article>
+              ))}
+            </div>
+          </details>
+        ) : null}
+
+        <details className="synthesis-method">
+          <summary>How this short list was made</summary>
+          <p>
+            SAM uses only called, interpretable results. A tier-one action needs
+            independent support from at least three markers, three genes, and
+            two systems. Missing, withheld, and unreadable calls add nothing.
+            A tier-two measurement needs two called markers from two genes. Ties
+            are resolved consistently, and the list is capped on purpose.
+          </p>
+          <small>
+            Recommendation rules {report.recommendations.rulesVersion}
+          </small>
+        </details>
+
+        <aside className="honest-summary">
+          <span>The honest summary</span>
+          <strong>
+            {report.recommendations.actions.length}{" "}
+            {report.recommendations.actions.length === 1 ? "thing" : "things"}{" "}
+            worth doing · {report.recommendations.measurements.length}{" "}
+            {report.recommendations.measurements.length === 1
+              ? "number"
+              : "numbers"}{" "}
+            worth having
+          </strong>
+          <p>
+            This report is educational. It cannot diagnose a condition or
+            replace advice based on your history, examination, and measured
+            results.
+          </p>
+        </aside>
       </section>
 
       <section className="content-section systems-section" id="systems">
@@ -696,110 +929,6 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         </div>
       </section>
 
-      <section className="method-section" id="method">
-        <div className="method-inner">
-          <div className="section-heading section-heading-light">
-            <div>
-              <span className="eyebrow eyebrow-light">How the report works</span>
-              <h2>Database-backed processing.</h2>
-            </div>
-            <p>
-              The processing engine never knows whether records came from a
-              fixture, Azure SQL, or another approved source. It receives the
-              same typed genotype rows every time.
-            </p>
-          </div>
-
-          <div className="pipeline" aria-label="Gene report data flow">
-            <div>
-              <span>01</span>
-              <strong>Member record</strong>
-              <p>Identity, access, sample, assay</p>
-            </div>
-            <i aria-hidden="true">→</i>
-            <div className="pipeline-active">
-              <span>02</span>
-              <strong>Source adapter</strong>
-              <p>Broker Day identity · protected gene database</p>
-            </div>
-            <i aria-hidden="true">→</i>
-            <div>
-              <span>03</span>
-              <strong>Gene engine</strong>
-              <p>Normalize, resolve, interpret, score</p>
-            </div>
-            <i aria-hidden="true">→</i>
-            <div>
-              <span>04</span>
-              <strong>Report contract</strong>
-              <p>One API for the interface and services</p>
-            </div>
-          </div>
-
-          <div className="method-grid">
-            <article>
-              <span className="method-kicker">Ready now</span>
-              <h3>Server-side gene processing</h3>
-              <ul>
-                <li>
-                  {report.receipt.catalogueMarkers} versioned marker definitions
-                </li>
-                <li>Forward-strand resolution with ambiguity flags</li>
-                <li>Missing calls excluded from every score</li>
-                <li>Composite and X-linked call handling</li>
-              </ul>
-            </article>
-            <article>
-              <span className="method-kicker">Shared identity</span>
-              <h3>Broker Day database profile</h3>
-              <ul>
-                <li>Resolve the encrypted token through Broker Day</li>
-                <li>Use the same ordered name fields as the profile site</li>
-                <li>Keep database credentials out of this browser</li>
-                <li>Greet the matched person without exposing their email</li>
-              </ul>
-            </article>
-            <article className="api-card">
-              <span className="method-kicker">Private handoff</span>
-              <h3>Token-ready entry</h3>
-              <p>
-                The Broker Day portal can carry its encrypted, expiring token
-                into this app without putting a member identity in the URL.
-              </p>
-              <div className="handoff-contract">
-                <span>Browser destination</span>
-                <code>/#token=&lt;encrypted-token&gt;</code>
-                <small>Resolve server-side · Clear the fragment · No-store</small>
-              </div>
-            </article>
-          </div>
-
-          <div className="governance-row">
-            <div>
-              <span>01</span>
-              <p>
-                <b>No raw file upload.</b> The report reads approved database
-                records on the server.
-              </p>
-            </div>
-            <div>
-              <span>02</span>
-              <p>
-                <b>No silent defaults.</b> Missing and unreadable calls stay
-                explicit.
-              </p>
-            </div>
-            <div>
-              <span>03</span>
-              <p>
-                <b>No diagnosis.</b> The report is educational and supports a
-                clinician conversation.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <aside className="report-privacy" aria-labelledby="privacy-title">
         <p className="eyebrow">Privacy note</p>
         <h2 id="privacy-title">This view is temporary.</h2>
@@ -812,7 +941,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
 
       <footer className="site-footer">
         <span>SAM / Gene results</span>
-        <span>Phase 1 / Database-backed</span>
+        <span>Private / Educational</span>
       </footer>
     </main>
   );

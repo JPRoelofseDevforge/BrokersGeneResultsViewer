@@ -11,6 +11,7 @@ import type {
   ProcessedMarker,
   ReportAction,
 } from "./types";
+import { buildRecommendationSynthesis } from "./recommendations";
 
 const COMPLEMENT: Record<string, string> = {
   A: "T",
@@ -799,6 +800,7 @@ export function processGeneReport(
     domains,
     markers,
     priorities: buildPriorities(domains),
+    recommendations: buildRecommendationSynthesis(markers),
     groups: GROUPS.map((group) => ({
       ...group,
       domainIds: domains
