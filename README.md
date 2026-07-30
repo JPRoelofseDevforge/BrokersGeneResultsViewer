@@ -38,9 +38,11 @@ The database migration is split into:
 
 The first production batch preserves all 2,414 workbook rows and selects one
 canonical row for each profile/variant pair. Exact duplicates are retained for
-audit; conflicting duplicates abort the import. A profile is report-ready only
-when it contains the full expected 132-variant panel. Partial profiles remain
-stored but cannot be served.
+audit; conflicting duplicates abort the import. The importer accepts an exact
+expected-variant count per IG number, with the required shared-count parameter
+as its backwards-compatible fallback (132 for the original production panel).
+A profile is report-ready only when its observed variant count exactly matches
+its manifest. Partial profiles remain stored but cannot be served.
 
 `ReportAccessStatus` is an operational publication control. It deliberately
 does not claim or infer clinical consent.

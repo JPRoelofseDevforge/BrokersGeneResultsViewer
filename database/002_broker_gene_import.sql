@@ -3,6 +3,10 @@
 
     sourceRow, swabCode, geneSymbol, rsNumber, result
 
+  A batch may also provide an exact expected-variant count for each IG number.
+  When it does not, the shared @ExpectedVariantCountPerReadyProfile fallback
+  preserves the original fixed-panel contract.
+
   The web application role is deliberately not granted access to this
   procedure. Run it only from a reviewed Microsoft Entra database-admin
   session. The whole import is validated and committed atomically.
@@ -30,7 +34,8 @@ CREATE OR ALTER PROCEDURE dbo.usp_BrokerGene_ImportWorkbook
   @AssayVersion NVARCHAR(80),
   @AssayStrand VARCHAR(7) = 'unknown',
   @ImportScope VARCHAR(8) = 'full',
-  @SourceTimestampUtc DATETIME2(0) = NULL
+  @SourceTimestampUtc DATETIME2(0) = NULL,
+  @ExpectedProfileVariantCountsJson NVARCHAR(MAX) = NULL
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -70,6 +75,11 @@ BEGIN
      OR @ExpectedCanonicalResultCount > @ExpectedRawResultRowCount
      OR @ExpectedVariantCountPerReadyProfile <= 0
      OR ISJSON(@RowsJson) <> 1
+     OR
+     (
+       @ExpectedProfileVariantCountsJson IS NOT NULL
+       AND ISJSON(@ExpectedProfileVariantCountsJson) <> 1
+     )
   BEGIN
     THROW 51202, 'The gene import manifest is invalid.', 1;
   END;
@@ -192,9 +202,95 @@ BEGIN
     THROW 51207, 'The canonical result count does not match its manifest.', 1;
   END;
 
+  CREATE TABLE #ExpectedProfileVariantCounts
+  (
+    IntelligeneNumber NVARCHAR(20) NOT NULL,
+    ExpectedVariantCount INT NULL
+  );
+
+  IF @ExpectedProfileVariantCountsJson IS NULL
+  BEGIN
+    INSERT #ExpectedProfileVariantCounts
+    (
+      IntelligeneNumber,
+      ExpectedVariantCount
+    )
+    SELECT DISTINCT
+      source_row.IntelligeneNumber,
+      @ExpectedVariantCountPerReadyProfile
+    FROM #Rows AS source_row;
+  END
+  ELSE
+  BEGIN
+    INSERT #ExpectedProfileVariantCounts
+    (
+      IntelligeneNumber,
+      ExpectedVariantCount
+    )
+    SELECT
+      UPPER(LTRIM(RTRIM(expected_profile.swabCode))),
+      expected_profile.expectedVariantCount
+    FROM OPENJSON(@ExpectedProfileVariantCountsJson) AS profile_json
+    CROSS APPLY OPENJSON(profile_json.[value])
+    WITH
+    (
+      swabCode NVARCHAR(100) '$.swabCode',
+      expectedVariantCount INT '$.expectedVariantCount'
+    ) AS expected_profile;
+  END;
+
+  IF
+  (
+    SELECT COUNT_BIG(*)
+    FROM #ExpectedProfileVariantCounts
+  ) <> @ExpectedProfileCount
+     OR EXISTS
+     (
+       SELECT 1
+       FROM #ExpectedProfileVariantCounts AS expected_profile
+       WHERE LEN(expected_profile.IntelligeneNumber) NOT BETWEEN 3 AND 20
+         OR expected_profile.IntelligeneNumber
+              COLLATE Latin1_General_100_BIN2 NOT LIKE N'IG[0-9]%'
+         OR SUBSTRING(expected_profile.IntelligeneNumber, 3, 18)
+              COLLATE Latin1_General_100_BIN2 LIKE N'%[^0-9]%'
+         OR expected_profile.ExpectedVariantCount IS NULL
+         OR expected_profile.ExpectedVariantCount <= 0
+     )
+     OR EXISTS
+     (
+       SELECT expected_profile.IntelligeneNumber
+       FROM #ExpectedProfileVariantCounts AS expected_profile
+       GROUP BY expected_profile.IntelligeneNumber
+       HAVING COUNT_BIG(*) <> 1
+     )
+     OR EXISTS
+     (
+       SELECT expected_profile.IntelligeneNumber
+       FROM #ExpectedProfileVariantCounts AS expected_profile
+       EXCEPT
+       SELECT source_row.IntelligeneNumber
+       FROM #Rows AS source_row
+     )
+     OR EXISTS
+     (
+       SELECT source_row.IntelligeneNumber
+       FROM #Rows AS source_row
+       EXCEPT
+       SELECT expected_profile.IntelligeneNumber
+       FROM #ExpectedProfileVariantCounts AS expected_profile
+     )
+  BEGIN
+    THROW 51212, 'The per-profile expected variant manifest is invalid.', 1;
+  END;
+
+  CREATE UNIQUE CLUSTERED INDEX
+    UX_ExpectedProfileVariantCounts_IntelligeneNumber
+    ON #ExpectedProfileVariantCounts (IntelligeneNumber);
+
   CREATE TABLE #Profiles
   (
     IntelligeneNumber NVARCHAR(20) NOT NULL PRIMARY KEY,
+    ExpectedVariantCount INT NOT NULL,
     ObservedVariantCount INT NOT NULL,
     SourceRowNumber INT NOT NULL,
     RecipientId INT NULL,
@@ -204,6 +300,7 @@ BEGIN
   INSERT #Profiles
   (
     IntelligeneNumber,
+    ExpectedVariantCount,
     ObservedVariantCount,
     SourceRowNumber,
     RecipientId,
@@ -211,6 +308,7 @@ BEGIN
   )
   SELECT
     calls.IntelligeneNumber,
+    expected_profile.ExpectedVariantCount,
     calls.ObservedVariantCount,
     calls.SourceRowNumber,
     recipient.Id,
@@ -228,6 +326,8 @@ BEGIN
     FROM #Rows AS source_row
     GROUP BY source_row.IntelligeneNumber
   ) AS calls
+  INNER JOIN #ExpectedProfileVariantCounts AS expected_profile
+    ON expected_profile.IntelligeneNumber = calls.IntelligeneNumber
   LEFT JOIN dbo.BrokerDayReportRecipients AS recipient
     ON recipient.IntelligeneNumber = calls.IntelligeneNumber
   OUTER APPLY
@@ -270,6 +370,53 @@ BEGIN
         AND batch.ImportedProfileCount = @ExpectedProfileCount
         AND batch.ImportedResultRowCount = @ExpectedRawResultRowCount
     )
+       OR
+       (
+         SELECT COUNT_BIG(*)
+         FROM dbo.BrokerGeneResultCalls AS result_call
+         INNER JOIN dbo.BrokerGeneProfileSnapshots AS profile
+           ON profile.ProfileId = result_call.ProfileId
+         WHERE profile.ImportBatchId = @ExistingImportBatchId
+           AND result_call.IsCanonical = 1
+       ) <> @ExpectedCanonicalResultCount
+       OR EXISTS
+       (
+         SELECT
+           profile.IntelligeneNumber,
+           profile.ExpectedVariantCount
+         FROM dbo.BrokerGeneProfileSnapshots AS profile
+         WHERE profile.ImportBatchId = @ExistingImportBatchId
+         EXCEPT
+         SELECT
+           expected_profile.IntelligeneNumber,
+           expected_profile.ExpectedVariantCount
+         FROM #ExpectedProfileVariantCounts AS expected_profile
+       )
+       OR EXISTS
+       (
+         SELECT
+           expected_profile.IntelligeneNumber,
+           expected_profile.ExpectedVariantCount
+         FROM #ExpectedProfileVariantCounts AS expected_profile
+         EXCEPT
+         SELECT
+           profile.IntelligeneNumber,
+           profile.ExpectedVariantCount
+         FROM dbo.BrokerGeneProfileSnapshots AS profile
+         WHERE profile.ImportBatchId = @ExistingImportBatchId
+       )
+       OR EXISTS
+       (
+         SELECT 1
+         FROM dbo.BrokerGeneProfileSnapshots AS profile
+         WHERE profile.ImportBatchId = @ExistingImportBatchId
+           AND
+           (
+             profile.AssayName <> @AssayName
+             OR profile.AssayVersion <> @AssayVersion
+             OR profile.AssayStrand <> @AssayStrand
+           )
+       )
     BEGIN
       THROW 51209, 'The existing source hash has different metadata.', 1;
     END;
@@ -319,7 +466,7 @@ BEGIN
       @SourceFileName,
       @SourceByteLength,
       N'swab-rs-v1',
-      N'broker-gene-import-v1',
+      N'broker-gene-import-v2',
       @ExpectedProfileCount,
       @ExpectedRawResultRowCount,
       @EffectiveTimestampUtc
@@ -350,8 +497,7 @@ BEGIN
       profile.IntelligeneNumber,
       'enabled',
       CASE
-        WHEN profile.ObservedVariantCount =
-          @ExpectedVariantCountPerReadyProfile
+        WHEN profile.ObservedVariantCount = profile.ExpectedVariantCount
           THEN 'ready'
         ELSE 'partial'
       END,
@@ -361,7 +507,7 @@ BEGIN
       @AssayName,
       @AssayVersion,
       @AssayStrand,
-      @ExpectedVariantCountPerReadyProfile,
+      profile.ExpectedVariantCount,
       profile.ObservedVariantCount,
       @EffectiveTimestampUtc,
       N'Sheet1',
