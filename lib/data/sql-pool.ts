@@ -1,5 +1,6 @@
 import sql from "mssql";
 
+import { AppServiceSqlTokenCredential } from "./app-service-sql-credential";
 import { GeneResultsConfigurationError } from "./gene-results-source";
 
 export class GeneDatabaseConfigurationError extends GeneResultsConfigurationError {
@@ -95,8 +96,10 @@ function managedIdentityConfig(): sql.config {
     },
     authentication: process.env.WEBSITE_SITE_NAME?.trim()
       ? {
-          type: "azure-active-directory-msi-app-service",
-          options: clientId ? { clientId } : {},
+          type: "token-credential",
+          options: {
+            credential: new AppServiceSqlTokenCredential(),
+          },
         }
       : {
           type: "azure-active-directory-default",
