@@ -26,7 +26,7 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const title = "SAM — Your Gene Blueprint";
+const title = "SAM. | Your gene blueprint";
 const description =
   "A server-processed gene report that shows where everyday choices carry the most weight.";
 
@@ -55,12 +55,17 @@ export async function generateMetadata(): Promise<Metadata> {
     origin = new URL("http://localhost:3000");
   }
 
-  const socialImage = new URL("/og.png", origin).toString();
+  const socialImage = new URL("/og-broker-day-gene.png", origin).toString();
 
   return {
     metadataBase: origin,
     title,
     description,
+    referrer: "no-referrer",
+    icons: {
+      icon: "/icon.png",
+      shortcut: "/icon.png",
+    },
     openGraph: {
       type: "website",
       siteName: "SAM",
@@ -69,8 +74,8 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [
         {
           url: socialImage,
-          width: 1731,
-          height: 909,
+          width: 1200,
+          height: 630,
           alt: "SAM — Know what responds. Spend attention there.",
         },
       ],
@@ -81,11 +86,17 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: [socialImage],
     },
+    robots: {
+      index: false,
+      follow: false,
+      nocache: true,
+    },
   };
 }
 
 export const viewport: Viewport = {
-  themeColor: "#15181b",
+  colorScheme: "light",
+  themeColor: "#ebe6da",
 };
 
 export default function RootLayout({

@@ -3,6 +3,7 @@ import type {
   GeneProfile,
   GenotypeRecord,
 } from "@/lib/gene-processing/types";
+import { normalizeEmail } from "@/lib/access/email";
 
 import type { GeneResultsSource } from "./gene-results-source";
 
@@ -22,6 +23,16 @@ export class PhaseOneGeneResultsSource implements GeneResultsSource {
     return (
       records.profiles.find((profile) => profile.id === profileId) ?? null
     );
+  }
+
+  async getProfileByEmail(email: string) {
+    const configuredEmail = normalizeEmail(
+      process.env.PHASE_ONE_PROFILE_EMAIL,
+    );
+    const lookupEmail = normalizeEmail(email);
+
+    if (!configuredEmail || lookupEmail !== configuredEmail) return null;
+    return records.profiles[0] ?? null;
   }
 
   async getGenotypeRecords(profileId: string) {

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState, type CSSProperties } from "react";
 
 import type {
@@ -262,8 +263,16 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="#overview" aria-label="SAM home">
-          sam<span aria-hidden="true">.</span>
+        <a className="sam-logo" href="#overview" aria-label="Return to the top of your SAM gene report">
+          <Image
+            className="sam-logo-image"
+            src="/brand/sam-logo-ink.svg"
+            alt="SAM"
+            width={1080}
+            height={298}
+            priority
+            unoptimized
+          />
         </a>
         <nav aria-label="Report sections">
           <a href="#overview">Overview</a>
@@ -273,7 +282,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         </nav>
         <span className="header-status">
           <i aria-hidden="true" />
-          Report ready
+          Gene report ready
         </span>
       </header>
 
@@ -724,19 +733,17 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               </ul>
             </article>
             <article className="api-card">
-              <span className="method-kicker">Live contract</span>
-              <h3>Report API</h3>
+              <span className="method-kicker">Private handoff</span>
+              <h3>Token-ready entry</h3>
               <p>
-                The interface is rendered from the same response future clients
-                can consume.
+                The Broker Day portal can carry its encrypted, expiring token
+                into this app without putting a member identity in the URL.
               </p>
-              <a
-                href={`/api/reports/${report.profile.id}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Open this report as JSON <span aria-hidden="true">↗</span>
-              </a>
+              <div className="handoff-contract">
+                <span>Browser destination</span>
+                <code>/#token=&lt;encrypted-token&gt;</code>
+                <small>Resolve server-side · Clear the fragment · No-store</small>
+              </div>
             </article>
           </div>
 
@@ -766,15 +773,20 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         </div>
       </section>
 
-      <footer>
-        <span className="brand">
-          sam<span aria-hidden="true">.</span>
-        </span>
-        <p>Be the author of your DNA.</p>
-        <small>
-          Educational and wellness use. Not a diagnostic test or a substitute
-          for a qualified clinician.
-        </small>
+      <aside className="report-privacy" aria-labelledby="privacy-title">
+        <p className="eyebrow">Privacy note</p>
+        <h2 id="privacy-title">This view is temporary.</h2>
+        <p>
+          Production access will use the same encrypted, expiring link pattern
+          as your Broker Day profile, without saving the report in browser
+          storage. Close the tab when you are finished, especially on a shared
+          device.
+        </p>
+      </aside>
+
+      <footer className="site-footer">
+        <span>SAM / Gene results</span>
+        <span>Phase 1 / Database-ready</span>
       </footer>
     </main>
   );

@@ -6,6 +6,16 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ profileId: string }> },
 ) {
+  if (process.env.PHASE_ONE_PREVIEW !== "true") {
+    return Response.json(
+      { error: "The preview report endpoint is disabled." },
+      {
+        status: 404,
+        headers: { "Cache-Control": "private, no-store, max-age=0" },
+      },
+    );
+  }
+
   const { profileId } = await context.params;
   const report = await getGeneReport(profileId);
 
