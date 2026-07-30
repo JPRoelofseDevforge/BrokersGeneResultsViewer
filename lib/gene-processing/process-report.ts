@@ -552,7 +552,13 @@ export function processGeneReport(
 
   return {
     id: `report-${profile.id}-${catalogue.version}`,
-    profile,
+    profile: {
+      memberNumber: profile.memberNumber,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      ...(profile.displayName ? { displayName: profile.displayName } : {}),
+      assayName: profile.assayName,
+    },
     receipt: {
       status: "complete",
       source: "seeded-repository",

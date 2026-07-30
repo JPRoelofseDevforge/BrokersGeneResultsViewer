@@ -36,9 +36,11 @@ describe("private report route boundary", () => {
   it("resolves a compatible token only through the configured lookup", async () => {
     const previousKey = process.env.QR_TOKEN_KEY;
     const previousEmail = process.env.PHASE_ONE_PROFILE_EMAIL;
+    const previousTokenTest = process.env.PHASE_ONE_TOKEN_TEST;
 
     try {
       process.env.QR_TOKEN_KEY = KEY;
+      process.env.PHASE_ONE_TOKEN_TEST = "true";
       process.env.PHASE_ONE_PROFILE_EMAIL = "person@example.com";
       const now = Math.floor(Date.now() / 1000);
       const token = encryptBrokerDayToken(
@@ -74,6 +76,83 @@ describe("private report route boundary", () => {
         delete process.env.PHASE_ONE_PROFILE_EMAIL;
       } else {
         process.env.PHASE_ONE_PROFILE_EMAIL = previousEmail;
+      }
+
+      if (previousTokenTest === undefined) {
+        delete process.env.PHASE_ONE_TOKEN_TEST;
+      } else {
+        process.env.PHASE_ONE_TOKEN_TEST = previousTokenTest;
+      }
+    }
+  });
+
+  it("uses Broker Day's database-backed profile identity for the greeting", async () => {
+    const previousEndpoint = process.env.BROKER_DAY_PROFILE_API_URL;
+    const previousKey = process.env.QR_TOKEN_KEY;
+    const previousEmail = process.env.PHASE_ONE_PROFILE_EMAIL;
+    const previousTokenTest = process.env.PHASE_ONE_TOKEN_TEST;
+    const previousFetch = globalThis.fetch;
+
+    try {
+      process.env.BROKER_DAY_PROFILE_API_URL =
+        "https://sam.example.com/api/person";
+      process.env.PHASE_ONE_TOKEN_TEST = "true";
+      process.env.PHASE_ONE_PROFILE_EMAIL = "person@example.com";
+      delete process.env.QR_TOKEN_KEY;
+      globalThis.fetch = async () =>
+        Response.json({
+          ok: true,
+          data: {
+            email: "person@example.com",
+            sleepAssessmentSubmissions: [
+              { fullName: "Dr Amina Ndlovu" },
+            ],
+            brokerDayPreOrders: [
+              { firstName: "Amina", surname: "Ndlovu" },
+            ],
+          },
+        });
+
+      const response = await resolveReport(
+        postRequest(JSON.stringify({ token: "opaque-private-token" })),
+      );
+      const body = (await response.json()) as {
+        ok: boolean;
+        error?: string;
+        person?: {
+          displayName?: string;
+        };
+        data?: unknown;
+      };
+
+      assert.equal(response.status, 404);
+      assert.equal(body.ok, false);
+      assert.equal(body.error, "report-not-found");
+      assert.equal(body.person?.displayName, "Dr Amina Ndlovu");
+      assert.equal(body.data, undefined);
+      assert.doesNotMatch(JSON.stringify(body), /person@example\.com/i);
+    } finally {
+      globalThis.fetch = previousFetch;
+
+      if (previousEndpoint === undefined) {
+        delete process.env.BROKER_DAY_PROFILE_API_URL;
+      } else {
+        process.env.BROKER_DAY_PROFILE_API_URL = previousEndpoint;
+      }
+
+      if (previousKey === undefined) delete process.env.QR_TOKEN_KEY;
+      else process.env.QR_TOKEN_KEY = previousKey;
+
+      if (previousEmail === undefined) {
+        delete process.env.PHASE_ONE_PROFILE_EMAIL;
+      } else {
+        process.env.PHASE_ONE_PROFILE_EMAIL = previousEmail;
+      }
+
+      if (previousTokenTest === undefined) {
+        delete process.env.PHASE_ONE_TOKEN_TEST;
+      } else {
+        process.env.PHASE_ONE_TOKEN_TEST = previousTokenTest;
       }
     }
   });

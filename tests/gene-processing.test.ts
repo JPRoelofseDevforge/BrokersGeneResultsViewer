@@ -7,7 +7,12 @@ import type {
   GeneProfile,
   MarkerCatalogue,
 } from "../lib/gene-processing/types";
-import { getGeneReport } from "../lib/reports/get-gene-report";
+import type { GeneResultsSource } from "../lib/data/gene-results-source";
+import { PhaseOneGeneResultsSource } from "../lib/data/phase-one-gene-results-source";
+import {
+  getGeneReport,
+  getGeneReportByEmail,
+} from "../lib/reports/get-gene-report";
 
 const profile: GeneProfile = {
   id: "test-profile",
@@ -36,6 +41,68 @@ test("builds the Phase 1 report from repository records", async () => {
   assert.equal(report.domains.length, 22);
   assert.equal(report.priorities.length, 3);
   assert.ok(report.markers.some((marker) => marker.state === "not-called"));
+});
+
+test("keeps Phase 1 token lookup behind a second explicit test gate", async () => {
+  const previousEmail = process.env.PHASE_ONE_PROFILE_EMAIL;
+  const previousTokenTest = process.env.PHASE_ONE_TOKEN_TEST;
+  const phaseOneSource = new PhaseOneGeneResultsSource();
+
+  try {
+    process.env.PHASE_ONE_PROFILE_EMAIL = "person@example.com";
+    delete process.env.PHASE_ONE_TOKEN_TEST;
+    assert.equal(
+      await phaseOneSource.getProfileByEmail("person@example.com"),
+      null,
+    );
+
+    process.env.PHASE_ONE_TOKEN_TEST = "true";
+    assert.equal(
+      (await phaseOneSource.getProfileByEmail("person@example.com"))?.id,
+      "sam-240184",
+    );
+  } finally {
+    if (previousEmail === undefined) {
+      delete process.env.PHASE_ONE_PROFILE_EMAIL;
+    } else {
+      process.env.PHASE_ONE_PROFILE_EMAIL = previousEmail;
+    }
+
+    if (previousTokenTest === undefined) {
+      delete process.env.PHASE_ONE_TOKEN_TEST;
+    } else {
+      process.env.PHASE_ONE_TOKEN_TEST = previousTokenTest;
+    }
+  }
+});
+
+test("applies Broker Day identity only to a production gene source", async () => {
+  const productionSource: GeneResultsSource = {
+    sourceMode: "production",
+    getProfile: async () => profile,
+    getProfileByEmail: async () => profile,
+    getGenotypeRecords: async () => [],
+  };
+
+  const report = await getGeneReportByEmail(
+    "person@example.com",
+    {
+      email: "person@example.com",
+      displayName: "Dr Amina Ndlovu",
+      firstName: "Amina",
+      lastName: "Ndlovu",
+    },
+    productionSource,
+  );
+
+  assert.ok(report);
+  assert.equal(report.profile.displayName, "Dr Amina Ndlovu");
+  assert.equal(report.profile.firstName, "Amina");
+  assert.equal(report.profile.lastName, "Ndlovu");
+  assert.doesNotMatch(
+    JSON.stringify(report.profile),
+    /dateOfBirth|sexAtBirth|sampleId|consentStatus/i,
+  );
 });
 
 test("resolves reverse-strand calls before interpretation", () => {

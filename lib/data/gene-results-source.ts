@@ -9,6 +9,11 @@ import type {
  * lookup and record reads.
  */
 export interface GeneResultsSource {
+  /**
+   * Demonstration sources must never be combined with a real Broker Day
+   * identity. Production sources represent consented records for that person.
+   */
+  readonly sourceMode: "demonstration" | "production";
   getProfile(profileId: string): Promise<GeneProfile | null>;
   getProfileByEmail(email: string): Promise<GeneProfile | null>;
   getGenotypeRecords(profileId: string): Promise<GenotypeRecord[]>;

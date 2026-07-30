@@ -9,6 +9,10 @@ import type {
   MarkerState,
   ProcessedMarker,
 } from "@/lib/gene-processing/types";
+import {
+  reportDisplayName,
+  reportInitials,
+} from "@/lib/reports/profile-display";
 
 const STATE_LABELS: Record<MarkerState, string> = {
   called: "Called",
@@ -259,6 +263,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
   const selectedMarker =
     report.markers.find((marker) => marker.id === selectedMarkerId) ??
     firstCalledMarker;
+  const memberName = reportDisplayName(report.profile);
 
   return (
     <main>
@@ -288,11 +293,23 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
 
       <section className="hero" id="overview">
         <div className="hero-copy">
-          <span className="eyebrow eyebrow-light">Your blueprint · Phase 1</span>
+          <span className="eyebrow eyebrow-light">
+            Private Intelligene profile · Phase 1
+          </span>
           <h1>
-            Know what responds.
-            <br />
-            <em>Spend attention there.</em>
+            {memberName ? (
+              <>
+                Welcome,
+                <br />
+                <em>{memberName}.</em>
+              </>
+            ) : (
+              <>
+                Your gene report,
+                <br />
+                <em>clearly.</em>
+              </>
+            )}
           </h1>
           <p className="hero-lede">
             Your genes are the instrument, not the verdict. SAM reads the
@@ -301,13 +318,10 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
           </p>
           <div className="member-line">
             <span className="member-avatar">
-              {report.profile.firstName[0]}
-              {report.profile.lastName[0]}
+              {reportInitials(report.profile)}
             </span>
             <div>
-              <strong>
-                {report.profile.firstName} {report.profile.lastName}
-              </strong>
+              <strong>{memberName ?? "Your gene report"}</strong>
               <span>
                 {report.profile.memberNumber} · {report.profile.assayName}
               </span>
@@ -340,7 +354,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               <i>02</i>
               <span>
                 <b>{report.receipt.genotypeRows} records read</b>
-                From the Phase 1 repository
+                From {report.receipt.sourceLabel}
               </span>
               <em>Done</em>
             </div>
@@ -695,7 +709,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             <div className="pipeline-active">
               <span>02</span>
               <strong>Source adapter</strong>
-              <p>Seeded now · Azure SQL next</p>
+              <p>Broker Day identity · gene repository</p>
             </div>
             <i aria-hidden="true">→</i>
             <div>
@@ -723,13 +737,13 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               </ul>
             </article>
             <article>
-              <span className="method-kicker">Production swap</span>
-              <h3>Azure data source</h3>
+              <span className="method-kicker">Shared identity</span>
+              <h3>Broker Day database profile</h3>
               <ul>
-                <li>Replace the Phase 1 repository adapter</li>
-                <li>Keep the engine and report interface unchanged</li>
-                <li>Use managed identity and private database access</li>
-                <li>Retain consent and rules-version audit fields</li>
+                <li>Resolve the encrypted token through Broker Day</li>
+                <li>Use the same ordered name fields as the profile site</li>
+                <li>Keep database credentials out of this browser</li>
+                <li>Greet the matched person without exposing their email</li>
               </ul>
             </article>
             <article className="api-card">

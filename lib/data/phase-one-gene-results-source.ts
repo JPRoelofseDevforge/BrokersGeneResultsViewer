@@ -19,6 +19,8 @@ const records = phaseOneData as PhaseOneRecords;
  * deterministic for development and review. No browser upload is involved.
  */
 export class PhaseOneGeneResultsSource implements GeneResultsSource {
+  readonly sourceMode = "demonstration" as const;
+
   async getProfile(profileId: string) {
     return (
       records.profiles.find((profile) => profile.id === profileId) ?? null
@@ -26,6 +28,8 @@ export class PhaseOneGeneResultsSource implements GeneResultsSource {
   }
 
   async getProfileByEmail(email: string) {
+    if (process.env.PHASE_ONE_TOKEN_TEST !== "true") return null;
+
     const configuredEmail = normalizeEmail(
       process.env.PHASE_ONE_PROFILE_EMAIL,
     );

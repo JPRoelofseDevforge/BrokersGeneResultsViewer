@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 
 import { ReportDashboard } from "@/app/report-dashboard";
 import type { GeneReport } from "@/lib/gene-processing/types";
+import { GENERIC_BROKER_DAY_PROFILE_NAME } from "@/lib/reports/profile-display";
+
+const REPORT_REQUEST_TIMEOUT_MS = 25_000;
 
 type PortalState =
   | { status: "idle" }
@@ -27,6 +30,19 @@ function isGeneReport(value: unknown): value is GeneReport {
     Array.isArray(value.priorities) &&
     Array.isArray(value.groups)
   );
+}
+
+function matchedPersonName(value: unknown): string | null {
+  if (!isRecord(value) || !isRecord(value.person)) return null;
+  const displayName = value.person.displayName;
+  if (typeof displayName !== "string") return null;
+
+  const name = displayName.trim();
+  return name &&
+    name.length <= 200 &&
+    name !== GENERIC_BROKER_DAY_PROFILE_NAME
+    ? name
+    : null;
 }
 
 function AccessState({
@@ -168,7 +184,7 @@ export function ReportPortal({
       timeoutTimer = window.setTimeout(() => {
         timedOut = true;
         controller.abort();
-      }, 15_000);
+      }, REPORT_REQUEST_TIMEOUT_MS);
 
       try {
         const response = token
@@ -221,11 +237,13 @@ export function ReportPortal({
         }
 
         if (response.status === 404) {
+          const personName = matchedPersonName(body);
           setState({
             status: "error",
-            title: "No matching report",
-            message:
-              "No consented gene report is ready for this profile yet.",
+            title: personName ? `Welcome, ${personName}.` : "No matching report",
+            message: personName
+              ? "Your private gene profile was matched, but its consented report is not ready yet."
+              : "No consented gene report is ready for this profile yet.",
           });
           return;
         }

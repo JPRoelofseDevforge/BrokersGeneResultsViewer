@@ -3,6 +3,13 @@ import {
   decryptBrokerDayToken,
   InvalidBrokerDayTokenError,
 } from "@/lib/access/broker-day-token";
+import {
+  BrokerDayProfileConfigurationError,
+  BrokerDayProfileNotFoundError,
+  BrokerDayProfileUnavailableError,
+  InvalidBrokerDayProfileLinkError,
+  resolveBrokerDayIdentity,
+} from "@/lib/data/broker-day-profile-source";
 import { getGeneReportByEmail } from "@/lib/reports/get-gene-report";
 
 export const dynamic = "force-dynamic";
@@ -68,12 +75,27 @@ export async function POST(request: Request) {
   }
 
   try {
-    const payload = decryptBrokerDayToken(token);
-    const report = await getGeneReportByEmail(payload.email);
+    const brokerDayIdentity = await resolveBrokerDayIdentity(token);
+    const email =
+      brokerDayIdentity?.email ?? decryptBrokerDayToken(token).email;
+    const report = await getGeneReportByEmail(
+      email,
+      brokerDayIdentity ?? undefined,
+    );
 
     if (!report) {
       return Response.json(
-        { ok: false, error: "report-not-found" },
+        {
+          ok: false,
+          error: "report-not-found",
+          ...(brokerDayIdentity
+            ? {
+                person: {
+                  displayName: brokerDayIdentity.displayName,
+                },
+              }
+            : {}),
+        },
         { status: 404, headers: PRIVATE_HEADERS },
       );
     }
@@ -88,17 +110,37 @@ export async function POST(request: Request) {
       },
     );
   } catch (error) {
-    if (error instanceof BrokerDayTokenConfigurationError) {
+    if (
+      error instanceof BrokerDayTokenConfigurationError ||
+      error instanceof BrokerDayProfileConfigurationError
+    ) {
       return Response.json(
         { ok: false, error: "service-not-configured" },
         { status: 503, headers: PRIVATE_HEADERS },
       );
     }
 
-    if (error instanceof InvalidBrokerDayTokenError) {
+    if (error instanceof BrokerDayProfileUnavailableError) {
+      return Response.json(
+        { ok: false, error: "profile-service-unavailable" },
+        { status: 503, headers: PRIVATE_HEADERS },
+      );
+    }
+
+    if (
+      error instanceof InvalidBrokerDayTokenError ||
+      error instanceof InvalidBrokerDayProfileLinkError
+    ) {
       return Response.json(
         { ok: false, error: "invalid-or-expired-link" },
         { status: 400, headers: PRIVATE_HEADERS },
+      );
+    }
+
+    if (error instanceof BrokerDayProfileNotFoundError) {
+      return Response.json(
+        { ok: false, error: "profile-not-found" },
+        { status: 404, headers: PRIVATE_HEADERS },
       );
     }
 

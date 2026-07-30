@@ -11,6 +11,12 @@ export interface GeneProfile {
   memberNumber: string;
   firstName: string;
   lastName: string;
+  /**
+   * Canonical person label from the Broker Day database. This is kept
+   * separately because the source may provide a full name without safe
+   * first/last-name boundaries.
+   */
+  displayName?: string;
   dateOfBirth: string;
   sexAtBirth: SexAtBirth;
   sampleId: string;
@@ -18,6 +24,14 @@ export interface GeneProfile {
   assayVersion: string;
   consentStatus: "active" | "withdrawn";
   processedAt: string;
+}
+
+export interface GeneReportProfile {
+  memberNumber: string;
+  firstName: string;
+  lastName: string;
+  displayName?: string;
+  assayName: string;
 }
 
 export interface GenotypeRecord {
@@ -133,7 +147,7 @@ export interface ProcessingReceipt {
 
 export interface GeneReport {
   id: string;
-  profile: GeneProfile;
+  profile: GeneReportProfile;
   receipt: ProcessingReceipt;
   domains: DomainScore[];
   markers: ProcessedMarker[];
