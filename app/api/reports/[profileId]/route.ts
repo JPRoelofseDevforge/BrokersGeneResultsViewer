@@ -21,7 +21,7 @@ export async function GET(
 
   if (!report) {
     return Response.json(
-      { error: "A consented gene profile was not found." },
+      { error: "An enabled gene profile was not found." },
       { status: 404 },
     );
   }

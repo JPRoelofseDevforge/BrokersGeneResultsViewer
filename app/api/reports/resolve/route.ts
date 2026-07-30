@@ -10,6 +10,11 @@ import {
   InvalidBrokerDayProfileLinkError,
   resolveBrokerDayIdentity,
 } from "@/lib/data/broker-day-profile-source";
+import {
+  GeneResultsConfigurationError,
+  GeneResultsIntegrityError,
+  GeneResultsUnavailableError,
+} from "@/lib/data/gene-results-source";
 import { getGeneReportByEmail } from "@/lib/reports/get-gene-report";
 
 export const dynamic = "force-dynamic";
@@ -112,7 +117,8 @@ export async function POST(request: Request) {
   } catch (error) {
     if (
       error instanceof BrokerDayTokenConfigurationError ||
-      error instanceof BrokerDayProfileConfigurationError
+      error instanceof BrokerDayProfileConfigurationError ||
+      error instanceof GeneResultsConfigurationError
     ) {
       return Response.json(
         { ok: false, error: "service-not-configured" },
@@ -123,6 +129,16 @@ export async function POST(request: Request) {
     if (error instanceof BrokerDayProfileUnavailableError) {
       return Response.json(
         { ok: false, error: "profile-service-unavailable" },
+        { status: 503, headers: PRIVATE_HEADERS },
+      );
+    }
+
+    if (
+      error instanceof GeneResultsUnavailableError ||
+      error instanceof GeneResultsIntegrityError
+    ) {
+      return Response.json(
+        { ok: false, error: "report-service-unavailable" },
         { status: 503, headers: PRIVATE_HEADERS },
       );
     }

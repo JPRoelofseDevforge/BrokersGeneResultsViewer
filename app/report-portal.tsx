@@ -88,7 +88,7 @@ function AccessState({
           </h1>
           <p>
             Open this report from your SAM Broker Day profile. The encrypted
-            link identifies the right consented record without putting your
+            link identifies the approved report record without putting your
             email in the address.
           </p>
           <div className="access-privacy">
@@ -242,8 +242,8 @@ export function ReportPortal({
             status: "error",
             title: personName ? `Welcome, ${personName}.` : "No matching report",
             message: personName
-              ? "Your private gene profile was matched, but its consented report is not ready yet."
-              : "No consented gene report is ready for this profile yet.",
+              ? "Your private gene profile was matched, but its approved report is not ready yet."
+              : "No approved gene report is ready for this profile yet.",
           });
           return;
         }

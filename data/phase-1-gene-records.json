@@ -10,7 +10,8 @@
       "sampleId": "GNS-8810-24",
       "assayName": "Pangenomix Whole Health Array",
       "assayVersion": "v3.2",
-      "consentStatus": "active",
+      "assayStrand": "forward",
+      "reportAccessStatus": "enabled",
       "processedAt": "2026-07-30T06:42:00.000Z"
     }
   ],

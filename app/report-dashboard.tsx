@@ -17,6 +17,7 @@ import {
 const STATE_LABELS: Record<MarkerState, string> = {
   called: "Called",
   "not-called": "Not called",
+  unmapped: "Stored / unscored",
   unreadable: "Needs review",
   withheld: "Withheld",
 };
@@ -172,7 +173,11 @@ function MarkerDetail({ marker }: { marker: ProcessedMarker }) {
       <dl className="marker-facts">
         <div>
           <dt>Evidence</dt>
-          <dd>Grade {marker.evidenceGrade}</dd>
+          <dd>
+            {marker.evidenceGrade === "ungraded"
+              ? "Not graded"
+              : `Grade ${marker.evidenceGrade}`}
+          </dd>
         </div>
         <div>
           <dt>Leverage</dt>
@@ -346,7 +351,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               <i>01</i>
               <span>
                 <b>Member matched</b>
-                Consent active
+                Report access enabled
               </span>
               <em>Done</em>
             </div>
@@ -378,7 +383,9 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
           <div className="receipt-foot">
             <span>
               <i aria-hidden="true" />
-              Database-ready source
+              {report.receipt.source === "azure-sql"
+                ? "Protected database source"
+                : "Repository source"}
             </span>
             <time dateTime={report.receipt.processedAt}>
               {reportDate(report.receipt.processedAt)}
@@ -409,9 +416,9 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
           <small>Ranked by score and coverage</small>
         </div>
         <div>
-          <span>Guessed results</span>
-          <strong>0</strong>
-          <small>{report.receipt.unreadableMarkers} calls held for review</small>
+          <span>Unscored source calls</span>
+          <strong>{report.receipt.unmappedMarkers}</strong>
+          <small>Visible, but excluded from scores</small>
         </div>
       </section>
 
@@ -552,8 +559,8 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             <h2>Every call. Nothing hidden.</h2>
           </div>
           <p>
-            Called, missing, unreadable, and withheld results remain visible.
-            Only supported calls enter a score.
+            Called, missing, unscored, unreadable, and withheld results remain
+            visible. Only supported calls enter a score.
           </p>
         </div>
 
@@ -582,6 +589,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               <option value="all">All states</option>
               <option value="called">Called</option>
               <option value="not-called">Not called</option>
+              <option value="unmapped">Stored / unscored</option>
               <option value="unreadable">Needs review</option>
               <option value="withheld">Withheld</option>
             </select>
@@ -600,6 +608,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               <option value="B">Grade B</option>
               <option value="C">Grade C</option>
               <option value="D">Grade D</option>
+              <option value="ungraded">Not graded</option>
             </select>
           </label>
           <span className="result-count">
@@ -643,7 +652,9 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
                     </td>
                     <td>
                       <span className={`grade grade-${marker.evidenceGrade}`}>
-                        {marker.evidenceGrade}
+                        {marker.evidenceGrade === "ungraded"
+                          ? "—"
+                          : marker.evidenceGrade}
                       </span>
                     </td>
                     <td>
@@ -689,8 +700,8 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         <div className="method-inner">
           <div className="section-heading section-heading-light">
             <div>
-              <span className="eyebrow eyebrow-light">How Phase 1 works</span>
-              <h2>Built for the database handoff.</h2>
+              <span className="eyebrow eyebrow-light">How the report works</span>
+              <h2>Database-backed processing.</h2>
             </div>
             <p>
               The processing engine never knows whether records came from a
@@ -703,13 +714,13 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             <div>
               <span>01</span>
               <strong>Member record</strong>
-              <p>Identity, consent, sample, assay</p>
+              <p>Identity, access, sample, assay</p>
             </div>
             <i aria-hidden="true">→</i>
             <div className="pipeline-active">
               <span>02</span>
               <strong>Source adapter</strong>
-              <p>Broker Day identity · gene repository</p>
+              <p>Broker Day identity · protected gene database</p>
             </div>
             <i aria-hidden="true">→</i>
             <div>
@@ -730,7 +741,9 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               <span className="method-kicker">Ready now</span>
               <h3>Server-side gene processing</h3>
               <ul>
-                <li>158 versioned marker definitions</li>
+                <li>
+                  {report.receipt.catalogueMarkers} versioned marker definitions
+                </li>
                 <li>Forward-strand resolution with ambiguity flags</li>
                 <li>Missing calls excluded from every score</li>
                 <li>Composite and X-linked call handling</li>
@@ -765,8 +778,8 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             <div>
               <span>01</span>
               <p>
-                <b>No raw file upload.</b> Phase 1 reads repository records on
-                the server.
+                <b>No raw file upload.</b> The report reads approved database
+                records on the server.
               </p>
             </div>
             <div>
@@ -791,16 +804,15 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         <p className="eyebrow">Privacy note</p>
         <h2 id="privacy-title">This view is temporary.</h2>
         <p>
-          Production access will use the same encrypted, expiring link pattern
-          as your Broker Day profile, without saving the report in browser
-          storage. Close the tab when you are finished, especially on a shared
-          device.
+          Access uses the same encrypted, expiring link pattern as your Broker
+          Day profile, without saving the report in browser storage. Close the
+          tab when you are finished, especially on a shared device.
         </p>
       </aside>
 
       <footer className="site-footer">
         <span>SAM / Gene results</span>
-        <span>Phase 1 / Database-ready</span>
+        <span>Phase 1 / Database-backed</span>
       </footer>
     </main>
   );

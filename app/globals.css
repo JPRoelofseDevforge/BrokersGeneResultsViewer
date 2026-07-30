@@ -1152,6 +1152,10 @@ blockquote {
   color: rgba(21, 24, 27, 0.42);
 }
 
+.grade-ungraded {
+  color: rgba(21, 24, 27, 0.34);
+}
+
 .system-name {
   color: rgba(21, 24, 27, 0.58);
   display: block;
@@ -1185,6 +1189,12 @@ blockquote {
 
 .state-not-called {
   color: rgba(21, 24, 27, 0.46);
+}
+
+.state-unmapped {
+  background: rgba(21, 24, 27, 0.05);
+  border-color: rgba(21, 24, 27, 0.11);
+  color: rgba(21, 24, 27, 0.62);
 }
 
 .show-more {

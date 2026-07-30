@@ -1,6 +1,8 @@
 export type SexAtBirth = "female" | "male" | "unspecified";
 
-export type EvidenceGrade = "A" | "B" | "C" | "D";
+export type AssayStrand = "forward" | "reverse" | "unknown";
+
+export type EvidenceGrade = "A" | "B" | "C" | "D" | "ungraded";
 
 export type LeverageLevel = 1 | 2 | 3;
 
@@ -17,12 +19,13 @@ export interface GeneProfile {
    * first/last-name boundaries.
    */
   displayName?: string;
-  dateOfBirth: string;
+  dateOfBirth: string | null;
   sexAtBirth: SexAtBirth;
   sampleId: string;
   assayName: string;
   assayVersion: string;
-  consentStatus: "active" | "withdrawn";
+  assayStrand: AssayStrand;
+  reportAccessStatus: "enabled" | "disabled";
   processedAt: string;
 }
 
@@ -36,6 +39,7 @@ export interface GeneReportProfile {
 
 export interface GenotypeRecord {
   profileId: string;
+  gene?: string;
   variantId: string;
   genotype: string;
   quality: number | null;
@@ -80,7 +84,8 @@ export type MarkerState =
   | "called"
   | "not-called"
   | "unreadable"
-  | "withheld";
+  | "withheld"
+  | "unmapped";
 
 export interface ProcessedMarker {
   id: string;
@@ -129,7 +134,7 @@ export interface ReportAction {
 
 export interface ProcessingReceipt {
   status: "complete";
-  source: "seeded-repository";
+  source: "seeded-repository" | "azure-sql";
   sourceLabel: string;
   profileRows: number;
   genotypeRows: number;
@@ -138,11 +143,17 @@ export interface ProcessingReceipt {
   calledMarkers: number;
   unreadableMarkers: number;
   withheldMarkers: number;
+  unmappedMarkers: number;
   strandFlips: number;
   overallCoverage: number;
   rulesVersion: string;
   processedAt: string;
   durationMs: number;
+}
+
+export interface ProcessingContext {
+  source?: ProcessingReceipt["source"];
+  sourceLabel?: string;
 }
 
 export interface GeneReport {

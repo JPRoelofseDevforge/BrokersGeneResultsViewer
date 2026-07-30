@@ -7,6 +7,7 @@ import type {
   GenotypeRecord,
   MarkerCatalogue,
   MarkerDefinition,
+  ProcessingContext,
   ProcessedMarker,
   ReportAction,
 } from "./types";
@@ -150,6 +151,90 @@ interface ResolvedCall {
   strandAmbiguous: boolean;
 }
 
+const NO_CALL_PATTERN = /^(--|NC|NN|UND|\.\/\.|0)$/i;
+
+function isNoCall(value: string) {
+  return NO_CALL_PATTERN.test(value.trim());
+}
+
+function canonicalVariantId(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function normalizeRecord(record: GenotypeRecord): GenotypeRecord {
+  return {
+    profileId: record.profileId.trim(),
+    ...(record.gene?.trim()
+      ? { gene: record.gene.trim().toUpperCase() }
+      : {}),
+    variantId: canonicalVariantId(record.variantId),
+    genotype: record.genotype.trim().toUpperCase(),
+    quality: record.quality,
+  };
+}
+
+function recordFingerprint(record: GenotypeRecord) {
+  return JSON.stringify([
+    record.profileId,
+    record.gene ?? null,
+    record.variantId,
+    record.genotype,
+    record.quality,
+  ]);
+}
+
+export class GenotypeRecordIntegrityError extends Error {
+  readonly variantId: string;
+
+  constructor(
+    variantId: string,
+    reason = "Conflicting duplicate genotype records",
+  ) {
+    super(`${reason} for ${variantId || "an unknown variant"}.`);
+    this.name = "GenotypeRecordIntegrityError";
+    this.variantId = variantId;
+  }
+}
+
+function indexGenotypeRecords(genotypeRecords: GenotypeRecord[]) {
+  const uniqueByVariant = new Map<string, GenotypeRecord>();
+  const fingerprints = new Map<string, string>();
+
+  for (const sourceRecord of genotypeRecords) {
+    const record = normalizeRecord(sourceRecord);
+    const key = record.variantId;
+    if (!key) {
+      throw new GenotypeRecordIntegrityError(
+        key,
+        "A genotype record is missing its variant identifier",
+      );
+    }
+
+    const fingerprint = recordFingerprint(record);
+    const previousFingerprint = fingerprints.get(key);
+    if (previousFingerprint !== undefined) {
+      if (previousFingerprint !== fingerprint) {
+        throw new GenotypeRecordIntegrityError(key);
+      }
+      continue;
+    }
+
+    fingerprints.set(key, fingerprint);
+    uniqueByVariant.set(key, record);
+  }
+
+  const uniqueRecords = [...uniqueByVariant.values()].sort((left, right) =>
+    left.variantId.localeCompare(right.variantId),
+  );
+
+  return {
+    records: new Map(
+      uniqueRecords.map((record) => [record.variantId, record]),
+    ),
+    uniqueRecords,
+  };
+}
+
 function normalizePair(first: string, second: string) {
   return [first, second].sort().join("");
 }
@@ -173,18 +258,23 @@ function isPalindromic(marker: MarkerDefinition) {
 function resolveSimpleCall(
   marker: MarkerDefinition,
   record: GenotypeRecord,
+  assayStrand: GeneProfile["assayStrand"],
 ): ResolvedCall | null {
   const raw = record.genotype.trim();
   const rawUpper = raw.toUpperCase();
 
-  if (/^(--|NC|NN|\.\/\.|0)$/i.test(raw)) return null;
+  if (isNoCall(raw)) return null;
 
   if (marker.expectedAlleles === "CNV") {
-    const genotype = /null|del|0|absent/i.test(raw)
-      ? "NULL"
-      : /het|1|prs/i.test(raw)
-        ? "HET"
-        : "PRESENT";
+    const compact = rawUpper.replace(/[\s_-]+/g, " ").trim();
+    const genotype =
+      /^(NULL|DEL|DELETED|ABSENT)$/.test(compact)
+        ? "NULL"
+        : /^(HET|HETEROZYGOUS|1 COPY|ONE COPY)$/.test(compact)
+          ? "HET"
+          : /^(PRESENT|2 COPIES|TWO COPIES)$/.test(compact)
+            ? "PRESENT"
+            : rawUpper;
 
     return {
       genotype,
@@ -209,7 +299,7 @@ function resolveSimpleCall(
     };
   }
 
-  const alleles = rawUpper
+  let alleles = rawUpper
     .replace(/[^ACGT]/g, "")
     .split("")
     .slice(0, 2);
@@ -217,9 +307,17 @@ function resolveSimpleCall(
 
   if (!alleles.length || !expected.length) return null;
 
+  let strandFlipped = false;
+  if (assayStrand === "reverse") {
+    alleles = alleles.map((allele) => COMPLEMENT[allele] ?? allele);
+    strandFlipped = true;
+  }
+
   const ambiguous =
     isPalindromic(marker) &&
-    (alleles.length === 1 || alleles[0] === alleles[1]);
+    (assayStrand === "unknown" ||
+      alleles.length === 1 ||
+      alleles[0] === alleles[1]);
   const genotype =
     alleles.length === 1
       ? alleles[0]
@@ -230,8 +328,18 @@ function resolveSimpleCall(
       genotype,
       rawGenotype: raw,
       quality: record.quality,
-      strandFlipped: false,
+      strandFlipped,
       strandAmbiguous: ambiguous,
+    };
+  }
+
+  if (assayStrand === "reverse") {
+    return {
+      genotype,
+      rawGenotype: raw,
+      quality: record.quality,
+      strandFlipped,
+      strandAmbiguous: true,
     };
   }
 
@@ -258,9 +366,15 @@ function resolveSimpleCall(
   };
 }
 
-function ageAt(dateOfBirth: string, at: string) {
+function ageAt(dateOfBirth: string | null, at: string) {
+  if (!dateOfBirth) return null;
+
   const birth = new Date(dateOfBirth);
   const date = new Date(at);
+  if (Number.isNaN(birth.getTime()) || Number.isNaN(date.getTime())) {
+    return null;
+  }
+
   let age = date.getUTCFullYear() - birth.getUTCFullYear();
   const beforeBirthday =
     date.getUTCMonth() < birth.getUTCMonth() ||
@@ -286,12 +400,15 @@ function resolveApoe(
   marker: MarkerDefinition,
   records: Map<string, GenotypeRecord>,
 ): ResolvedCall | null {
-  const first = records.get("rs429358");
-  const second = records.get("rs7412");
+  const first =
+    records.get("rs429358") ?? records.get("apoe:rs429358");
+  const second = records.get("rs7412") ?? records.get("apoe:rs7412");
   if (!first || !second) return null;
+  if (isNoCall(first.genotype) || isNoCall(second.genotype)) return null;
 
   const firstAlleles = first.genotype.toUpperCase().replace(/[^ACGT]/g, "");
   const secondAlleles = second.genotype.toUpperCase().replace(/[^ACGT]/g, "");
+  if (firstAlleles.length !== 2 || secondAlleles.length !== 2) return null;
   const cCount = (firstAlleles.match(/C/g) ?? []).length;
   const tCount = (secondAlleles.match(/T/g) ?? []).length;
 
@@ -334,10 +451,11 @@ function markerResult(
     impact: marker.impact,
     assayNote: marker.assayNote,
   };
+  const profileAge = ageAt(profile.dateOfBirth, profile.processedAt);
 
   if (
     marker.variantId === "rs429358+rs7412" &&
-    ageAt(profile.dateOfBirth, profile.processedAt) < 18
+    (profileAge === null || profileAge < 18)
   ) {
     return {
       ...base,
@@ -347,7 +465,7 @@ function markerResult(
       namedVariant: null,
       leverage: null,
       interpretation:
-        "This adult-only result is withheld until the member is 18.",
+        "This adult-only result is withheld until adult eligibility is verified.",
       strandFlipped: false,
       strandAmbiguous: false,
       quality: null,
@@ -359,7 +477,9 @@ function markerResult(
       ? resolveApoe(marker, records)
       : (() => {
           const record = findRecord(marker, records);
-          return record ? resolveSimpleCall(marker, record) : null;
+          return record
+            ? resolveSimpleCall(marker, record, profile.assayStrand)
+            : null;
         })();
 
   if (!resolved) {
@@ -381,6 +501,42 @@ function markerResult(
   }
 
   let genotype = resolved.genotype;
+  const singleAlleleCall = /^[ACGT]$/i.test(genotype);
+  if (
+    singleAlleleCall &&
+    !(marker.xLinked && profile.sexAtBirth === "male")
+  ) {
+    return {
+      ...base,
+      state: "unreadable",
+      rawGenotype: resolved.rawGenotype,
+      genotype,
+      namedVariant: marker.namedVariants[genotype] ?? null,
+      leverage: null,
+      interpretation:
+        "A single-allele call requires an X-linked marker and verified male sex, so this result is excluded from scoring.",
+      strandFlipped: resolved.strandFlipped,
+      strandAmbiguous: resolved.strandAmbiguous,
+      quality: resolved.quality,
+    };
+  }
+
+  if (isPalindromic(marker) && profile.assayStrand === "unknown") {
+    return {
+      ...base,
+      state: "unreadable",
+      rawGenotype: resolved.rawGenotype,
+      genotype,
+      namedVariant: marker.namedVariants[genotype] ?? null,
+      leverage: null,
+      interpretation:
+        "The assay strand is unknown for this palindromic marker, so the result is excluded from scoring.",
+      strandFlipped: resolved.strandFlipped,
+      strandAmbiguous: true,
+      quality: resolved.quality,
+    };
+  }
+
   if (
     marker.xLinked &&
     profile.sexAtBirth === "male" &&
@@ -419,6 +575,56 @@ function markerResult(
     strandFlipped: resolved.strandFlipped,
     strandAmbiguous: resolved.strandAmbiguous,
     quality: resolved.quality,
+  };
+}
+
+function catalogueSourceKeys(catalogue: MarkerCatalogue) {
+  const keys = new Set<string>();
+
+  for (const marker of catalogue.markers) {
+    const variantId = canonicalVariantId(marker.variantId);
+    keys.add(variantId);
+    keys.add(`${marker.gene.trim().toLowerCase()}:${variantId}`);
+
+    if (variantId.includes("+")) {
+      for (const component of variantId.split("+")) {
+        if (component) {
+          keys.add(component);
+          keys.add(`${marker.gene.trim().toLowerCase()}:${component}`);
+        }
+      }
+    }
+  }
+
+  return keys;
+}
+
+function unmappedMarker(record: GenotypeRecord): ProcessedMarker {
+  const noCall = isNoCall(record.genotype);
+
+  return {
+    id: `UNMAPPED:${record.variantId}`,
+    gene: record.gene ?? "Unmapped",
+    variantId: record.variantId,
+    expectedAlleles: "unknown",
+    domainIds: [],
+    domainNames: [],
+    evidenceGrade: "ungraded",
+    impact:
+      "This source marker has no definition in the current catalogue.",
+    assayNote:
+      "Retained for source visibility and excluded from all domain scoring.",
+    state: noCall ? "not-called" : "unmapped",
+    rawGenotype: record.genotype,
+    genotype: noCall ? null : record.genotype,
+    namedVariant: null,
+    leverage: null,
+    interpretation: noCall
+      ? "The source reported no call for this uncatalogued marker."
+      : "No catalogue interpretation exists, so this source marker is not scored.",
+    strandFlipped: false,
+    strandAmbiguous: false,
+    quality: record.quality,
   };
 }
 
@@ -528,14 +734,27 @@ export function processGeneReport(
   profile: GeneProfile,
   genotypeRecords: GenotypeRecord[],
   catalogue: MarkerCatalogue,
+  context: ProcessingContext = {},
 ): GeneReport {
   const startedAt = Date.now();
-  const records = new Map(
-    genotypeRecords.map((record) => [record.variantId.toLowerCase(), record]),
-  );
-  const markers = catalogue.markers.map((marker) =>
-    markerResult(marker, records, profile, catalogue.domains),
-  );
+  const indexedRecords = indexGenotypeRecords(genotypeRecords);
+  const records = indexedRecords.records;
+  const sourceKeys = catalogueSourceKeys(catalogue);
+  const unmapped = indexedRecords.uniqueRecords
+    .filter((record) => !sourceKeys.has(record.variantId))
+    .map(unmappedMarker);
+  const markers = [
+    ...catalogue.markers.map((marker) =>
+      markerResult(marker, records, profile, catalogue.domains),
+    ),
+    ...unmapped,
+  ];
+  const source = context.source ?? "seeded-repository";
+  const sourceLabel =
+    context.sourceLabel ??
+    (source === "azure-sql"
+      ? "Azure SQL gene result repository"
+      : "Phase 1 member repository");
   const domains = buildDomains(catalogue, markers);
   const callableMarkers = catalogue.markers.filter(
     (marker) => Object.keys(marker.interpretations).length > 0,
@@ -561,15 +780,16 @@ export function processGeneReport(
     },
     receipt: {
       status: "complete",
-      source: "seeded-repository",
-      sourceLabel: "Phase 1 member repository",
+      source,
+      sourceLabel,
       profileRows: 1,
-      genotypeRows: genotypeRecords.length,
+      genotypeRows: indexedRecords.uniqueRecords.length,
       catalogueMarkers: catalogue.markers.length,
       callableMarkers,
       calledMarkers,
       unreadableMarkers,
       withheldMarkers,
+      unmappedMarkers: unmapped.length,
       strandFlips: markers.filter((marker) => marker.strandFlipped).length,
       overallCoverage: callableMarkers ? calledMarkers / callableMarkers : 0,
       rulesVersion: catalogue.version,

@@ -42,3 +42,7 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+
+# Private one-time genetic result source; imported into Azure SQL, never Git.
+/Broker Genetic Results.xlsx
+/genetic_results_new.csv
