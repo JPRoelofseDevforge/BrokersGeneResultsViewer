@@ -14,7 +14,25 @@ let poolPromise: Promise<sql.ConnectionPool> | undefined;
 interface SafeErrorDiagnostic {
   name: string;
   code: string | number | null;
+  message?: string;
   causes?: SafeErrorDiagnostic[];
+}
+
+function safeErrorMessage(error: unknown): string | undefined {
+  if (!(error instanceof Error)) return undefined;
+
+  const message = error.message
+    .replace(
+      /\b(?:eyJ|[A-Za-z0-9_-]{80,})[A-Za-z0-9._~-]*\b/g,
+      "[redacted]",
+    )
+    .replace(
+      /\b(token|secret|authorization|identity[_-]?header)\s*[:=]\s*\S+/gi,
+      "$1=[redacted]",
+    )
+    .trim();
+
+  return message ? message.slice(0, 1_000) : undefined;
 }
 
 function safeErrorDiagnostic(
@@ -31,6 +49,8 @@ function safeErrorDiagnostic(
     code:
       typeof code === "string" || typeof code === "number" ? code : null,
   };
+  const message = safeErrorMessage(error);
+  if (message) diagnostic.message = message;
 
   if (!value || depth >= 3) return diagnostic;
 
