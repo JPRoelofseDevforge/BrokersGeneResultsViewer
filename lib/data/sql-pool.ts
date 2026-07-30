@@ -11,6 +11,19 @@ export class GeneDatabaseConfigurationError extends GeneResultsConfigurationErro
 
 let poolPromise: Promise<sql.ConnectionPool> | undefined;
 
+function safeErrorCode(error: unknown): string | number | null {
+  if (typeof error !== "object" || error === null || !("code" in error)) {
+    return null;
+  }
+
+  const code = error.code;
+  return typeof code === "string" || typeof code === "number" ? code : null;
+}
+
+function safeErrorName(error: unknown): string {
+  return error instanceof Error ? error.name : "UnknownError";
+}
+
 function managedIdentityConfig(): sql.config {
   const server = process.env.AZURE_SQL_SERVER?.trim();
   const database = process.env.AZURE_SQL_DATABASE?.trim();
@@ -60,6 +73,10 @@ export async function getSqlPool(): Promise<sql.ConnectionPool> {
     });
     poolPromise = pool.connect().catch((error: unknown) => {
       poolPromise = undefined;
+      console.error("[gene-results] Azure SQL connection failed", {
+        name: safeErrorName(error),
+        code: safeErrorCode(error),
+      });
       throw error;
     });
   }
