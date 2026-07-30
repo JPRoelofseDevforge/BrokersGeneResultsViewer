@@ -1,0 +1,4762 @@
+{
+  "version": "2026.07.29",
+  "domains": {
+    "power": {
+      "id": "power",
+      "name": "Power & speed",
+      "group": "movement",
+      "description": "How readily you produce force fast, and how your muscle handles the damage that comes with it."
+    },
+    "endurance": {
+      "id": "endurance",
+      "name": "Endurance engine",
+      "group": "movement",
+      "description": "How long you hold a pace before the effort starts costing more than it returns."
+    },
+    "energy": {
+      "id": "energy",
+      "name": "Energy production",
+      "group": "movement",
+      "description": "How efficiently your mitochondria turn fuel into usable work."
+    },
+    "oxygen": {
+      "id": "oxygen",
+      "name": "Oxygen delivery",
+      "group": "movement",
+      "description": "Blood flow, vessel tone and how much oxygen actually reaches working muscle."
+    },
+    "fuel": {
+      "id": "fuel",
+      "name": "Fuel switching",
+      "group": "movement",
+      "description": "How easily you move between carbohydrate and fat as the demand changes."
+    },
+    "inflam": {
+      "id": "inflam",
+      "name": "Inflammatory tone",
+      "group": "recovery",
+      "description": "How loudly your body signals after hard work, and how quickly it quietens again."
+    },
+    "oxstress": {
+      "id": "oxstress",
+      "name": "Oxidative balance",
+      "group": "recovery",
+      "description": "How you neutralise the by-products of intense effort."
+    },
+    "histamine": {
+      "id": "histamine",
+      "name": "Histamine clearance",
+      "group": "recovery",
+      "description": "How fast histamine from food, exercise and environment is cleared."
+    },
+    "structure": {
+      "id": "structure",
+      "name": "Tendon & ligament",
+      "group": "recovery",
+      "description": "Collagen make-up and how connective tissue is rebuilt after load."
+    },
+    "bone": {
+      "id": "bone",
+      "name": "Bone & vitamin D",
+      "group": "recovery",
+      "description": "How you carry, activate and respond to vitamin D, and how bone remodels."
+    },
+    "circadian": {
+      "id": "circadian",
+      "name": "Body clock",
+      "group": "sleep",
+      "description": "When your body naturally wants to be awake, and how it takes to light."
+    },
+    "sleeppress": {
+      "id": "sleeppress",
+      "name": "Sleep pressure",
+      "group": "sleep",
+      "description": "How adenosine builds through the day and how caffeine interacts with it."
+    },
+    "depth": {
+      "id": "depth",
+      "name": "Deep sleep",
+      "group": "sleep",
+      "description": "How much slow-wave sleep you generate and how continuous the night is."
+    },
+    "rem": {
+      "id": "rem",
+      "name": "REM & dreaming",
+      "group": "sleep",
+      "description": "The emotional processing shift of the night, and what disturbs it."
+    },
+    "arousal": {
+      "id": "arousal",
+      "name": "Night-time arousal",
+      "group": "sleep",
+      "description": "How easily your stress axis comes back down when the day ends."
+    },
+    "focus": {
+      "id": "focus",
+      "name": "Focus & working memory",
+      "group": "exec",
+      "description": "Sustained attention, holding several things at once, and the pressure curve you think best on."
+    },
+    "drive": {
+      "id": "drive",
+      "name": "Drive & reward",
+      "group": "exec",
+      "description": "How strongly effort feels worth it, and how you respond to a win."
+    },
+    "emotion": {
+      "id": "emotion",
+      "name": "Emotional command",
+      "group": "exec",
+      "description": "Steadiness under provocation and how long a mood shift lasts."
+    },
+    "resilience": {
+      "id": "resilience",
+      "name": "Pressure & resilience",
+      "group": "exec",
+      "description": "Cortisol reactivity, and how fast you return to baseline after a spike."
+    },
+    "vigilance": {
+      "id": "vigilance",
+      "name": "Vigilance",
+      "group": "exec",
+      "description": "Alertness across a long day, and how stimulants land for you."
+    },
+    "methyl": {
+      "id": "methyl",
+      "name": "Methylation flow",
+      "group": "systems",
+      "description": "The body's labelling system — gene switching, neurotransmitters, homocysteine recycling."
+    },
+    "detox": {
+      "id": "detox",
+      "name": "Clearance & detox",
+      "group": "systems",
+      "description": "How you conjugate and remove reactive compounds from metabolism and environment."
+    }
+  },
+  "bands": [
+    {
+      "level": 1,
+      "name": "Runs itself",
+      "summary": "This one takes care of itself. Spend your attention elsewhere."
+    },
+    {
+      "level": 2,
+      "name": "Lightly guided",
+      "summary": "Comfortable. A light hand keeps it exactly where it is."
+    },
+    {
+      "level": 3,
+      "name": "Responds well",
+      "summary": "Ordinary machinery that gives back roughly what you put in."
+    },
+    {
+      "level": 4,
+      "name": "Rewards attention",
+      "summary": "Give this one real effort and you will feel the difference."
+    },
+    {
+      "level": 5,
+      "name": "Your biggest lever",
+      "summary": "The highest-return system you own. Small consistent changes move this a long way."
+    }
+  ],
+  "markers": [
+    {
+      "id": "ACTN3-rs1815739-1",
+      "gene": "ACTN3",
+      "variantId": "rs1815739",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "power",
+        "structure"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The fast-twitch structural protein — and how muscle copes with hard eccentric work",
+      "interpretations": {
+        "CC": [
+          2,
+          "Both copies of alpha-actinin-3 present. Fast, forceful contraction comes naturally — and so does more muscle damage from downhill running and heavy eccentric sets. Your recovery days are load-bearing, not optional."
+        ],
+        "CT": [
+          1,
+          "One working copy. You sit in the most common and most flexible place: sprint work and long steady work both land well. Train whichever you enjoy."
+        ],
+        "TT": [
+          1,
+          "No alpha-actinin-3, like roughly one in five people worldwide. Muscle leans oxidative — you take less damage from eccentric work and recover from it faster. Power is still fully trainable; it just builds rather than arrives."
+        ]
+      },
+      "namedVariants": {
+        "CC": "R577R",
+        "CT": "R577X",
+        "TT": "X577X"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "AMPD1-rs17602729-2",
+      "gene": "AMPD1",
+      "variantId": "rs17602729",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "energy",
+        "endurance",
+        "power"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Recycles energy inside working muscle when demand outruns supply",
+      "interpretations": {
+        "CC": [
+          1,
+          "Full AMP deaminase activity. Your muscle recycles its own energy currency efficiently during hard efforts — one of the cleanest results in this panel."
+        ],
+        "CT": [
+          2,
+          "One reduced copy. Most people notice nothing; a few find late-session heavy work feels heavier than the pace suggests. Carbohydrate around the session covers it."
+        ],
+        "TT": [
+          3,
+          "Both copies reduced. Cramping and stiff, sore muscles after big sessions are common, and creatine kinase can read high without meaning overtraining. Worth telling any clinician who orders a CK — this is the single most misread result in athlete bloods."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "PPARA-rs4253778-3",
+      "gene": "PPARA",
+      "variantId": "rs4253778",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "fuel",
+        "endurance",
+        "energy"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Switches on fat burning for long efforts",
+      "interpretations": {
+        "GG": [
+          1,
+          "The common setting. Fat oxidation comes online readily on long steady work, which spares glycogen for when you actually need it."
+        ],
+        "CG": [
+          2,
+          "Mixed. Fat burning is available but slightly slower to arrive — a proper 15-minute warm-up genuinely earns its place for you."
+        ],
+        "CC": [
+          3,
+          "Leans on carbohydrate earlier. Long sessions go much better with fuel taken on board rather than trained through. This is a practical eating decision, not a limit."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "PPARD-rs2016520-4",
+      "gene": "PPARD",
+      "variantId": "rs2016520",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "fuel",
+        "endurance"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Builds oxidative muscle fibre and moves fat into the furnace",
+      "interpretations": {
+        "CC": [
+          1,
+          "Strong fat-handling setting. Your metabolic flexibility — switching from glycogen to fat mid-effort — is one of your advantages."
+        ],
+        "CT": [
+          2,
+          "Middle ground. Flexibility improves noticeably with steady-state aerobic volume."
+        ],
+        "TT": [
+          2,
+          "Carbohydrate is your preferred fuel. Perfectly fine — it means fuelling strategy matters more to you than to most on efforts over ninety minutes."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "PPARGC1A-rs8192678-5",
+      "gene": "PPARGC1A",
+      "variantId": "rs8192678",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "energy",
+        "endurance"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The master switch for building new mitochondria",
+      "interpretations": {
+        "GG": [
+          1,
+          "The strongest mitochondrial-building setting. Aerobic base work pays you back quickly."
+        ],
+        "AG": [
+          2,
+          "Typical. Mitochondrial adaptation arrives on the ordinary schedule — six to eight weeks of consistent aerobic work."
+        ],
+        "AA": [
+          3,
+          "Mitochondrial density builds more gradually. Consistency beats intensity for you: frequent easy aerobic work outperforms sporadic hard sessions."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Gly482Gly",
+        "AG": "Gly482Ser",
+        "AA": "Ser482Ser"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "UCP2-rs660339-6",
+      "gene": "UCP2",
+      "variantId": "rs660339",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "energy"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Sets how much fuel becomes work and how much becomes heat",
+      "interpretations": {
+        "GG": [
+          1,
+          "Tight energy coupling — efficient conversion of fuel into work."
+        ],
+        "AG": [
+          2,
+          "Balanced. A little more energy released as heat, which is why you may run warm in sessions."
+        ],
+        "AA": [
+          2,
+          "More uncoupled. You lose slightly more energy as heat and generate fewer free radicals doing it — a genuine trade, not a shortfall."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Ala55Ala",
+        "AG": "Ala55Val",
+        "AA": "Val55Val"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TRHR-rs7832552-7",
+      "gene": "TRHR",
+      "variantId": "rs7832552",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "energy"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Thyroid signalling into resting metabolic rate and lean mass",
+      "interpretations": {
+        "CC": [
+          2,
+          "The common setting; associated in some cohorts with slightly higher lean mass. Evidence is thin — carried here for completeness, not for action."
+        ],
+        "CT": [
+          2,
+          "No practical difference established. Reported so you can see the whole panel."
+        ],
+        "TT": [
+          2,
+          "No practical difference established. Reported so you can see the whole panel."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CKM-rs8111989-8",
+      "gene": "CKM",
+      "variantId": "rs8111989",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "power",
+        "energy"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Rapid energy regeneration for explosive efforts — and a common source of misread bloods",
+      "interpretations": {
+        "TT": [
+          1,
+          "Strong creatine-kinase system. Repeat sprints and heavy singles are well supported."
+        ],
+        "CT": [
+          2,
+          "Typical phosphocreatine turnover. Nothing follows from this result on its own — it is one input into the whole-report synthesis, not a recommendation."
+        ],
+        "CC": [
+          2,
+          "Slightly slower phosphocreatine turnover. Longer rests between heavy sets do more for you than they do for most people."
+        ]
+      },
+      "namedVariants": {
+        "TT": "NcoI +/+",
+        "CT": "NcoI +/−",
+        "CC": "NcoI −/−"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "IL15RA-rs2296135-9",
+      "gene": "IL15RA",
+      "variantId": "rs2296135",
+      "expectedAlleles": "A/C",
+      "domainIds": [
+        "power"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Muscle growth signalling in response to resistance training",
+      "interpretations": {
+        "AA": [
+          2,
+          "Associated with a strong hypertrophy response to resistance work in small studies. Evidence is early — treat as interest, not instruction."
+        ],
+        "AC": [
+          2,
+          "Middle. No practical change to how you should train."
+        ],
+        "CC": [
+          2,
+          "No practical change to how you should train. Reported for completeness."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MSTN-rs1805086-10",
+      "gene": "MSTN",
+      "variantId": "rs1805086",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "power"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Myostatin — the brake on muscle growth",
+      "interpretations": {
+        "GG": [
+          2,
+          "The common setting. Muscle growth follows training, food and sleep — as it does for almost everyone."
+        ],
+        "AG": [
+          2,
+          "Carries the R153 variant. A meta-analysis suggested a strength association that its own authors called insufficient. SAM reports it and does not act on it."
+        ],
+        "AA": [
+          2,
+          "Rare. Same position as above: interesting, not actionable. Rare loss-of-function myostatin variants have a real hypertrophy effect; this common one is not that."
+        ]
+      },
+      "namedVariants": {
+        "GG": "K153K",
+        "AG": "K153R",
+        "AA": "R153R"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "PPARG-rs1801282-11",
+      "gene": "PPARG",
+      "variantId": "rs1801282",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "fuel"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Fat storage, insulin sensitivity and how you respond to dietary fat",
+      "interpretations": {
+        "CC": [
+          3,
+          "The common setting. Your insulin sensitivity tracks closely with body composition, sleep and how much you move on ordinary days — real leverage here."
+        ],
+        "CG": [
+          1,
+          "Carries Ala12, associated with better insulin sensitivity. One of the best-evidenced metabolic markers in this panel."
+        ],
+        "GG": [
+          1,
+          "Two copies of Ala12. Favourable insulin handling; unusually well replicated for a single SNP."
+        ]
+      },
+      "namedVariants": {
+        "CC": "Pro12Pro",
+        "CG": "Pro12Ala",
+        "GG": "Ala12Ala"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "NOS3-rs1799983-12",
+      "gene": "NOS3",
+      "variantId": "rs1799983",
+      "expectedAlleles": "G/T",
+      "domainIds": [
+        "oxygen",
+        "endurance"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Makes nitric oxide — the signal that opens blood vessels during effort",
+      "interpretations": {
+        "GG": [
+          1,
+          "Full nitric-oxide production. Vessels open readily under load and oxygen gets where it is needed."
+        ],
+        "GT": [
+          2,
+          "Slightly reduced output. Dietary nitrate — beetroot, rocket, spinach — has a measurably larger effect in people carrying this than in those who do not."
+        ],
+        "TT": [
+          3,
+          "Lower nitric-oxide output. This is a food answer with real evidence behind it: nitrate-rich leafy greens most days, and a proper warm-up so vessels are open before the hard part starts."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Glu298Glu",
+        "GT": "Glu298Asp",
+        "TT": "Asp298Asp"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ACE-rs4341-13",
+      "gene": "ACE",
+      "variantId": "rs4341",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "oxygen",
+        "endurance",
+        "power"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Blood-pressure and fluid regulation during exercise (the classic I/D marker)",
+      "interpretations": {
+        "GG": [
+          2,
+          "Leans toward the insertion pattern — associated with muscle efficiency and endurance in several athlete cohorts."
+        ],
+        "CG": [
+          2,
+          "Mixed. In practice this is the most versatile setting: both endurance and power work suit you."
+        ],
+        "CC": [
+          3,
+          "Leans toward the deletion pattern — associated with power output, and with a firmer blood-pressure response to heavy effort. Sodium balance and a real cool-down matter more for you."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "AGT-rs699-14",
+      "gene": "AGT",
+      "variantId": "rs699",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "oxygen"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Angiotensinogen — upstream of blood-pressure control",
+      "interpretations": {
+        "AA": [
+          1,
+          "The lower-activity setting. Blood pressure under load tends to look after itself."
+        ],
+        "AG": [
+          3,
+          "Intermediate. Your blood-pressure response is genuinely salt-responsive — meaning the amount you add is one of the few dietary changes that shows up in a measurement."
+        ],
+        "GG": [
+          3,
+          "Higher angiotensinogen. Balance sodium against what you actually lose in sweat rather than cutting it blindly, and get blood pressure checked at rest yearly. High leverage, simple actions."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Met235Met",
+        "AG": "Met235Thr",
+        "GG": "Thr235Thr"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "BDKRB2-rs1799722-15",
+      "gene": "BDKRB2",
+      "variantId": "rs1799722",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "oxygen",
+        "fuel"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Bradykinin signalling — vessel widening and muscle efficiency",
+      "interpretations": {
+        "CC": [
+          2,
+          "Standard receptor expression. Blood flow to muscle behaves conventionally."
+        ],
+        "CT": [
+          1,
+          "Higher receptor expression, associated with better mechanical efficiency in endurance work — you do more with the same oxygen."
+        ],
+        "TT": [
+          1,
+          "Highest receptor expression. Efficient blood flow into working muscle; pairs well with the nitric-oxide result above."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "VEGFA-rs2010963-16",
+      "gene": "VEGFA",
+      "variantId": "rs2010963",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "oxygen",
+        "endurance"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Grows new capillaries into trained muscle",
+      "interpretations": {
+        "GG": [
+          1,
+          "Strong capillary-building signal. Base aerobic work translates into real vascular change for you."
+        ],
+        "CG": [
+          2,
+          "Typical. Capillary density builds on the usual timeline with consistent aerobic volume."
+        ],
+        "CC": [
+          2,
+          "Slower to build new capillaries. Longer, easier aerobic sessions do more for you here than short hard ones."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ADRB2-rs1042713-17",
+      "gene": "ADRB2",
+      "variantId": "rs1042713",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "endurance",
+        "fuel",
+        "oxygen"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Adrenaline's main receptor — airway opening, blood flow and fat release",
+      "interpretations": {
+        "GG": [
+          2,
+          "Receptors respond strongly to adrenaline but also desensitise faster with repeated stimulation. Practically: your body answers hard efforts quickly, and back-to-back high days blunt that answer."
+        ],
+        "AG": [
+          1,
+          "The balanced setting — responsive without desensitising quickly."
+        ],
+        "AA": [
+          2,
+          "Receptors hold their sensitivity but respond more modestly. Warm-ups matter; the response builds rather than switches on."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Arg16Arg",
+        "AG": "Arg16Gly",
+        "GG": "Gly16Gly"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ADRB2-rs1042714-18",
+      "gene": "ADRB2",
+      "variantId": "rs1042714",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "endurance",
+        "fuel"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The second adrenaline-receptor variant — vessel tone and fat mobilisation",
+      "interpretations": {
+        "CC": [
+          2,
+          "Standard. Fat release under adrenaline behaves conventionally."
+        ],
+        "CG": [
+          1,
+          "Mixed and well protected against receptor down-regulation. A comfortable place to sit."
+        ],
+        "GG": [
+          1,
+          "Resistant to desensitisation — the adrenaline response holds up across a long block of hard training."
+        ]
+      },
+      "namedVariants": {
+        "CC": "Gln27Gln",
+        "CG": "Gln27Glu",
+        "GG": "Glu27Glu"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HFE-rs1800562-19",
+      "gene": "HFE",
+      "variantId": "rs1800562",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "oxygen",
+        "fuel"
+      ],
+      "evidenceGrade": "A",
+      "impact": "Iron absorption — the single most important safety marker in this panel",
+      "interpretations": {
+        "GG": [
+          1,
+          "No C282Y variant. Iron is handled normally and iron questions are ordinary ones."
+        ],
+        "AG": [
+          3,
+          "One copy of C282Y. You absorb iron more readily than most. Never take iron without a ferritin and transferrin saturation first — athletes are handed iron for fatigue constantly, and for you that is the wrong default."
+        ],
+        "AA": [
+          3,
+          "Two copies of C282Y. This warrants a proper haemochromatosis assessment with your doctor — iron studies, and a family conversation. Iron supplements are blocked in SAM for you regardless of what any fatigue score says."
+        ]
+      },
+      "namedVariants": {
+        "GG": "C282Y absent",
+        "AG": "C282Y carrier",
+        "AA": "C282Y homozygous"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HFE-rs1799945-20",
+      "gene": "HFE",
+      "variantId": "rs1799945",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "oxygen"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The second iron-absorption variant (H63D)",
+      "interpretations": {
+        "CC": [
+          1,
+          "No H63D variant."
+        ],
+        "CG": [
+          2,
+          "One copy. Mild effect on iron absorption on its own. Worth knowing before anyone hands you an iron tablet — check ferritin first."
+        ],
+        "GG": [
+          2,
+          "Two copies. Mild on its own, more relevant alongside C282Y. Iron studies before iron supplements, always."
+        ]
+      },
+      "namedVariants": {
+        "CC": "H63D absent",
+        "CG": "H63D carrier",
+        "GG": "H63D homozygous"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TMPRSS6-rs855791-21",
+      "gene": "TMPRSS6",
+      "variantId": "rs855791",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "oxygen"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Sets hepcidin — the hormone that decides how much dietary iron you actually keep",
+      "interpretations": {
+        "AA": [
+          3,
+          "Higher hepcidin, so you keep less of the iron you eat. Combine iron-rich food with vitamin C, keep it away from coffee and tea, and have ferritin checked yearly if you train hard. Food-first, and genuinely effective."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Timing matters more than amount — iron-rich meals away from tea and coffee."
+        ],
+        "GG": [
+          1,
+          "Efficient iron retention from ordinary food."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Val736Val",
+        "AG": "Val736Ala",
+        "AA": "Ala736Ala"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CRP-rs1205-22",
+      "gene": "CRP",
+      "variantId": "rs1205",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "inflam",
+        "endurance"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Baseline level of the body's main inflammation signal",
+      "interpretations": {
+        "CC": [
+          3,
+          "Higher baseline C-reactive protein. This is one of the most lifestyle-responsive numbers in medicine — sleep, aerobic volume, oily fish and body composition all move it measurably. Ask for hs-CRP at your next draw, and never within 72 hours of a hard session."
+        ],
+        "CT": [
+          2,
+          "Intermediate baseline. Same advice, lower stakes: measure it rested, not after training."
+        ],
+        "TT": [
+          1,
+          "Lower baseline inflammatory signal. A quiet system that recovers cleanly."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "IL6-rs1800795-23",
+      "gene": "IL6",
+      "variantId": "rs1800795",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "inflam",
+        "power"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The signal muscle releases during exercise — repair when brief, drag when prolonged",
+      "interpretations": {
+        "GG": [
+          3,
+          "Higher IL-6 response to hard work. You feel big sessions for longer than training partners do. Two days between maximal sessions is not conservative for you — it is the correct spacing."
+        ],
+        "CG": [
+          2,
+          "Intermediate response. Ordinary recovery timelines apply."
+        ],
+        "CC": [
+          1,
+          "Lower IL-6 response. Muscle repair after eccentric work is efficient and you turn sessions around quickly."
+        ]
+      },
+      "namedVariants": {
+        "GG": "−174G/G",
+        "CG": "−174G/C",
+        "CC": "−174C/C"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "IL6R-rs2228145-24",
+      "gene": "IL6R",
+      "variantId": "rs2228145",
+      "expectedAlleles": "A/C",
+      "domainIds": [
+        "inflam"
+      ],
+      "evidenceGrade": "B",
+      "impact": "How strongly cells hear the IL-6 signal",
+      "interpretations": {
+        "AA": [
+          2,
+          "Standard receptor signalling."
+        ],
+        "AC": [
+          2,
+          "Intermediate. More of the receptor circulates in soluble form, which shifts inflammatory signalling slightly."
+        ],
+        "CC": [
+          2,
+          "More soluble receptor. Associated with a modestly different inflammatory profile — no action, reported for completeness."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Asp358Asp",
+        "AC": "Asp358Ala",
+        "CC": "Ala358Ala"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TNF-rs1800629-25",
+      "gene": "TNF",
+      "variantId": "rs1800629",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "inflam"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Tumour necrosis factor — the fast, loud end of inflammatory signalling",
+      "interpretations": {
+        "GG": [
+          1,
+          "The common, lower-output setting. Inflammation starts and stops cleanly."
+        ],
+        "AG": [
+          3,
+          "Higher TNF output. Inflammatory responses run hot and long — after training, after illness, after a short night. Sleep is your most powerful anti-inflammatory and it is not a metaphor."
+        ],
+        "AA": [
+          3,
+          "Highest TNF output. Prioritise sleep duration and spacing between maximal sessions above every supplement in existence. Worth asking for hs-CRP and IL-6 rested at your next draw."
+        ]
+      },
+      "namedVariants": {
+        "GG": "−308G/G",
+        "AG": "−308G/A",
+        "AA": "−308A/A"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SOD2-rs4880-26",
+      "gene": "SOD2",
+      "variantId": "rs4880",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "oxstress"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The mitochondria's own antioxidant — first line against exercise free radicals",
+      "interpretations": {
+        "GG": [
+          1,
+          "The efficient import setting — the enzyme reaches the mitochondria where it is needed."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Colourful plants across the week do the work here; high-dose antioxidant capsules around training can blunt the adaptation you trained for."
+        ],
+        "AA": [
+          3,
+          "Less enzyme reaches the mitochondria. Real leverage, and food-shaped: berries, brassicas, olive oil, herbs, green tea. Not megadose vitamin C and E around sessions — that is the one intervention shown to reduce training adaptation."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Val16Val",
+        "AG": "Val16Ala",
+        "GG": "Ala16Ala"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SOD3-rs1799895-27",
+      "gene": "SOD3",
+      "variantId": "rs1799895",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "oxstress",
+        "inflam"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The antioxidant that works outside cells, in blood and tissue fluid",
+      "interpretations": {
+        "CC": [
+          1,
+          "Standard extracellular antioxidant defence, well distributed in tissue."
+        ],
+        "CG": [
+          2,
+          "Carrier. More enzyme circulates and less stays bound in tissue — a distribution difference rather than a shortfall."
+        ],
+        "GG": [
+          2,
+          "Rare. Same distribution difference, more pronounced. No action established."
+        ]
+      },
+      "namedVariants": {
+        "CC": "Arg213Arg",
+        "CG": "Arg213Gly",
+        "GG": "Gly213Gly"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GSTP1-rs1695-28",
+      "gene": "GSTP1",
+      "variantId": "rs1695",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "oxstress",
+        "detox"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Attaches glutathione to reactive compounds so they can leave",
+      "interpretations": {
+        "AA": [
+          1,
+          "Full enzyme activity. Reactive by-products of hard training are conjugated and cleared efficiently."
+        ],
+        "AG": [
+          2,
+          "Reduced activity in one copy. Sulphur-rich vegetables — broccoli, rocket, garlic, onions — feed this pathway directly."
+        ],
+        "GG": [
+          3,
+          "Lowest activity of the three. Cruciferous vegetables most days, and limit what you ask the pathway to clear: smoke, excess alcohol, and unnecessary painkillers. Cheap, food-first, high return."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Ile105Ile",
+        "AG": "Ile105Val",
+        "GG": "Val105Val"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GSTT1-rs2266637-29",
+      "gene": "GSTT1",
+      "variantId": "rs2266637",
+      "expectedAlleles": "CNV",
+      "domainIds": [
+        "oxstress",
+        "detox"
+      ],
+      "evidenceGrade": "B",
+      "impact": "An entire glutathione enzyme that some people are simply born without",
+      "interpretations": {
+        "PRESENT": [
+          1,
+          "Present. This clearance route is available to you."
+        ],
+        "HET": [
+          2,
+          "One copy. Capacity is reduced but the route is open — sulphur-rich vegetables keep it well fed."
+        ],
+        "NULL": [
+          3,
+          "Absent — as it is in roughly a fifth of people. You rely more on the other glutathione routes, which makes them worth feeding daily: brassicas, alliums, eggs, protein. Nothing about this is a flaw; it is one of the commonest human variations there is."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": "Copy-number, not a SNP — the lab reports present or absent, not a genotype. Confirm the array design calls the deletion rather than tagging it.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GSTM1-rs4147567-30",
+      "gene": "GSTM1",
+      "variantId": "rs4147567",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "detox",
+        "oxstress"
+      ],
+      "evidenceGrade": "C",
+      "impact": "A second glutathione clearance route, also commonly absent",
+      "interpretations": {
+        "AA": [
+          1,
+          "Full activity on this route."
+        ],
+        "AG": [
+          2,
+          "Intermediate activity. Well supported by ordinary sulphur-rich food."
+        ],
+        "GG": [
+          2,
+          "Reduced activity. Leans your clearance onto the other glutathione enzymes — worth feeding them properly."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GSTA1-rs3957357-31",
+      "gene": "GSTA1",
+      "variantId": "rs3957357",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "oxstress",
+        "detox"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Clears the products of fat oxidation inside cell membranes",
+      "interpretations": {
+        "GG": [
+          1,
+          "Higher expression. Membrane lipid by-products from long sessions are cleared efficiently."
+        ],
+        "AG": [
+          2,
+          "Intermediate expression. Olive oil, nuts and oily fish support membrane repair directly."
+        ],
+        "AA": [
+          2,
+          "Lower expression. Long endurance blocks generate more of exactly what this enzyme handles — food-based antioxidants across the day beat a capsule around the session."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "AOC1-rs1049793-32",
+      "gene": "AOC1",
+      "variantId": "rs1049793",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "histamine"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Diamine oxidase — clears histamine from food, in the gut, before it reaches your circulation",
+      "interpretations": {
+        "CC": [
+          1,
+          "Full diamine oxidase activity. Aged cheese, wine, cured meat and leftovers are handled without event."
+        ],
+        "CG": [
+          2,
+          "Reduced activity. You will likely notice a pattern — flushing, a blocked nose or a headache after aged, fermented or reheated food, especially after a hard aerobic session when histamine is already up."
+        ],
+        "GG": [
+          3,
+          "Low diamine oxidase activity. This is your single most actionable food result. Freshness is the whole intervention: cook and eat, rather than cook and keep. Track it for two weeks before you change anything permanently — the pattern is usually obvious."
+        ]
+      },
+      "namedVariants": {
+        "CC": "His645His",
+        "CG": "His645Asp",
+        "GG": "Asp645Asp"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HNMT-rs1050891-33",
+      "gene": "HNMT",
+      "variantId": "rs1050891",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "histamine"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Clears histamine inside tissue — brain, lungs, skin — after it has done its job",
+      "interpretations": {
+        "AA": [
+          3,
+          "The slower-clearing setting on the direction currently selected. Combined with exercise, which raises histamine on its own, this is why hard aerobic weeks can come with a blocked nose, itchy skin and restless sleep. Airway, bedroom air and fresh food are the levers."
+        ],
+        "AG": [
+          2,
+          "Intermediate tissue clearance. Usually only noticeable during high aerobic volume or high pollen weeks."
+        ],
+        "GG": [
+          1,
+          "Faster tissue clearance. Histamine is cleared promptly once it has done its work."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HRH1-design item-34",
+      "gene": "HRH1",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "histamine"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The histamine receptor behind congestion, itch and wakefulness",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "Receptor-level marker carried at gene level. rsID to be fixed against the pangenomix array design before it is called — SAM will not print an rsID it has not confirmed.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HRH3-design item-35",
+      "gene": "HRH3",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "histamine",
+        "vigilance"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The brain histamine receptor that gates wakefulness",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "Receptor-level marker carried at gene level; rsID to be fixed against the array design. Receptor biology is graded C; any SNP-level claim stays at D until the probe is confirmed.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "COL1A1-rs1800012-36",
+      "gene": "COL1A1",
+      "variantId": "rs1800012",
+      "expectedAlleles": "G/T",
+      "domainIds": [
+        "structure",
+        "bone"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The main structural collagen in tendon, ligament and bone",
+      "interpretations": {
+        "GG": [
+          2,
+          "The common setting. Collagen strength tracks your training history and protein intake rather than your genotype."
+        ],
+        "GT": [
+          1,
+          "Associated with favourable collagen ratios and, in several cohorts, fewer ligament injuries."
+        ],
+        "TT": [
+          1,
+          "Associated with the most favourable collagen ratio of the three. Still train the tissue — tendon adapts to slow heavy load, not to luck."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Sp1 GG",
+        "GT": "Sp1 GT",
+        "TT": "Sp1 TT"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "COL5A1-rs12722-37",
+      "gene": "COL5A1",
+      "variantId": "rs12722",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "structure"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Regulates how tightly collagen fibrils pack — tendon stiffness and range",
+      "interpretations": {
+        "TT": [
+          3,
+          "The stiffer-tendon setting. Associated with less flexibility and, in several studies, more Achilles trouble. Slow heavy calf and hamstring loading twice a week is the intervention with actual evidence behind it — not stretching."
+        ],
+        "CT": [
+          2,
+          "Intermediate. Ordinary tendon conditioning suits you."
+        ],
+        "CC": [
+          2,
+          "The more compliant setting. Greater range, and a little more demand on the muscle to control it — strength through full range is your protection."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "COL12A1-rs970547-38",
+      "gene": "COL12A1",
+      "variantId": "rs970547",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "structure"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Organises how collagen fibrils bind into ligament",
+      "interpretations": {
+        "AA": [
+          2,
+          "The common setting for fibril organisation."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Nothing to change; contributes a small amount to the connective-tissue picture below."
+        ],
+        "GG": [
+          2,
+          "Associated in some ACL cohorts with different ligament organisation. Small effect, reported in the composite rather than acted on alone."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MMP3-rs679620-39",
+      "gene": "MMP3",
+      "variantId": "rs679620",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "structure",
+        "bone"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Breaks down old matrix so new tissue can be laid in — the remodelling side of repair",
+      "interpretations": {
+        "AA": [
+          2,
+          "Standard remodelling rate."
+        ],
+        "AG": [
+          2,
+          "Intermediate remodelling. Progress load in steps rather than jumps and the tissue keeps up."
+        ],
+        "GG": [
+          2,
+          "Different remodelling rate; studied mostly in Achilles injury with mixed results. Feeds the composite, not a standalone finding."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MMP1-rs1799750-40",
+      "gene": "MMP1",
+      "variantId": "rs1799750",
+      "expectedAlleles": "INDEL",
+      "domainIds": [
+        "structure"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Collagen breakdown rate in the promoter of the main collagenase",
+      "interpretations": {
+        "1G/1G": [
+          2,
+          "Lower collagenase expression — slower matrix turnover."
+        ],
+        "1G/2G": [
+          2,
+          "Intermediate turnover; the commonest result."
+        ],
+        "2G/2G": [
+          2,
+          "Higher collagenase expression. Contributes to the connective-tissue composite below."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": "A promoter insertion/deletion (1G/2G), not a SNP. Confirm the array calls the indel directly rather than tagging it.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TIMP2-rs4789932-41",
+      "gene": "TIMP2",
+      "variantId": "rs4789932",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "structure"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The brake on collagen breakdown — pairs with MMP1 and MMP3",
+      "interpretations": {
+        "CC": [
+          2,
+          "Standard inhibition of matrix breakdown."
+        ],
+        "CT": [
+          2,
+          "Intermediate. Feeds the composite below."
+        ],
+        "TT": [
+          2,
+          "Different inhibition balance, studied in ACL cohorts. Small contribution only."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GDF5-rs143383-42",
+      "gene": "GDF5",
+      "variantId": "rs143383",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "structure",
+        "bone"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Builds and maintains cartilage, tendon and ligament at the joint",
+      "interpretations": {
+        "CC": [
+          1,
+          "Higher GDF5 expression — good cartilage maintenance signalling."
+        ],
+        "CT": [
+          2,
+          "Intermediate expression. Strength around the joint is what protects cartilage; this is where it pays."
+        ],
+        "TT": [
+          3,
+          "Lower expression of a growth factor that maintains cartilage. Practically: build and keep muscle around your knees and hips, keep body weight steady, and treat joint niggles early rather than training through them. Genuinely high leverage over a career."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "IL1RN-rs419598-43",
+      "gene": "IL1RN",
+      "variantId": "rs419598",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "structure",
+        "inflam"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The natural brake on interleukin-1 inside a joint",
+      "interpretations": {
+        "TT": [
+          1,
+          "Strong natural braking on joint inflammation."
+        ],
+        "CT": [
+          2,
+          "Intermediate braking. Ordinary joint care applies."
+        ],
+        "CC": [
+          2,
+          "Less braking on joint inflammation. Oily fish, sleep and sensible load progression are the practical levers."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "FCRL3-rs7528684-44",
+      "gene": "FCRL3",
+      "variantId": "rs7528684",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "inflam",
+        "structure"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Immune regulation during tissue repair",
+      "interpretations": {
+        "AA": [
+          2,
+          "Standard immune regulation through repair."
+        ],
+        "AG": [
+          2,
+          "Intermediate. No action established."
+        ],
+        "GG": [
+          2,
+          "Associated with different autoimmune-related regulation in population studies. Not an athletic finding; reported for completeness."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "VDR-rs1544410-45",
+      "gene": "VDR",
+      "variantId": "rs1544410",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "bone"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Vitamin D receptor (BsmI) — how strongly bone hears vitamin D",
+      "interpretations": {
+        "GG": [
+          1,
+          "Associated with higher bone mineral density in several populations."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Vitamin D status and weight-bearing work both matter on the usual schedule."
+        ],
+        "AA": [
+          3,
+          "Associated with lower bone density. This is a strong argument for measuring 25-OH vitamin D rather than guessing, and for keeping impact and resistance work in your week for life."
+        ]
+      },
+      "namedVariants": {
+        "GG": "BsmI bb",
+        "AG": "BsmI Bb",
+        "AA": "BsmI BB"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "VDR-rs2228570-46",
+      "gene": "VDR",
+      "variantId": "rs2228570",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "bone"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Vitamin D receptor (FokI) — the length, and efficiency, of the receptor protein",
+      "interpretations": {
+        "GG": [
+          1,
+          "The shorter, more active receptor. Efficient vitamin D signalling into bone and muscle."
+        ],
+        "AG": [
+          2,
+          "Intermediate receptor activity."
+        ],
+        "AA": [
+          3,
+          "The longer, less active receptor. Sunlight and vitamin D status carry more weight for you — measure it, and let a real number rather than a genotype decide anything."
+        ]
+      },
+      "namedVariants": {
+        "GG": "FokI FF",
+        "AG": "FokI Ff",
+        "AA": "FokI ff"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "VDR-rs731236-47",
+      "gene": "VDR",
+      "variantId": "rs731236",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "bone",
+        "methyl"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Vitamin D receptor (TaqI) — receptor expression in bone and muscle",
+      "interpretations": {
+        "AA": [
+          2,
+          "The common expression pattern. Ordinary vitamin D advice applies."
+        ],
+        "AG": [
+          2,
+          "Intermediate expression."
+        ],
+        "GG": [
+          2,
+          "Associated with different receptor expression; effects are population-dependent and small. Reported, not acted on alone."
+        ]
+      },
+      "namedVariants": {
+        "AA": "TaqI TT",
+        "AG": "TaqI Tt",
+        "GG": "TaqI tt"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GC-rs2282679-48",
+      "gene": "GC",
+      "variantId": "rs2282679",
+      "expectedAlleles": "A/C",
+      "domainIds": [
+        "bone"
+      ],
+      "evidenceGrade": "A",
+      "impact": "The protein that carries vitamin D around your bloodstream",
+      "interpretations": {
+        "AA": [
+          1,
+          "Efficient vitamin D transport — you carry more of what you make or eat."
+        ],
+        "AC": [
+          2,
+          "Intermediate transport. Sensible sun exposure most days does most of the work."
+        ],
+        "CC": [
+          3,
+          "Lower carrier protein, so circulating vitamin D reads lower for the same sunlight. One of the best-replicated markers here. The action is a blood test, not a bottle — and if it is genuinely low, sunlight first."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GC-rs7041-49",
+      "gene": "GC",
+      "variantId": "rs7041",
+      "expectedAlleles": "A/C",
+      "domainIds": [
+        "bone"
+      ],
+      "evidenceGrade": "A",
+      "impact": "The second carrier-protein variant — binding affinity for vitamin D",
+      "interpretations": {
+        "AA": [
+          2,
+          "Higher binding affinity. Total vitamin D reads higher; free vitamin D is what actually acts."
+        ],
+        "AC": [
+          2,
+          "Intermediate binding."
+        ],
+        "CC": [
+          2,
+          "Lower binding affinity — total vitamin D can read lower while free vitamin D is fine. Worth knowing before anyone treats a number rather than a person."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Asp416Asp",
+        "AC": "Asp416Glu",
+        "CC": "Glu416Glu"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CYP2R1-rs10741657-50",
+      "gene": "CYP2R1",
+      "variantId": "rs10741657",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "bone"
+      ],
+      "evidenceGrade": "A",
+      "impact": "Activates vitamin D in the liver — the first conversion step",
+      "interpretations": {
+        "AA": [
+          1,
+          "Efficient first activation step."
+        ],
+        "AG": [
+          2,
+          "Intermediate activation."
+        ],
+        "GG": [
+          2,
+          "Slower first activation. Combined with the carrier results above, this is an argument for measuring rather than assuming."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CLOCK-rs1801260-51",
+      "gene": "CLOCK",
+      "variantId": "rs1801260",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "circadian"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The core clock gene — sets whether your body leans early or late",
+      "interpretations": {
+        "AA": [
+          1,
+          "The earlier-leaning setting. Mornings genuinely are easier for you, and your best work is likely to happen before lunch."
+        ],
+        "AG": [
+          2,
+          "Slightly later lean. Your natural window is mid-morning to early evening — protect the first hour of the day rather than fighting it."
+        ],
+        "GG": [
+          3,
+          "The later-leaning setting, replicated across several cohorts. You are not undisciplined; your clock runs later. Bright light within thirty minutes of waking and dim light after sunset shifts it earlier by real minutes — this is the highest-return habit in your whole report."
+        ]
+      },
+      "namedVariants": {
+        "AA": "3111T/T",
+        "AG": "3111T/C",
+        "GG": "3111C/C"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "PER2-rs934945-52",
+      "gene": "PER2",
+      "variantId": "rs934945",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "circadian",
+        "arousal"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Clock gene linked to morning preference and to how stress shifts your timing",
+      "interpretations": {
+        "GG": [
+          2,
+          "The common setting. Your clock holds its position under ordinary pressure."
+        ],
+        "AG": [
+          2,
+          "Associated with morning preference. Your timing is fairly robust to a late night, but not to a late week."
+        ],
+        "AA": [
+          2,
+          "Less common. Associated with morning preference and with a clock that shifts more when stress is high — regular meal and light timing steadies it."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Gly1244Gly",
+        "AG": "Gly1244Glu",
+        "AA": "Glu1244Glu"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "PER3-VNTR 4/5-53",
+      "gene": "PER3",
+      "variantId": "VNTR 4/5",
+      "expectedAlleles": "REPEAT",
+      "domainIds": [
+        "circadian",
+        "depth"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The repeat that separates strong morning types from strong evening types, and predicts how badly you handle sleep loss",
+      "interpretations": {
+        "4/4": [
+          2,
+          "Evening-leaning. You hold up comparatively well through a short night — but you also underestimate how far your reaction time has slipped, which is the part that catches people out."
+        ],
+        "4/5": [
+          2,
+          "Intermediate. Ordinary sensitivity to a short night."
+        ],
+        "5/5": [
+          3,
+          "Morning-leaning, with the strongest deep-sleep drive and the sharpest drop in performance after a short night. Sleep is not a virtue for you, it is a performance input. Guard the schedule and you are formidable; break it and you feel it immediately."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": "A variable-number tandem repeat, not a SNP. Confirm the array design calls the repeat directly — most SNP arrays do not.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CRY1-rs2287161-54",
+      "gene": "CRY1",
+      "variantId": "rs2287161",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "circadian"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Sets the length of your internal day",
+      "interpretations": {
+        "CC": [
+          2,
+          "Standard internal day length — you re-align to a new schedule at the usual rate."
+        ],
+        "CG": [
+          2,
+          "Intermediate. Travel and shift changes take a normal three to five days."
+        ],
+        "GG": [
+          3,
+          "Associated with a longer internal day and later sleep onset. Morning light and a fixed wake time do more for you than any bedtime rule."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CRY2-rs11605924-55",
+      "gene": "CRY2",
+      "variantId": "rs11605924",
+      "expectedAlleles": "A/C",
+      "domainIds": [
+        "circadian",
+        "fuel"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Links the clock to blood-sugar handling overnight",
+      "interpretations": {
+        "AA": [
+          2,
+          "Common setting. Overnight glucose regulation tracks your last meal more than your clock."
+        ],
+        "AC": [
+          2,
+          "Intermediate. Late heavy eating shows up in your morning readings more than in most people's."
+        ],
+        "CC": [
+          2,
+          "Associated with different overnight glucose handling. Finishing your last real meal three hours before bed is the practical version of this result."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "NPAS2-rs2305160-56",
+      "gene": "NPAS2",
+      "variantId": "rs2305160",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "circadian",
+        "depth"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Clock partner gene tied to sleep timing and duration",
+      "interpretations": {
+        "GG": [
+          1,
+          "The common setting; sleep timing sits where you put it."
+        ],
+        "AG": [
+          2,
+          "Intermediate; small association with shorter sleep duration."
+        ],
+        "AA": [
+          2,
+          "Associated with slightly shorter natural sleep and later timing. Anchor the wake time and let the bedtime find itself."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Ala394Ala",
+        "AG": "Ala394Thr",
+        "AA": "Thr394Thr"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "BHLHE41-rs121912617-57",
+      "gene": "BHLHE41",
+      "variantId": "rs121912617",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "depth",
+        "circadian"
+      ],
+      "evidenceGrade": "A",
+      "impact": "The rare short-sleep variant — genuinely thriving on six hours",
+      "interpretations": {
+        "GG": [
+          1,
+          "Not a short sleeper genetically, like almost everyone. Your sleep need is real and not negotiable by willpower."
+        ],
+        "AG": [
+          1,
+          "Carries the rare short-sleep variant. Fewer than one in ten thousand people do. If you truly wake refreshed after six hours, this is why — and it is still worth confirming against your measured sleep rather than your opinion of it."
+        ],
+        "AA": [
+          1,
+          "Extremely rare. Same interpretation as above; SAM will check it against your device data before it agrees with you."
+        ]
+      },
+      "namedVariants": {
+        "GG": "P385 wild-type",
+        "AG": "P385R carrier",
+        "AA": "P385R homozygous"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MTNR1B-rs10830963-58",
+      "gene": "MTNR1B",
+      "variantId": "rs10830963",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "circadian",
+        "fuel"
+      ],
+      "evidenceGrade": "A",
+      "impact": "The melatonin receptor sitting on your insulin-producing cells",
+      "interpretations": {
+        "CC": [
+          1,
+          "Melatonin and blood-sugar control stay out of each other's way."
+        ],
+        "CG": [
+          2,
+          "Carrier. Eating late — while melatonin is already up — handles blood sugar less well for you than the same meal earlier. One of the best-replicated findings in nutrition genetics."
+        ],
+        "GG": [
+          3,
+          "Both copies. Late-night eating is measurably worse for you than for most people, independent of what you eat. Finish eating before melatonin rises and this simply resolves. High leverage, one habit."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ASMT-rs4446909-59",
+      "gene": "ASMT",
+      "variantId": "rs4446909",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "circadian",
+        "depth"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The final enzyme that makes melatonin",
+      "interpretations": {
+        "AA": [
+          2,
+          "Standard melatonin production."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Evening light discipline matters more than any supplement here."
+        ],
+        "GG": [
+          2,
+          "Associated with lower melatonin output. Darkness after sunset is the actual intervention — melatonin production responds to light far more than to genotype."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "OPN4-rs1079610-60",
+      "gene": "OPN4",
+      "variantId": "rs1079610",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "circadian"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Melanopsin — the light sensor in your eye that sets the clock, separate from vision",
+      "interpretations": {
+        "AA": [
+          2,
+          "Standard light sensitivity. Ordinary morning-light exposure does the job."
+        ],
+        "AG": [
+          2,
+          "Slightly altered light sensitivity — associated with seasonal mood shifts in some studies."
+        ],
+        "GG": [
+          3,
+          "Less sensitive light signalling to the clock. You need more morning light than most people to get the same shift — outdoors, not through a window. Ten minutes outside beats an hour of indoor lighting."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Ile394Ile",
+        "AG": "Ile394Thr",
+        "GG": "Thr394Thr"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CSNK1E-rs135745-61",
+      "gene": "CSNK1E",
+      "variantId": "rs135745",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "circadian"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The kinase that sets how fast the clock ticks",
+      "interpretations": {
+        "CC": [
+          2,
+          "Standard clock speed."
+        ],
+        "AG": [
+          2,
+          "Intermediate."
+        ],
+        "CG": [
+          2,
+          "Intermediate clock speed; small effect on timing."
+        ],
+        "GG": [
+          2,
+          "Associated with altered clock speed and, in some work, evening preference. Weak evidence — reported for completeness."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ADORA2A-rs5751876-62",
+      "gene": "ADORA2A",
+      "variantId": "rs5751876",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "sleeppress",
+        "vigilance",
+        "arousal"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The receptor caffeine blocks — decides whether coffee sharpens you or rattles you",
+      "interpretations": {
+        "TT": [
+          3,
+          "The sensitive setting. Caffeine reliably produces anxiety, a racing pulse and a wrecked night for you at doses other people call normal. This is not low tolerance; it is a different receptor. Halve the dose and stop by early morning, and caffeine becomes useful again."
+        ],
+        "CT": [
+          2,
+          "Intermediate sensitivity. Caffeine works well early and costs you sleep if it drifts past midday."
+        ],
+        "CC": [
+          1,
+          "Low sensitivity at this receptor. Caffeine is a mild, usable tool for you rather than a lever."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ADA-rs73598374-63",
+      "gene": "ADA",
+      "variantId": "rs73598374",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "depth",
+        "sleeppress"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Breaks down adenosine — how fast sleep pressure builds through your day",
+      "interpretations": {
+        "GG": [
+          2,
+          "Standard adenosine breakdown. Sleep pressure builds and clears on the usual schedule."
+        ],
+        "AG": [
+          1,
+          "Slower breakdown, so adenosine accumulates further. Associated with deeper slow-wave sleep and stronger sleep pressure — you fall asleep easily and sleep heavily. A genuine advantage."
+        ],
+        "AA": [
+          1,
+          "Rare. Strong sleep pressure and deep slow-wave sleep — protect the opportunity to use it and you recover exceptionally well."
+        ]
+      },
+      "namedVariants": {
+        "GG": "G22G",
+        "AG": "G22A carrier",
+        "AA": "22A homozygous"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CYP1A2-rs762551-64",
+      "gene": "CYP1A2",
+      "variantId": "rs762551",
+      "expectedAlleles": "A/C",
+      "domainIds": [
+        "sleeppress",
+        "vigilance",
+        "fuel"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The liver enzyme that clears caffeine — a fourfold difference between people",
+      "interpretations": {
+        "AA": [
+          1,
+          "Fast caffeine clearance. Coffee clears quickly for you, and a mid-afternoon cup is unlikely to reach your sleep. Timing is the useful part here; nothing about quantity follows from a genotype."
+        ],
+        "AC": [
+          2,
+          "Intermediate clearance. Caffeine still works, but the tail is longer than you think — a 15:00 coffee is still in you at 23:00. Move your cut-off to noon and see what your sleep does."
+        ],
+        "CC": [
+          3,
+          "Slow clearance. Caffeine stays in your system for many hours, and in slow metabolisers the performance benefit largely disappears while the sleep cost remains. Morning only, and a real cut-off. This single change usually outperforms every supplement someone has ever sold you."
+        ]
+      },
+      "namedVariants": {
+        "AA": "*1A/*1A fast",
+        "AC": "*1A/*1F",
+        "CC": "*1F/*1F slow"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ADRB1-rs1801253-65",
+      "gene": "ADRB1",
+      "variantId": "rs1801253",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "depth",
+        "vigilance"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Adrenaline receptor variant linked to naturally short, efficient sleep",
+      "interpretations": {
+        "GG": [
+          2,
+          "The common setting. Your sleep need is ordinary and real."
+        ],
+        "CG": [
+          2,
+          "Carrier. Associated in one well-studied family with shorter natural sleep. Check it against measured nights before you trust it."
+        ],
+        "CC": [
+          2,
+          "Associated with shorter natural sleep. SAM will believe your device before it believes this marker."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Arg389Arg",
+        "CG": "Arg389Gly",
+        "CC": "Gly389Gly"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MEIS1-rs2300478-66",
+      "gene": "MEIS1",
+      "variantId": "rs2300478",
+      "expectedAlleles": "G/T",
+      "domainIds": [
+        "depth"
+      ],
+      "evidenceGrade": "A",
+      "impact": "The strongest known marker for restless legs and periodic limb movement in sleep",
+      "interpretations": {
+        "TT": [
+          1,
+          "Low likelihood of restless-legs-type disruption."
+        ],
+        "GT": [
+          2,
+          "Carrier. If your legs feel restless in the evening or your sleep looks fragmented without you remembering waking, ask for a ferritin — low iron stores are the commonest treatable driver, and it is a simple test."
+        ],
+        "GG": [
+          3,
+          "Both copies of the associated variant at the best-replicated restless-legs locus. Worth a ferritin test and a conversation with your doctor if evenings are uncomfortable or your nights look fragmented on the band. Very treatable."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "BTBD9-rs9296249-67",
+      "gene": "BTBD9",
+      "variantId": "rs9296249",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "depth"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Second restless-legs marker — also linked to iron handling in the brain",
+      "interpretations": {
+        "CC": [
+          1,
+          "Low likelihood on this marker."
+        ],
+        "CT": [
+          2,
+          "Carrier. Combined with the marker above, worth watching evening leg comfort and checking ferritin once."
+        ],
+        "TT": [
+          2,
+          "Both copies. Same practical step: a ferritin test, and treat the cause rather than the symptom."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GABRA6-rs3219151-68",
+      "gene": "GABRA6",
+      "variantId": "rs3219151",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "depth",
+        "arousal"
+      ],
+      "evidenceGrade": "C",
+      "impact": "A GABA receptor subunit tied to sleep spindles and to how alcohol affects your night",
+      "interpretations": {
+        "CC": [
+          2,
+          "Standard GABA signalling through sleep."
+        ],
+        "CT": [
+          2,
+          "Intermediate. Alcohol's effect on your deep sleep is likely to be noticeable on the band even when you feel fine."
+        ],
+        "TT": [
+          3,
+          "Associated with altered GABA signalling and stronger sensitivity to alcohol's effect on sleep architecture. The measurable version: two drinks costs you more deep sleep than it costs most people. Look at your own data for a week and decide from that."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HTR2A-rs6313-69",
+      "gene": "HTR2A",
+      "variantId": "rs6313",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "rem",
+        "emotion"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Serotonin receptor involved in slow-wave sleep and emotional processing",
+      "interpretations": {
+        "GG": [
+          1,
+          "Standard receptor density. Emotional processing overnight runs quietly."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Sleep quality and mood are more tightly coupled for you than average — a bad night shows in your temper before it shows in your legs."
+        ],
+        "AA": [
+          2,
+          "Associated with altered receptor density. Same practical point: protect REM, especially the second half of the night, which is where alcohol and late caffeine do their damage."
+        ]
+      },
+      "namedVariants": {
+        "GG": "102T/T",
+        "AG": "102T/C",
+        "AA": "102C/C"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TPH2-rs4570625-70",
+      "gene": "TPH2",
+      "variantId": "rs4570625",
+      "expectedAlleles": "G/T",
+      "domainIds": [
+        "rem",
+        "emotion"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The rate-limiting enzyme for serotonin in the brain",
+      "interpretations": {
+        "GG": [
+          1,
+          "Standard serotonin synthesis capacity."
+        ],
+        "GT": [
+          2,
+          "Intermediate. Daylight, movement and protein-containing meals feed this pathway more reliably than anything in a bottle."
+        ],
+        "TT": [
+          3,
+          "Lower synthesis capacity in some studies. Practical levers with real evidence: outdoor light in the morning, aerobic exercise most days, and adequate protein. This is the pathway that most rewards ordinary living."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HTR1A-rs6295-71",
+      "gene": "HTR1A",
+      "variantId": "rs6295",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "emotion",
+        "resilience"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The autoreceptor that decides how much serotonin gets released",
+      "interpretations": {
+        "CC": [
+          1,
+          "Standard autoreceptor function — the brake sits where it should."
+        ],
+        "CG": [
+          2,
+          "Intermediate. Associated with a slightly stronger stress-linked mood response."
+        ],
+        "GG": [
+          2,
+          "More autoreceptor expression, less serotonin release. Associated with stronger emotional reactivity under load. Sleep and social contact move this more than most people expect."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SLC6A4-5-HTTLPR-72",
+      "gene": "SLC6A4",
+      "variantId": "5-HTTLPR",
+      "expectedAlleles": "INDEL",
+      "domainIds": [
+        "emotion",
+        "resilience"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The serotonin transporter promoter — famous, and less predictive than its reputation",
+      "interpretations": {
+        "L/L": [
+          1,
+          "Higher transporter expression. Associated with steadier mood under stress, though the effect sizes are far smaller than early reports claimed."
+        ],
+        "S/L": [
+          2,
+          "Intermediate expression. Environment predicts your mood far better than this marker does."
+        ],
+        "S/S": [
+          2,
+          "Lower expression. Associated with greater sensitivity to environment — in both directions. The same variant that responds to hardship also responds more to a good environment, which is the part the headlines left out."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": "An insertion/deletion in the promoter, not a SNP — and the popular 'short allele' literature has not replicated well. Confirm the array calls it, and read the result with that caveat attached.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MAOA-rs1137070-73",
+      "gene": "MAOA",
+      "variantId": "rs1137070",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "emotion",
+        "methyl"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Breaks down serotonin, dopamine and noradrenaline. On the X chromosome, so men carry one copy",
+      "interpretations": {
+        "CC": [
+          2,
+          "Higher turnover of monoamines. Mood shifts resolve quickly."
+        ],
+        "CT": [
+          2,
+          "Intermediate turnover."
+        ],
+        "TT": [
+          2,
+          "Lower turnover — monoamine signals last longer, for better and worse."
+        ],
+        "C": [
+          2,
+          "One copy (X-linked). Higher turnover; mood shifts pass quickly."
+        ],
+        "T": [
+          2,
+          "One copy (X-linked). Lower turnover, so both good and difficult moods have a longer tail. Note: SAM does not use the 'warrior gene' framing. That came from one small study, it did not replicate, and it has done real harm."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": true
+    },
+    {
+      "id": "CACNA1C-rs1006737-74",
+      "gene": "CACNA1C",
+      "variantId": "rs1006737",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "emotion",
+        "resilience"
+      ],
+      "evidenceGrade": "B",
+      "impact": "A calcium channel gene consistently linked to mood regulation",
+      "interpretations": {
+        "GG": [
+          1,
+          "The common setting."
+        ],
+        "AG": [
+          2,
+          "Carrier. Associated with slightly stronger emotional reactivity — sleep regularity is the strongest countermeasure."
+        ],
+        "AA": [
+          2,
+          "Both copies. Same point, more so: your mood is measurably more sensitive to sleep timing than to almost anything else you could change."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "OXTR-rs53576-75",
+      "gene": "OXTR",
+      "variantId": "rs53576",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "emotion"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The oxytocin receptor — social connection, empathy and how much other people steady you",
+      "interpretations": {
+        "GG": [
+          1,
+          "Associated with stronger responsiveness to social support. Time with people you like is a genuine physiological recovery tool for you."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Social recovery works; it just is not the whole answer."
+        ],
+        "AA": [
+          2,
+          "Associated with drawing less regulation from social contact and more from solitude and structure. Neither is better — knowing which one recharges you is the useful part."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "FKBP5-rs1360780-76",
+      "gene": "FKBP5",
+      "variantId": "rs1360780",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "arousal",
+        "resilience"
+      ],
+      "evidenceGrade": "B",
+      "impact": "How quickly your cortisol response switches off once the stressor has passed",
+      "interpretations": {
+        "CC": [
+          1,
+          "Efficient cortisol shut-off. You come back down quickly after a spike — a real advantage under sustained pressure."
+        ],
+        "CT": [
+          2,
+          "Intermediate. The shut-off works; it is slower if sleep is short. Protect the wind-down hour."
+        ],
+        "TT": [
+          3,
+          "Slower cortisol shut-off, replicated across many cohorts. Stress lingers physiologically after it has ended psychologically — which is why you can feel fine and still sleep badly. A genuine wind-down routine, consistent sleep timing and morning light are the highest-return habits in your report."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "NR3C1-rs41423247-77",
+      "gene": "NR3C1",
+      "variantId": "rs41423247",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "arousal",
+        "resilience"
+      ],
+      "evidenceGrade": "B",
+      "impact": "How sensitively your tissues hear cortisol",
+      "interpretations": {
+        "CC": [
+          1,
+          "Standard cortisol sensitivity."
+        ],
+        "CG": [
+          2,
+          "Somewhat increased sensitivity. The same stressor lands slightly harder — and the same recovery lands slightly better."
+        ],
+        "GG": [
+          2,
+          "Increased sensitivity to cortisol. Recovery days work well for you; consecutive high-stress weeks do not."
+        ]
+      },
+      "namedVariants": {
+        "CC": "BclI CC",
+        "CG": "BclI CG",
+        "GG": "BclI GG"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CRHR1-rs110402-78",
+      "gene": "CRHR1",
+      "variantId": "rs110402",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "arousal",
+        "resilience"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The top of the stress cascade — how easily the whole axis is triggered",
+      "interpretations": {
+        "AA": [
+          1,
+          "A less easily triggered stress axis."
+        ],
+        "AG": [
+          2,
+          "Intermediate reactivity."
+        ],
+        "GG": [
+          2,
+          "More reactive stress axis, especially in people carrying early-life stress. Studied mostly with supportive environments as the modifier — which is exactly what makes it actionable."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "NPSR1-rs324981-79",
+      "gene": "NPSR1",
+      "variantId": "rs324981",
+      "expectedAlleles": "A/T",
+      "domainIds": [
+        "arousal",
+        "vigilance"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Neuropeptide S — arousal, alertness and how easily you settle at night",
+      "interpretations": {
+        "AA": [
+          1,
+          "Lower-arousal setting. Settling at night comes easily."
+        ],
+        "AT": [
+          2,
+          "Intermediate arousal signalling."
+        ],
+        "TT": [
+          2,
+          "Higher-arousal setting — associated with alertness and with a mind that takes longer to switch off. A hard boundary between work and bed does more here than any supplement."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": true,
+      "xLinked": false
+    },
+    {
+      "id": "COMT-rs4680-80",
+      "gene": "COMT",
+      "variantId": "rs4680",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "focus",
+        "resilience",
+        "drive"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Clears dopamine and adrenaline from the thinking part of the brain. The single most useful marker in this report",
+      "interpretations": {
+        "AA": [
+          3,
+          "Met/Met — slow clearance. Dopamine lingers in the prefrontal cortex, which gives you excellent sustained focus and working memory in calm conditions, and a sharp drop-off when pressure spikes. Practically: prepare hard, then protect calm before the moment that matters. Your caffeine tolerance under stress is lower than you think. This is the classic mental-athlete profile — brilliant when the room is quiet."
+        ],
+        "AG": [
+          2,
+          "Val/Met — the balanced setting. You hold focus in calm conditions and under pressure. The most common and most forgiving result at this locus."
+        ],
+        "GG": [
+          3,
+          "Val/Val — fast clearance. You need stimulation to reach your best thinking: deadlines, competition and noise genuinely help you, and quiet low-stakes work is where you drift. Build urgency into the work rather than waiting for it. Under real pressure you are at your sharpest, which is a rare thing."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Met/Met",
+        "AG": "Val/Met",
+        "GG": "Val/Val"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "BDNF-rs6265-81",
+      "gene": "BDNF",
+      "variantId": "rs6265",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "focus",
+        "emotion"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The growth factor behind learning, memory and recovery from stress",
+      "interpretations": {
+        "GG": [
+          1,
+          "Standard BDNF release. Skill learning and memory consolidation run efficiently."
+        ],
+        "AG": [
+          2,
+          "Carrier. Slightly less activity-dependent release — which makes the things that raise BDNF matter more, not less: aerobic exercise, sleep and genuinely new learning."
+        ],
+        "AA": [
+          3,
+          "Both copies. Aerobic exercise is the strongest known way to raise BDNF in humans, and for you it is doing more work than it does for others. Consistent movement is a cognitive intervention here, not a fitness one."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Val66Val",
+        "AG": "Val66Met",
+        "AA": "Met66Met"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ANKK1-rs1800497-82",
+      "gene": "ANKK1",
+      "variantId": "rs1800497",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "drive"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Taq1A — a proxy for how many dopamine D2 receptors you have. Note: this variant sits in ANKK1, not DRD2",
+      "interpretations": {
+        "GG": [
+          1,
+          "Standard D2 receptor density. Reward feels proportionate to effort, and habits form on the ordinary schedule."
+        ],
+        "AG": [
+          2,
+          "Carrier. Somewhat lower receptor density — you may need a bigger signal to feel the same reward. Make progress visible, because a number you can see does real work for you."
+        ],
+        "AA": [
+          3,
+          "Lower receptor density. Effort can feel less rewarding in the moment, which makes structure beat motivation every time: scheduled sessions, visible progress, a training partner. Nothing here is about willpower — it is about how loudly the reward arrives."
+        ]
+      },
+      "namedVariants": {
+        "GG": "A2/A2",
+        "AG": "A1/A2",
+        "AA": "A1/A1"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "DRD2-rs6277-83",
+      "gene": "DRD2",
+      "variantId": "rs6277",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "drive",
+        "focus"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Receptor availability in the striatum — the drive-and-habit circuit",
+      "interpretations": {
+        "CC": [
+          2,
+          "Higher striatal receptor availability. Habits stick well once started."
+        ],
+        "CT": [
+          2,
+          "Intermediate availability."
+        ],
+        "TT": [
+          2,
+          "Different receptor distribution, associated with more prefrontal and less striatal dopamine signalling. Practically: you are better at deliberate planning than at automatic habit — so use calendars rather than relying on routine to form itself."
+        ]
+      },
+      "namedVariants": {
+        "CC": "957C/C",
+        "CT": "957C/T",
+        "TT": "957T/T"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "DRD4-VNTR 7R-84",
+      "gene": "DRD4",
+      "variantId": "VNTR 7R",
+      "expectedAlleles": "REPEAT",
+      "domainIds": [
+        "drive"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Repeat length in a dopamine receptor, linked to novelty-seeking and persistence",
+      "interpretations": {
+        "4/4": [
+          1,
+          "The common length. Steady dopamine signalling; routine work does not cost you extra."
+        ],
+        "4/7": [
+          2,
+          "Carries the long repeat. Associated with novelty-seeking — you do your best work when it is new, and your worst when it is repetitive. Build variation into training and projects deliberately rather than fighting the tendency."
+        ],
+        "7/7": [
+          2,
+          "Two long repeats. Same point, stronger: novelty is a performance input for you. Rotate the stimulus, keep the principle."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": "A 48-base-pair repeat, not a SNP. Confirm the array design calls the repeat length.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "DBH-rs1611115-85",
+      "gene": "DBH",
+      "variantId": "rs1611115",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "drive",
+        "focus"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Converts dopamine into noradrenaline — the balance between drive and alertness",
+      "interpretations": {
+        "CC": [
+          1,
+          "Standard conversion. Dopamine and noradrenaline stay in balance."
+        ],
+        "CT": [
+          2,
+          "Lower enzyme activity — more dopamine stays as dopamine. Associated with strong drive and slightly lower baseline alertness."
+        ],
+        "TT": [
+          2,
+          "Lowest activity. More dopamine, less noradrenaline. You may run high on motivation and need external structure for sustained alertness — which is a schedule problem, not a character one."
+        ]
+      },
+      "namedVariants": {
+        "CC": "−1021C/C",
+        "CT": "−1021C/T",
+        "TT": "−1021T/T"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "WWC1-rs17070145-86",
+      "gene": "WWC1",
+      "variantId": "rs17070145",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "focus"
+      ],
+      "evidenceGrade": "B",
+      "impact": "KIBRA — one of the most replicated markers for episodic memory in healthy people",
+      "interpretations": {
+        "TT": [
+          1,
+          "Associated with better episodic memory across multiple independent cohorts. Unusually well replicated."
+        ],
+        "CT": [
+          2,
+          "Intermediate. Memory tracks your sleep far more than this marker."
+        ],
+        "CC": [
+          2,
+          "Associated with slightly weaker episodic recall. Sleep and spaced repetition close that gap entirely — this is a study-method result, not a ceiling."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CHRNA4-rs1044396-87",
+      "gene": "CHRNA4",
+      "variantId": "rs1044396",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "focus",
+        "vigilance"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Acetylcholine receptor tied to sustained attention over long tasks",
+      "interpretations": {
+        "AA": [
+          2,
+          "Standard attentional endurance."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Attention holds well with breaks structured in."
+        ],
+        "GG": [
+          2,
+          "Associated with differences in sustained visual attention. Practically: work in defined blocks with real breaks rather than long undefined stretches."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MTHFR-rs1801133-88",
+      "gene": "MTHFR",
+      "variantId": "rs1801133",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "A",
+      "impact": "The best-known enzyme in folate metabolism — converts folate into its usable form",
+      "interpretations": {
+        "GG": [
+          1,
+          "Full enzyme activity. Folate is converted efficiently and this pathway needs nothing special from you."
+        ],
+        "AG": [
+          2,
+          "One reduced copy, around 65% activity. Green leafy vegetables, legumes and liver cover this comfortably — a cup of cooked spinach or lentils most days is the whole intervention."
+        ],
+        "AA": [
+          3,
+          "Both copies reduced, around 30% activity in the lab — but in people eating adequate folate, homocysteine usually sits in range. So: eat the greens, and measure homocysteine and B12 once rather than starting a protocol. This marker is the most oversold result in consumer genetics, and low activity in an enzyme assay is not a diagnosis."
+        ]
+      },
+      "namedVariants": {
+        "GG": "677 C/C",
+        "AG": "677 C/T",
+        "AA": "677 T/T"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MTHFR-rs1801131-89",
+      "gene": "MTHFR",
+      "variantId": "rs1801131",
+      "expectedAlleles": "G/T",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The second folate-enzyme variant, in a different part of the same protein",
+      "interpretations": {
+        "TT": [
+          1,
+          "Full activity at this position."
+        ],
+        "GT": [
+          2,
+          "One copy. Mild effect alone; it matters mostly alongside the 677 result above. Food-first, as always."
+        ],
+        "GG": [
+          2,
+          "Both copies at 1298. On its own this has a modest effect on enzyme activity — noticeably less than 677. Folate-rich food covers it; measure homocysteine if you want the real answer."
+        ]
+      },
+      "namedVariants": {
+        "TT": "1298 A/A",
+        "GT": "1298 A/C",
+        "GG": "1298 C/C"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MTR-rs1805087-90",
+      "gene": "MTR",
+      "variantId": "rs1805087",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Methionine synthase — recycles homocysteine back into methionine using B12",
+      "interpretations": {
+        "AA": [
+          1,
+          "Standard enzyme activity. Homocysteine recycling runs cleanly."
+        ],
+        "AG": [
+          2,
+          "Intermediate. B12 from animal foods, or a checked level if you eat plant-based, keeps this comfortable."
+        ],
+        "GG": [
+          2,
+          "Different activity at this position. Practically: know your B12 status if you eat little animal food. B12 is clinician-gated in SAM — genotype never justifies a B12 protocol."
+        ]
+      },
+      "namedVariants": {
+        "AA": "2756 A/A",
+        "AG": "2756 A/G",
+        "GG": "2756 G/G"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MTRR-rs1801394-91",
+      "gene": "MTRR",
+      "variantId": "rs1801394",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Regenerates the B12 that methionine synthase runs on",
+      "interpretations": {
+        "AA": [
+          1,
+          "Efficient B12 recycling."
+        ],
+        "AG": [
+          2,
+          "Intermediate recycling. Ordinary B12 intake keeps the cycle moving."
+        ],
+        "GG": [
+          2,
+          "Slower recycling of the active B12 cofactor. Combined with the marker above it strengthens the case for measuring B12 once — not for supplementing on a hunch."
+        ]
+      },
+      "namedVariants": {
+        "AA": "66 A/A",
+        "AG": "66 A/G",
+        "GG": "66 G/G"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MTHFD1-rs2236225-92",
+      "gene": "MTHFD1",
+      "variantId": "rs2236225",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Distributes one-carbon units between DNA building and methylation",
+      "interpretations": {
+        "GG": [
+          1,
+          "Standard partitioning of folate between DNA synthesis and methylation."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Folate-rich food covers it."
+        ],
+        "AA": [
+          2,
+          "Associated with higher folate requirement. Greens and legumes daily; measure rather than guess."
+        ]
+      },
+      "namedVariants": {
+        "GG": "1958 G/G",
+        "AG": "1958 G/A",
+        "AA": "1958 A/A"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SHMT1-rs1979277-93",
+      "gene": "SHMT1",
+      "variantId": "rs1979277",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Feeds one-carbon units into the folate cycle from the amino acid serine",
+      "interpretations": {
+        "GG": [
+          1,
+          "Standard flow into the folate cycle."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Adequate protein keeps serine available — this is a protein result as much as a folate one."
+        ],
+        "AA": [
+          2,
+          "Different partitioning of folate. Protein and greens together; nothing exotic required."
+        ]
+      },
+      "namedVariants": {
+        "GG": "1420 C/C",
+        "AG": "1420 C/T",
+        "AA": "1420 T/T"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "BHMT-rs7700970-94",
+      "gene": "BHMT",
+      "variantId": "rs7700970",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The backup route for recycling homocysteine, using betaine instead of folate",
+      "interpretations": {
+        "CC": [
+          1,
+          "The backup route runs well — useful redundancy if the folate route is slower."
+        ],
+        "CT": [
+          2,
+          "Intermediate. Beetroot, spinach and quinoa supply betaine directly."
+        ],
+        "TT": [
+          2,
+          "Reduced backup activity. It matters most if the folate route is also slow — beetroot and spinach are the food answer."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "PEMT-rs7946-95",
+      "gene": "PEMT",
+      "variantId": "rs7946",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Makes phosphatidylcholine — cell membranes, liver fat export, and a large share of your methyl demand",
+      "interpretations": {
+        "CC": [
+          1,
+          "Efficient internal choline production."
+        ],
+        "CT": [
+          2,
+          "Reduced production, so more of your choline must come from food. Eggs and liver are the densest sources by a wide margin."
+        ],
+        "TT": [
+          3,
+          "Lowest internal production, so dietary choline genuinely matters for you: two eggs covers roughly half a day's requirement. How much protection you have from your own oestrogen depends on sex and life stage — SAM adds that line once sex is entered. A clean example of a genotype pointing at a plate rather than a bottle."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CBS-rs234714-96",
+      "gene": "CBS",
+      "variantId": "rs234714",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "methyl",
+        "detox"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Routes homocysteine down the sulphur pathway toward glutathione",
+      "interpretations": {
+        "CC": [
+          2,
+          "Standard flow into the transsulphuration pathway."
+        ],
+        "CT": [
+          2,
+          "Intermediate flow."
+        ],
+        "TT": [
+          2,
+          "Different flow into the sulphur pathway. Worth stating plainly: the low-sulphur, high-molybdenum protocols circulating online are built on an over-reading of this gene, and they remove foods — garlic, onions, eggs, brassicas — that feed glutathione. SAM does not recommend them."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SUOX-rs705702-97",
+      "gene": "SUOX",
+      "variantId": "rs705702",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "detox",
+        "methyl"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Sulphite oxidase region — converts sulphite to sulphate",
+      "interpretations": {
+        "AA": [
+          2,
+          "Reported for completeness. This is not a sulphite-intolerance finding, and no dietary restriction follows from it."
+        ],
+        "AG": [
+          2,
+          "Reported for completeness. Same caveat: this marker does not establish sulphite intolerance."
+        ],
+        "GG": [
+          2,
+          "Reported for completeness. True sulphite oxidase deficiency is a rare, severe, early-onset condition diagnosed clinically — not by this SNP."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "AHCY-rs757966746-98",
+      "gene": "AHCY",
+      "variantId": "rs757966746",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Clears the by-product of every methylation reaction so the cycle can turn again",
+      "interpretations": {
+        "GG": [
+          1,
+          "Standard clearance — the methylation cycle turns freely."
+        ],
+        "AG": [
+          2,
+          "Rare variant. Effect not established; reported for completeness."
+        ],
+        "AA": [
+          2,
+          "Rare. Effect not established in healthy people; reported for completeness."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MAT1A-rs72558181-99",
+      "gene": "MAT1A",
+      "variantId": "rs72558181",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Makes SAMe — the universal methyl donor your whole cycle spends",
+      "interpretations": {
+        "CC": [
+          1,
+          "Standard SAMe production."
+        ],
+        "CT": [
+          2,
+          "Carrier. Effect on healthy adults not established."
+        ],
+        "TT": [
+          2,
+          "Rare. Effect not established; reported for completeness."
+        ]
+      },
+      "namedVariants": {
+        "CC": "R264R",
+        "CT": "R264H",
+        "TT": "H264H"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SLC19A1-rs1051266-100",
+      "gene": "SLC19A1",
+      "variantId": "rs1051266",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The transporter that carries folate into your cells",
+      "interpretations": {
+        "GG": [
+          1,
+          "Efficient folate uptake into cells."
+        ],
+        "AG": [
+          2,
+          "Intermediate uptake. Folate-rich food across the week is the answer."
+        ],
+        "AA": [
+          2,
+          "Reduced uptake. It is the folate that gets inside the cell that counts — greens daily, and check red-cell folate rather than serum if you ever measure it."
+        ]
+      },
+      "namedVariants": {
+        "GG": "80 G/G",
+        "AG": "80 G/A",
+        "AA": "80 A/A"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TCN1-rs526934-101",
+      "gene": "TCN1",
+      "variantId": "rs526934",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Transports and stores B12 in blood",
+      "interpretations": {
+        "AA": [
+          1,
+          "Standard B12 transport."
+        ],
+        "AG": [
+          2,
+          "Intermediate transport."
+        ],
+        "GG": [
+          2,
+          "Different B12 transport. Relevant only alongside a measured B12 — which stays clinician-gated."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CUBN-rs1801222-102",
+      "gene": "CUBN",
+      "variantId": "rs1801222",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Absorbs B12 from the gut",
+      "interpretations": {
+        "AA": [
+          1,
+          "Efficient B12 absorption."
+        ],
+        "AG": [
+          2,
+          "Intermediate absorption. Ordinary intake covers it."
+        ],
+        "GG": [
+          2,
+          "Reduced absorption. Worth one B12 measurement, especially if you eat little animal food. A number, then a decision."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Ser253Ser",
+        "AG": "Ser253Phe",
+        "GG": "Phe253Phe"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MCM6-rs4988235-103",
+      "gene": "MCM6",
+      "variantId": "rs4988235",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "fuel"
+      ],
+      "evidenceGrade": "A",
+      "impact": "Whether you keep making lactase into adulthood",
+      "interpretations": {
+        "AA": [
+          1,
+          "Lactase persists. Dairy is a straightforward protein and calcium source for you."
+        ],
+        "AG": [
+          2,
+          "Lactase persists. Dairy works; large single servings may still sit heavily."
+        ],
+        "GG": [
+          2,
+          "Lactase production declines after childhood, as it does for most of the world's adults. Fermented dairy and hard cheese are usually comfortable — this is a menu note, not a condition."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "FUT2-rs601338-104",
+      "gene": "FUT2",
+      "variantId": "rs601338",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "detox",
+        "methyl"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Secretor status — whether you feed certain gut bacteria, and how you absorb B12",
+      "interpretations": {
+        "GG": [
+          1,
+          "Secretor. Your gut lining feeds bifidobacteria directly."
+        ],
+        "AG": [
+          1,
+          "Secretor. Standard gut ecology and B12 handling."
+        ],
+        "AA": [
+          2,
+          "Non-secretor, like around a fifth of people. Bifidobacteria have less to feed on and B12 tends to read higher. Fermented food and fibre variety matter a little more for you."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Secretor",
+        "AG": "Secretor",
+        "AA": "Non-secretor"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "IGF2-rs680-105",
+      "gene": "IGF2",
+      "variantId": "rs680",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "power"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Growth-factor signalling into muscle mass",
+      "interpretations": {
+        "GG": [
+          2,
+          "Reported for completeness; small associations with lean mass in some cohorts."
+        ],
+        "AG": [
+          2,
+          "Reported for completeness."
+        ],
+        "AA": [
+          2,
+          "Reported for completeness. No action follows."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CDKN1A-rs236448-106",
+      "gene": "CDKN1A",
+      "variantId": "rs236448",
+      "expectedAlleles": "A/C",
+      "domainIds": [
+        "power"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Cell-cycle gene appearing on replicated power-athlete lists",
+      "interpretations": {
+        "AA": [
+          2,
+          "On the replicated power-athlete list; no individual action follows."
+        ],
+        "AC": [
+          2,
+          "On the replicated power-athlete list; no individual action follows."
+        ],
+        "CC": [
+          2,
+          "On the replicated power-athlete list; no individual action follows."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "NFIA-AS2-rs1572312-107",
+      "gene": "NFIA-AS2",
+      "variantId": "rs1572312",
+      "expectedAlleles": "A/C",
+      "domainIds": [
+        "endurance"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Endurance-athlete status marker from large athlete cohorts",
+      "interpretations": {
+        "CC": [
+          2,
+          "Appears on the replicated endurance list. Group-level finding only."
+        ],
+        "AC": [
+          2,
+          "Appears on the replicated endurance list. Group-level finding only."
+        ],
+        "AA": [
+          2,
+          "Appears on the replicated endurance list. Group-level finding only."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CPNE5-rs3213537-108",
+      "gene": "CPNE5",
+      "variantId": "rs3213537",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "power"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Power-athlete status marker",
+      "interpretations": {
+        "GG": [
+          2,
+          "Group-level association only."
+        ],
+        "AG": [
+          2,
+          "Group-level association only."
+        ],
+        "AA": [
+          2,
+          "Group-level association only."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GALNTL6-rs558129-109",
+      "gene": "GALNTL6",
+      "variantId": "rs558129",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "endurance"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Endurance-athlete status marker",
+      "interpretations": {
+        "CC": [
+          2,
+          "Group-level association only."
+        ],
+        "CT": [
+          2,
+          "Group-level association only."
+        ],
+        "TT": [
+          2,
+          "Group-level association only."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "IGSF3-rs699785-110",
+      "gene": "IGSF3",
+      "variantId": "rs699785",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "endurance"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Endurance-athlete status marker",
+      "interpretations": {
+        "GG": [
+          2,
+          "Group-level association only."
+        ],
+        "AG": [
+          2,
+          "Group-level association only."
+        ],
+        "AA": [
+          2,
+          "Group-level association only."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "LRPPRC-rs10186876-111",
+      "gene": "LRPPRC",
+      "variantId": "rs10186876",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "endurance",
+        "energy"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Mitochondrial RNA handling; endurance-athlete status marker",
+      "interpretations": {
+        "AA": [
+          2,
+          "Group-level association only."
+        ],
+        "AG": [
+          2,
+          "Group-level association only."
+        ],
+        "GG": [
+          2,
+          "Group-level association only."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MMS22L-rs9320823-112",
+      "gene": "MMS22L",
+      "variantId": "rs9320823",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "endurance"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Endurance-athlete status marker",
+      "interpretations": {
+        "TT": [
+          2,
+          "Group-level association only."
+        ],
+        "CT": [
+          2,
+          "Group-level association only."
+        ],
+        "CC": [
+          2,
+          "Group-level association only."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MYBPC3-rs1052373-113",
+      "gene": "MYBPC3",
+      "variantId": "rs1052373",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "endurance"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Cardiac muscle protein; appears on endurance lists",
+      "interpretations": {
+        "AA": [
+          2,
+          "Group-level endurance association. Not a cardiac result."
+        ],
+        "AG": [
+          2,
+          "Group-level endurance association. Not a cardiac result."
+        ],
+        "GG": [
+          2,
+          "Group-level endurance association. Not a cardiac result."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": "Sits in a gene that is the commonest cause of hypertrophic cardiomyopathy. Genotyping one common SNP is NOT a cardiac test — but if this panel ever moves to sequencing, the incidental-findings policy and a cardiology referral pathway must exist first.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "PHACTR1-rs6905419-114",
+      "gene": "PHACTR1",
+      "variantId": "rs6905419",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "endurance",
+        "oxygen"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Endurance-athlete status marker",
+      "interpretations": {
+        "CC": [
+          2,
+          "Group-level association only."
+        ],
+        "CT": [
+          2,
+          "Group-level association only."
+        ],
+        "TT": [
+          2,
+          "Group-level association only."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": "This region also carries a separate cardiovascular signal. SAM keeps that signal out of a performance report by design — it does not travel with your training advice.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "AR-CAG repeat-115",
+      "gene": "AR",
+      "variantId": "CAG repeat",
+      "expectedAlleles": "REPEAT",
+      "domainIds": [
+        "power"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Androgen receptor sensitivity, set by repeat length",
+      "interpretations": {
+        "SHORT": [
+          2,
+          "Shorter repeats mean a more sensitive androgen receptor. Group-level finding; training and sleep still decide the outcome."
+        ],
+        "MID": [
+          2,
+          "Mid-length repeat — the commonest result."
+        ],
+        "LONG": [
+          2,
+          "Longer repeats mean a less sensitive receptor. Group-level finding only."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": "A trinucleotide repeat. Standard SNP arrays do not size repeats — confirm whether the pangenomix Axiom design calls it or whether a separate fragment assay is required.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "APOE-rs429358+rs7412-116",
+      "gene": "APOE",
+      "variantId": "rs429358+rs7412",
+      "expectedAlleles": "COMPOSITE",
+      "domainIds": [
+        "inflam",
+        "resilience"
+      ],
+      "evidenceGrade": "A",
+      "impact": "Two SNPs read together as one ε genotype — lipid handling, inflammatory tone and brain recovery after impact",
+      "interpretations": {
+        "E2/E2": [
+          2,
+          "ε2/ε2. Distinctive lipid handling; worth a lipid panel that a clinician reads properly rather than a calculator."
+        ],
+        "E2/E3": [
+          1,
+          "ε2/ε3. Generally favourable lipid handling."
+        ],
+        "E2/E4": [
+          2,
+          "ε2/ε4. Mixed. The practical points are the ε4 ones below, softened."
+        ],
+        "E3/E3": [
+          1,
+          "ε3/ε3 — the commonest genotype worldwide. Standard lipid and repair signalling."
+        ],
+        "E3/E4": [
+          2,
+          "One ε4 copy. In sport this is used for one thing only: recovery after head impact may take longer, so the return-to-play timeline is paced more conservatively. It does not predict whether you get concussed, and it never decides clearance — symptoms and a clinician do. Sleep, aerobic fitness and blood pressure are the levers that matter, and they matter more for you."
+        ],
+        "E4/E4": [
+          2,
+          "Two ε4 copies. Same practical position as above, applied more carefully: paced return after any head impact, and real attention to sleep, aerobic fitness, blood pressure and alcohol. This result changes how a clinician paces you. It does not change what you are capable of."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TCN2-rs1801198-117",
+      "gene": "TCN2",
+      "variantId": "rs1801198",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "B",
+      "impact": "Transcobalamin II — the protein that actually delivers B12 into your cells",
+      "interpretations": {
+        "CC": [
+          1,
+          "Efficient B12 delivery into cells. Whatever you absorb reaches the enzymes that need it."
+        ],
+        "CG": [
+          2,
+          "Intermediate delivery. Serum B12 can read fine while less arrives where it is used — which is why homocysteine is the more informative number for you."
+        ],
+        "GG": [
+          2,
+          "Lower delivery efficiency. Serum B12 is an unreliable guide here; homocysteine, or methylmalonic acid if a clinician wants it, tells you what is actually happening."
+        ]
+      },
+      "namedVariants": {
+        "CC": "Pro259Pro",
+        "CG": "Pro259Arg",
+        "GG": "Arg259Arg"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "CHDH-rs12676-118",
+      "gene": "CHDH",
+      "variantId": "rs12676",
+      "expectedAlleles": "G/T",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Converts choline into betaine — the step that lets choline feed methylation",
+      "interpretations": {
+        "GG": [
+          1,
+          "Efficient conversion. Choline from food serves both membranes and methylation."
+        ],
+        "GT": [
+          2,
+          "Reduced conversion. More of your choline is spent on membranes and less reaches the methylation route — eggs and beetroot together cover both ends."
+        ],
+        "TT": [
+          3,
+          "Lowest conversion of the three, and it stacks with PEMT. Dietary choline and betaine both matter for you: eggs, liver, beetroot, spinach. A food answer with no product attached."
+        ]
+      },
+      "namedVariants": {
+        "GG": "Gly233Gly",
+        "GT": "Gly233Thr",
+        "TT": "Thr233Thr"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MAT2A-design item-119",
+      "gene": "MAT2A",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "methyl"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The second SAMe-producing enzyme, active outside the liver",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No common functional variant is established for MAT2A. SAM carries the gene so the pathway is complete and prints nothing it cannot support.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TPH1-rs1800532-120",
+      "gene": "TPH1",
+      "variantId": "rs1800532",
+      "expectedAlleles": "A/C",
+      "domainIds": [
+        "rem",
+        "emotion"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The peripheral serotonin-making enzyme — most of your serotonin is in the gut, not the brain",
+      "interpretations": {
+        "CC": [
+          1,
+          "Standard peripheral synthesis."
+        ],
+        "AC": [
+          2,
+          "Intermediate. Gut serotonin production sits alongside the brain enzyme below — protein-containing meals feed both."
+        ],
+        "AA": [
+          2,
+          "Associated with different peripheral synthesis. Reported alongside TPH2, which is the brain-side enzyme and the more relevant one for mood."
+        ]
+      },
+      "namedVariants": {
+        "AA": "218A/A",
+        "AC": "218A/C",
+        "CC": "218C/C"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HTR2C-rs6318-121",
+      "gene": "HTR2C",
+      "variantId": "rs6318",
+      "expectedAlleles": "C/G",
+      "domainIds": [
+        "emotion",
+        "drive"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Serotonin receptor tied to appetite regulation and mood. Sits on the X chromosome",
+      "interpretations": {
+        "CC": [
+          1,
+          "Standard receptor function."
+        ],
+        "CG": [
+          2,
+          "Intermediate signalling."
+        ],
+        "GG": [
+          2,
+          "Altered receptor function. Studied mostly around appetite and antipsychotic response — reported here for completeness, with no action attached."
+        ],
+        "C": [
+          1,
+          "One copy (X-linked). Standard receptor function."
+        ],
+        "G": [
+          2,
+          "One copy (X-linked). Altered receptor function; reported for completeness."
+        ]
+      },
+      "namedVariants": {
+        "CC": "Cys23Cys",
+        "CG": "Cys23Ser",
+        "GG": "Ser23Ser"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": true
+    },
+    {
+      "id": "AANAT-design item-122",
+      "gene": "AANAT",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "circadian",
+        "depth"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The enzyme that starts melatonin production each evening",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "The known AANAT variants are rare rather than common. SAM carries the gene for pathway completeness and would need a targeted assay, not a standard array, to call it.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MTNR1A-design item-123",
+      "gene": "MTNR1A",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "circadian"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The other melatonin receptor — brain-side timing rather than pancreas",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "MTNR1B has a well-replicated common variant and is called in this panel; MTNR1A does not have an equivalent. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "MAOB-rs1799836-124",
+      "gene": "MAOB",
+      "variantId": "rs1799836",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "drive",
+        "emotion",
+        "histamine"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Breaks down dopamine and phenylethylamine — and the second route for clearing histamine. On the X chromosome, so men carry one copy",
+      "interpretations": {
+        "GG": [
+          1,
+          "Higher enzyme activity. Dopamine turnover is brisk and steady."
+        ],
+        "AG": [
+          2,
+          "Intermediate activity."
+        ],
+        "AA": [
+          2,
+          "Lower activity — dopamine signals last longer, and this route contributes less to histamine clearance. Relevant alongside your HNMT result rather than on its own."
+        ],
+        "G": [
+          1,
+          "One copy (X-linked). Higher enzyme activity — brisk dopamine turnover."
+        ],
+        "A": [
+          2,
+          "One copy (X-linked). Lower activity, so dopamine signals last longer and this route contributes less to histamine clearance."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": true
+    },
+    {
+      "id": "DRD1-rs4532-125",
+      "gene": "DRD1",
+      "variantId": "rs4532",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "drive",
+        "focus"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The D1 receptor — the 'go' side of the reward circuit and working-memory gating",
+      "interpretations": {
+        "AA": [
+          1,
+          "Standard D1 expression. Working-memory gating behaves conventionally."
+        ],
+        "AG": [
+          2,
+          "Intermediate expression."
+        ],
+        "GG": [
+          2,
+          "Different receptor expression. Studied in impulsivity and learning-rate work with mixed findings; contributes to the composite rather than standing alone."
+        ]
+      },
+      "namedVariants": {
+        "AA": "−48A/A",
+        "AG": "−48A/G",
+        "GG": "−48G/G"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "DRD3-rs6280-126",
+      "gene": "DRD3",
+      "variantId": "rs6280",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "drive"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The D3 receptor — habit formation and how strongly a cue pulls at you",
+      "interpretations": {
+        "TT": [
+          2,
+          "Higher dopamine affinity at this receptor. Cues and routines take hold strongly, which is useful when the routine is one you chose."
+        ],
+        "CT": [
+          2,
+          "Intermediate affinity."
+        ],
+        "CC": [
+          1,
+          "Standard affinity. Habits form on the ordinary schedule."
+        ]
+      },
+      "namedVariants": {
+        "CC": "Ser9Ser",
+        "CT": "Ser9Gly",
+        "TT": "Gly9Gly"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SLC6A3-DAT1 VNTR 9/10-127",
+      "gene": "SLC6A3",
+      "variantId": "DAT1 VNTR 9/10",
+      "expectedAlleles": "REPEAT",
+      "domainIds": [
+        "drive",
+        "focus"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The dopamine transporter — how fast dopamine is cleared from the synapse",
+      "interpretations": {
+        "10/10": [
+          2,
+          "The common length. Faster clearance, associated with lower synaptic dopamine — structure and stimulation help more than willpower."
+        ],
+        "9/10": [
+          1,
+          "Intermediate clearance — the most flexible of the three."
+        ],
+        "9/9": [
+          2,
+          "Slower clearance, more dopamine left in the synapse. Associated with stronger responses to reward and to stimulation."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": "A 40-base-pair repeat in the 3' untranslated region, not a SNP. Confirm the design sizes the repeat — standard SNP arrays do not.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TH-design item-128",
+      "gene": "TH",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "drive"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Tyrosine hydroxylase — the rate-limiting step in making dopamine at all",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "The studied TH marker is a tetranucleotide repeat (HUMTH01), not a SNP. Carried at gene level pending a fragment assay.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "DDC-design item-129",
+      "gene": "DDC",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "drive"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Converts L-DOPA into dopamine, and 5-HTP into serotonin",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No common functional variant is well enough established for SAM to print an rsID. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "DRD5-design item-130",
+      "gene": "DRD5",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "drive"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The D5 receptor — the second D1-family receptor",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "The studied DRD5 marker is a dinucleotide microsatellite rather than a SNP. Carried at gene level pending a fragment assay.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GABRA2-rs279858-131",
+      "gene": "GABRA2",
+      "variantId": "rs279858",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "arousal",
+        "depth",
+        "resilience"
+      ],
+      "evidenceGrade": "B",
+      "impact": "A GABA-A receptor subunit — the main brake on the nervous system, and the site alcohol acts on",
+      "interpretations": {
+        "TT": [
+          2,
+          "Standard inhibitory signalling at this subunit."
+        ],
+        "CT": [
+          2,
+          "Intermediate. Associated in several cohorts with a stronger subjective response to alcohol — which usually shows up as a worse night, not a better one."
+        ],
+        "CC": [
+          3,
+          "Associated with altered inhibitory signalling and a stronger response to alcohol and sedatives. The practical reading: alcohol buys you sedation and costs you the second half of the night. Look at a week of your own sleep data and decide from that rather than from this line."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GAD1-design item-132",
+      "gene": "GAD1",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "arousal",
+        "emotion"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Makes GABA from glutamate — the enzyme that sets inhibitory supply",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "GAD1 candidate SNPs appear in anxiety and pain literature but SAM has not confirmed a probe. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GAD2-design item-133",
+      "gene": "GAD2",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "arousal",
+        "emotion"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The second GABA-making enzyme, dominant in nerve terminals",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No confirmed probe. Carried at gene level so the inhibitory-tone output shows honest coverage.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GABRB3-design item-134",
+      "gene": "GABRB3",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "depth",
+        "arousal"
+      ],
+      "evidenceGrade": "D",
+      "impact": "GABA-A beta-3 subunit — slow-wave sleep and sedation",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "The classic GABRB3 marker is a CA repeat rather than a SNP. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SLC6A1-design item-135",
+      "gene": "SLC6A1",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "arousal"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The GABA transporter — how quickly the brake is cleared away again",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No common functional variant established. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ABAT-design item-136",
+      "gene": "ABAT",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "arousal",
+        "depth"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Breaks GABA down — the other half of inhibitory turnover",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No common functional variant established. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GLS-design item-137",
+      "gene": "GLS",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "focus",
+        "arousal"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Glutaminase — converts glutamine into glutamate, the excitatory side",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No common functional variant established. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GLUL-design item-138",
+      "gene": "GLUL",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "focus",
+        "arousal"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Glutamine synthetase — recycles glutamate back out of the synapse",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No common functional variant established. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GRIN2B-design item-139",
+      "gene": "GRIN2B",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "focus",
+        "emotion"
+      ],
+      "evidenceGrade": "D",
+      "impact": "NMDA receptor subunit — learning, plasticity and excitatory load",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "Several GRIN2B SNPs appear in cognition studies; SAM has not confirmed which the design uses. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GRIA1-design item-140",
+      "gene": "GRIA1",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "focus"
+      ],
+      "evidenceGrade": "D",
+      "impact": "AMPA receptor subunit — fast excitatory signalling",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No confirmed probe. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SLC29A1-design item-141",
+      "gene": "SLC29A1",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "sleeppress",
+        "vigilance"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The transporter that moves adenosine back across the cell membrane",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "ENT1 candidate variants exist in alcohol and sleep literature; SAM has not confirmed a probe. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ALDH2-rs671-142",
+      "gene": "ALDH2",
+      "variantId": "rs671",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "histamine",
+        "detox"
+      ],
+      "evidenceGrade": "A",
+      "impact": "Clears acetaldehyde — the downstream step behind alcohol flushing, and a load on histamine handling",
+      "interpretations": {
+        "GG": [
+          1,
+          "Full enzyme activity. Acetaldehyde is cleared normally."
+        ],
+        "AG": [
+          3,
+          "One inactive copy — roughly a tenth of normal activity. Flushing, a racing pulse and a headache after small amounts of alcohol are the usual sign. This is well established, and the practical answer is straightforward: alcohol is a bad trade for you, and it compounds anything histamine-related."
+        ],
+        "AA": [
+          3,
+          "Two inactive copies — essentially no activity. Alcohol is unpleasant and the acetaldehyde load carries a genuine long-term cost. One of the very few results in this panel where the recommendation really is avoidance."
+        ]
+      },
+      "namedVariants": {
+        "GG": "*1/*1",
+        "AG": "*1/*2",
+        "AA": "*2/*2"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HDC-design item-143",
+      "gene": "HDC",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "histamine"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Histidine decarboxylase — the enzyme that makes histamine in the first place",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "The known HDC variants are rare rather than common. SAM carries the gene so the histamine pathway is complete on the production side as well as the clearance side.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HRH2-design item-144",
+      "gene": "HRH2",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "histamine"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The stomach-acid histamine receptor",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "Receptor-level marker; rsID to be fixed against the array design. Receptor biology is graded C, any SNP-level claim stays at D.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HRH4-design item-145",
+      "gene": "HRH4",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "histamine",
+        "inflam"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The immune-cell histamine receptor",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "Receptor-level marker; rsID to be fixed against the array design.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ADRB3-rs4994-146",
+      "gene": "ADRB3",
+      "variantId": "rs4994",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "fuel",
+        "resilience"
+      ],
+      "evidenceGrade": "B",
+      "impact": "The fat-tissue adrenaline receptor — how stress hormones mobilise stored fat",
+      "interpretations": {
+        "AA": [
+          1,
+          "Standard receptor function. Fat mobilisation under adrenaline behaves conventionally."
+        ],
+        "AG": [
+          2,
+          "Carrier. Associated with slightly reduced fat mobilisation and a modestly lower resting metabolic rate. Effect sizes are small; consistency of movement matters more."
+        ],
+        "GG": [
+          2,
+          "Both copies. Same direction, more so. Regular aerobic movement is the lever that answers this one."
+        ]
+      },
+      "namedVariants": {
+        "AA": "Trp64Trp",
+        "AG": "Trp64Arg",
+        "GG": "Arg64Arg"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ARNTL-design item-147",
+      "gene": "ARNTL",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "circadian"
+      ],
+      "evidenceGrade": "D",
+      "impact": "BMAL1 — the other half of the core clock, partnered with CLOCK",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "BMAL1 candidate SNPs appear in metabolic and hypertension studies; SAM has not confirmed which probe the design uses. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "PER1-design item-148",
+      "gene": "PER1",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "circadian"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The third PER clock gene, tied to morning cortisol timing",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No confirmed probe. Carried at gene level so circadian coverage is reported honestly.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "RORA-design item-149",
+      "gene": "RORA",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "circadian",
+        "inflam"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Clock-linked nuclear receptor bridging timing and inflammation",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "No confirmed probe. Carried at gene level.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "SLC6A4-rs25531-150",
+      "gene": "SLC6A4",
+      "variantId": "rs25531",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "emotion",
+        "resilience"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The SNP inside the serotonin transporter promoter that changes what the long allele actually does",
+      "interpretations": {
+        "AA": [
+          1,
+          "The long allele reads as genuinely long. This is the SNP that separates a functional long allele from one that behaves like a short one — which is why 5-HTTLPR results reported without it are unreliable."
+        ],
+        "AG": [
+          2,
+          "One copy converts a long allele into something functionally shorter. Read this together with the 5-HTTLPR result above rather than separately."
+        ],
+        "GG": [
+          2,
+          "Both copies converted. The transporter behaves closer to the short form regardless of what the repeat length alone suggested."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "ABCC9-rs11046205-151",
+      "gene": "ABCC9",
+      "variantId": "rs11046205",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "depth"
+      ],
+      "evidenceGrade": "C",
+      "impact": "A potassium-channel subunit linked to how long you sleep, and to how much deep sleep you get",
+      "interpretations": {
+        "AA": [
+          2,
+          "Associated with longer habitual sleep in the European cohort where this was found and replicated. Your own measured nights are still the better guide."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Sleep duration is set far more by your schedule than by this marker."
+        ],
+        "GG": [
+          2,
+          "Associated with shorter habitual sleep. Read alongside your measured nights rather than instead of them — this is a group-level finding with a small effect."
+        ]
+      },
+      "namedVariants": {},
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "NAT2-rs1801280-152",
+      "gene": "NAT2",
+      "variantId": "rs1801280",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "sleeppress",
+        "detox"
+      ],
+      "evidenceGrade": "C",
+      "impact": "Acetylation speed — a second route for clearing caffeine's breakdown products, and many other compounds",
+      "interpretations": {
+        "TT": [
+          1,
+          "Fast acetylation on this allele. Caffeine by-products and other amines clear briskly."
+        ],
+        "CT": [
+          2,
+          "Intermediate. Read together with the second NAT2 marker and with CYP1A2 — acetylator status needs both."
+        ],
+        "CC": [
+          2,
+          "Slow acetylation on this allele. Combined with slow CYP1A2 it lengthens how long caffeine's downstream products hang around."
+        ]
+      },
+      "namedVariants": {
+        "TT": "*5 wild-type",
+        "CT": "*5 carrier",
+        "CC": "*5 homozygous"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "NAT2-rs1799930-153",
+      "gene": "NAT2",
+      "variantId": "rs1799930",
+      "expectedAlleles": "A/G",
+      "domainIds": [
+        "sleeppress",
+        "detox"
+      ],
+      "evidenceGrade": "C",
+      "impact": "The second acetylation variant — the two together define fast or slow acetylator status",
+      "interpretations": {
+        "GG": [
+          1,
+          "Fast acetylation on this allele."
+        ],
+        "AG": [
+          2,
+          "Intermediate. Acetylator status is a two-marker call, not a one-marker one."
+        ],
+        "AA": [
+          2,
+          "Slow acetylation on this allele. Slow acetylators clear a range of compounds more gradually — worth knowing, and not a reason to change anything on its own."
+        ]
+      },
+      "namedVariants": {
+        "GG": "*6 wild-type",
+        "AG": "*6 carrier",
+        "AA": "*6 homozygous"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TRPV1-rs8065080-154",
+      "gene": "TRPV1",
+      "variantId": "rs8065080",
+      "expectedAlleles": "C/T",
+      "domainIds": [
+        "depth",
+        "arousal"
+      ],
+      "evidenceGrade": "D",
+      "impact": "A heat and capsaicin sensor involved in body-temperature regulation — and body temperature has to fall for sleep to start",
+      "interpretations": {
+        "TT": [
+          2,
+          "Standard sensitivity. Your evening temperature drop behaves conventionally."
+        ],
+        "CT": [
+          2,
+          "Intermediate sensitivity. If you sleep hot, a cooler room does more for you than most sleep products."
+        ],
+        "CC": [
+          2,
+          "Altered sensitivity. The sleep link here is mechanistic rather than demonstrated — SAM reports it and does not build anything on it. A cool dark room is good advice regardless of genotype."
+        ]
+      },
+      "namedVariants": {
+        "TT": "Ile585Ile",
+        "CT": "Ile585Val",
+        "CC": "Val585Val"
+      },
+      "assayNote": null,
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "GABRA1-design item-155",
+      "gene": "GABRA1",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "depth",
+        "arousal"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The most abundant GABA-A receptor subunit — the main site of sedation and of slow-wave sleep",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "GABRA1 is central to inhibitory tone and belongs on this panel. SAM has not confirmed which probe the design uses, so no rsID is printed. Grade D until the probe is fixed.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "HCRT-design item-156",
+      "gene": "HCRT",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "circadian",
+        "arousal"
+      ],
+      "evidenceGrade": "D",
+      "impact": "Orexin — the wake-promoting signal that keeps the lights on",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "Common variants in HCRT itself are sparse; most of the human evidence sits in the receptor, HCRTR2. Recommend the design carries HCRTR2 as well as, or instead of, HCRT.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "RGS15-design item-157",
+      "gene": "RGS15",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "circadian"
+      ],
+      "evidenceGrade": "D",
+      "impact": "G-protein signalling regulator, requested for the circadian panel",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "Flagging honestly: the replicated chronotype signal in the RGS family is RGS16, not RGS15 — it came out of the large morningness genome-wide studies. SAM carries RGS15 as requested and recommends adding RGS16 alongside it before the design is finalised.",
+      "palindromic": false,
+      "xLinked": false
+    },
+    {
+      "id": "TRPM6-design item-158",
+      "gene": "TRPM6",
+      "variantId": "design item",
+      "expectedAlleles": "—",
+      "domainIds": [
+        "depth"
+      ],
+      "evidenceGrade": "D",
+      "impact": "The magnesium transporter — magnesium status is often raised in sleep discussions",
+      "interpretations": {},
+      "namedVariants": {},
+      "assayNote": "Carried as requested. Stated plainly: the human evidence linking TRPM6 variants to sleep is not established, and SAM will not build a magnesium recommendation on it. Magnesium status is a blood question, not a genotype one.",
+      "palindromic": false,
+      "xLinked": false
+    }
+  ]
+}

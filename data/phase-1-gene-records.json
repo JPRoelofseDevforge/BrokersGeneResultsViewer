@@ -1,0 +1,805 @@
+{
+  "profiles": [
+    {
+      "id": "sam-240184",
+      "memberNumber": "SAM-240184",
+      "firstName": "Sam",
+      "lastName": "Carter",
+      "dateOfBirth": "1988-04-17",
+      "sexAtBirth": "male",
+      "sampleId": "GNS-8810-24",
+      "assayName": "Pangenomix Whole Health Array",
+      "assayVersion": "v3.2",
+      "consentStatus": "active",
+      "processedAt": "2026-07-30T06:42:00.000Z"
+    }
+  ],
+  "genotypeCalls": [
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1042713",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1042714",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1799983",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4253778",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4341",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1695",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2266637",
+      "genotype": "PRS",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4880",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs3957357",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1799722",
+      "genotype": "T/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs699",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1205",
+      "genotype": "T/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs17602729",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1799945",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1815739",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2010963",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs8111989",
+      "genotype": "T/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs660339",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs7832552",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4680",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs6265",
+      "genotype": "T/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2016520",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs762551",
+      "genotype": "A/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1049793",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1050891",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs143383",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1544410",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1800012",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2228570",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2282679",
+      "genotype": "T/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs7041",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs731236",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs679620",
+      "genotype": "T/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs7528684",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs970547",
+      "genotype": "T/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1801131",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1801133",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1801394",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1805087",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1979277",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs72558181",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4570625",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs7946",
+      "genotype": "T/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1051266",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1137070",
+      "genotype": "T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1801222",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2236225",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs234714",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs526934",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs705702",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs757966746",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs7700970",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1800629",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2228145",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1800795",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1799895",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs429358",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs7412",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2296135",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs855791",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1801260",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs934945",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2287161",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs11605924",
+      "genotype": "A/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2305160",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs121912617",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs10830963",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4446909",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1079610",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs135745",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs5751876",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs73598374",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1801253",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs2300478",
+      "genotype": "G/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs9296249",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs3219151",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs6313",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs6295",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1006737",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs53576",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1360780",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs41423247",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs110402",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs324981",
+      "genotype": "A/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1800497",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs6277",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1611115",
+      "genotype": "C/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs17070145",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1044396",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs12722",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4789932",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4988235",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs601338",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs10741657",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs419598",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4147567",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs8192678",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1801282",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1805086",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs680",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs236448",
+      "genotype": "A/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1572312",
+      "genotype": "A/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs3213537",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs558129",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs699785",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs10186876",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs9320823",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1052373",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs6905419",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1800562",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs11046205",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1801280",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1799930",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs8065080",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1801198",
+      "genotype": "C/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs12676",
+      "genotype": "G/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1800532",
+      "genotype": "A/C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs6318",
+      "genotype": "C",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs1799836",
+      "genotype": "G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4532",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs6280",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs279858",
+      "genotype": "C/T",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs671",
+      "genotype": "G/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs4994",
+      "genotype": "A/G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "rs25531",
+      "genotype": "A/A",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "SLC6A3:DAT1 VNTR 9/10",
+      "genotype": "10/10",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "PER3:VNTR 4/5",
+      "genotype": "4/5",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "SLC6A4:5-HTTLPR",
+      "genotype": "S/L",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "DRD4:VNTR 7R",
+      "genotype": "4/7",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "MMP1:rs1799750",
+      "genotype": "1G/2G",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
+      "variantId": "AR:CAG repeat",
+      "genotype": "mid",
+      "quality": 0.99
+    }
+  ]
+}
