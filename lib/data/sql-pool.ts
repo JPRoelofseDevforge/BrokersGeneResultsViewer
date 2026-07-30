@@ -105,7 +105,7 @@ export async function getSqlPool(): Promise<sql.ConnectionPool> {
       poolPromise = undefined;
       console.error(
         "[gene-results] Azure SQL connection failed",
-        safeErrorDiagnostic(error),
+        JSON.stringify(safeErrorDiagnostic(error)),
       );
       throw error;
     });
