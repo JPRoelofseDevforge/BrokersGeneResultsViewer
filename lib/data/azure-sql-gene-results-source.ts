@@ -19,6 +19,14 @@ import {
 
 type DbRow = Record<string, unknown>;
 
+const SUPPORTED_NON_RSID_ASSAYS = new Set([
+  "AR|cag repeat",
+  "DRD4|vntr 7r",
+  "PER3|vntr 4/5",
+  "SLC6A3|dat1 vntr 9/10",
+  "SLC6A4|5-httlpr",
+]);
+
 export type GeneProcedureName =
   | "dbo.usp_BrokerGene_GetProfileByEmail"
   | "dbo.usp_BrokerGene_GetProfileByNumber"
@@ -162,7 +170,11 @@ function projectGenotypes(
 
     if (
       !variantId ||
-      !/^rs\d+$/i.test(variantId) ||
+      (!/^rs\d+$/i.test(variantId) &&
+        (!gene ||
+          !SUPPORTED_NON_RSID_ASSAYS.has(
+            `${gene.toUpperCase()}|${variantId.toLowerCase()}`,
+          ))) ||
       !genotype ||
       Number.isNaN(quality)
     ) {

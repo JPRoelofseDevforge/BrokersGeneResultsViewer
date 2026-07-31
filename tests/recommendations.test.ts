@@ -155,6 +155,22 @@ test("actions require enough independent markers and cross-system convergence", 
   assert.equal(noCrossSystemConvergence.actionOutcome, "no-convergence");
 });
 
+test("one-carbon foods can converge across independent enzymes in one pathway", () => {
+  const synthesis = buildRecommendationSynthesis([
+    calledMarker("rs1801133", "AA"),
+    calledMarker("rs7946", "TT"),
+    calledMarker("rs1051266", "AA"),
+  ]);
+  const oneCarbon = synthesis.actions.find(
+    (recommendation) => recommendation.id === "one-carbon-foods",
+  );
+
+  assert.ok(oneCarbon);
+  assert.equal(oneCarbon.kind, "food");
+  assert.equal(oneCarbon.contributors.length, 3);
+  assert.deepEqual(oneCarbon.domainIds, ["methyl"]);
+});
+
 test("non-called marker states never contribute to recommendation scores", () => {
   const nonCalledStates: MarkerState[] = [
     "not-called",

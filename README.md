@@ -6,8 +6,14 @@ token, reads the matching approved gene-result profile from the shared Azure
 SQL database, applies the versioned marker catalogue, and returns a no-store
 report.
 
-The original `sam_report-3.html` remains design source material. It is not
-loaded by the application.
+`sam_report-new.html` is the authenticated report display source. It is
+rendered only after the token/database lookup succeeds, inside a sandboxed
+report frame. The production adapter removes its prototype upload, sample,
+editable-profile, external-model, wearable-pairing, and practitioner-override
+paths. Marker call states still come from the server processor; the reference
+renderer cannot turn a withheld, unreadable, or missing call into a result.
+
+The original `sam_report-3.html` remains archived design source material.
 
 ## Production data flow
 
@@ -55,10 +61,15 @@ does not claim or infer clinical consent.
 - Palindromic markers are excluded when the assay strand is unknown.
 - Adult-only APOE is withheld when age is unknown or under 18.
 - Exact duplicate rows are deduplicated; conflicting rows fail closed.
+- Five non-rs repeat assays are accepted only under their exact catalogue
+  gene/assay pairs; arbitrary assay labels still fail closed.
 - Workbook-only variants remain visible as stored/unscored and never affect a
   domain score.
 - Catalogue markers without a usable call remain explicit.
 - No raw file upload route exists.
+- Phase 1 lab values remain in the current report tab only. Practitioner
+  overrides, model endpoints, and wearable connections stay disabled until
+  their authenticated and audited server workflows exist.
 
 This report is educational and wellness-oriented. It does not diagnose,
 prescribe, or replace a qualified clinician.

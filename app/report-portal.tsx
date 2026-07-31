@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { ReportDashboard } from "@/app/report-dashboard";
+import { ReferenceReport } from "@/app/reference-report";
 import type { GeneReport } from "@/lib/gene-processing/types";
 import { GENERIC_BROKER_DAY_PROFILE_NAME } from "@/lib/reports/profile-display";
 
@@ -290,7 +290,7 @@ export function ReportPortal({
   }, [previewEnabled]);
 
   if (state.status === "ready") {
-    return <ReportDashboard key={state.report.id} report={state.report} />;
+    return <ReferenceReport key={state.report.id} report={state.report} />;
   }
 
   return <AccessState state={state} />;

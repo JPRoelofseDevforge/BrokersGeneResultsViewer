@@ -109,6 +109,74 @@ test("fails closed for duplicate profiles or duplicate canonical variants", asyn
   );
 });
 
+test("accepts only the panel's exact non-rs assay identifiers", async () => {
+  const supported = [
+    ["PER3", "VNTR 4/5", "4/5"],
+    ["SLC6A4", "5-HTTLPR", "S/L"],
+    ["DRD4", "VNTR 7R", "4/7"],
+    ["AR", "CAG repeat", "MID"],
+    ["SLC6A3", "DAT1 VNTR 9/10", "10/10"],
+  ];
+  const source = new AzureSqlGeneResultsSource(async (procedure) =>
+    procedure === "dbo.usp_BrokerGene_GetResultsByProfileId"
+      ? supported.map(([gene, variantId, genotype]) => ({
+          gene,
+          variantId,
+          genotype,
+          quality: null,
+        }))
+      : [readyProfile],
+  );
+
+  const genotypes = await source.getGenotypeRecords("101");
+  assert.deepEqual(
+    genotypes.map(({ gene, variantId, genotype }) => ({
+      gene,
+      variantId,
+      genotype,
+    })),
+    supported.map(([gene, variantId, genotype]) => ({
+      gene,
+      variantId: variantId.toLowerCase(),
+      genotype,
+    })),
+  );
+
+  const unsupported = new AzureSqlGeneResultsSource(async (procedure) =>
+    procedure === "dbo.usp_BrokerGene_GetResultsByProfileId"
+      ? [
+          {
+            gene: "UNKNOWN",
+            variantId: "arbitrary assay",
+            genotype: "A/A",
+            quality: null,
+          },
+        ]
+      : [readyProfile],
+  );
+  await assert.rejects(
+    unsupported.getGenotypeRecords("101"),
+    GeneResultsIntegrityError,
+  );
+
+  const wrongGene = new AzureSqlGeneResultsSource(async (procedure) =>
+    procedure === "dbo.usp_BrokerGene_GetResultsByProfileId"
+      ? [
+          {
+            gene: "UNKNOWN",
+            variantId: "VNTR 4/5",
+            genotype: "4/5",
+            quality: null,
+          },
+        ]
+      : [readyProfile],
+  );
+  await assert.rejects(
+    wrongGene.getGenotypeRecords("101"),
+    GeneResultsIntegrityError,
+  );
+});
+
 test("does not project partial, disabled, or malformed profiles", async () => {
   for (const row of [
     { ...readyProfile, reportStatus: "partial" },

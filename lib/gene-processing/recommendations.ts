@@ -7,7 +7,7 @@ import type {
   WholeReportRecommendation,
 } from "./types";
 
-export const RECOMMENDATION_RULES_VERSION = "2026.07.30";
+export const RECOMMENDATION_RULES_VERSION = "2026.07.31";
 
 interface RecommendationCriterion {
   variantId: string;
@@ -25,6 +25,7 @@ interface RecommendationRule {
   canUnlock: string | null;
   criteria: RecommendationCriterion[];
   order: number;
+  minimumDomainCount?: number;
 }
 
 interface SafetyRule {
@@ -57,6 +58,7 @@ const RULES: RecommendationRule[] = [
     criteria: [
       { variantId: "rs1801260", genotypes: ["GG", "AG"], weight: 2 },
       { variantId: "rs2287161", genotypes: ["GG"], weight: 1 },
+      { variantId: "VNTR 4/5", genotypes: ["5/5", "4/5"], weight: 1 },
       { variantId: "rs1360780", genotypes: ["TT", "CT"], weight: 2 },
       { variantId: "rs110402", genotypes: ["GG", "AG"], weight: 1 },
       { variantId: "rs1006737", genotypes: ["AA", "AG"], weight: 1 },
@@ -160,6 +162,7 @@ const RULES: RecommendationRule[] = [
     note: "Whether support is ever needed is decided by a measured shortfall, not by these genes.",
     canUnlock: null,
     order: 7,
+    minimumDomainCount: 1,
     criteria: [
       { variantId: "rs1801133", genotypes: ["AA", "AG"], weight: 2 },
       { variantId: "rs1801131", genotypes: ["GG", "GT"], weight: 1 },
@@ -422,7 +425,7 @@ function qualifiesAction(scored: ScoredRule) {
     scored.score >= 3 &&
     scored.contributors.length >= 3 &&
     scored.geneCount >= 3 &&
-    scored.domainIds.length >= 2
+    scored.domainIds.length >= (scored.rule.minimumDomainCount ?? 2)
   );
 }
 
@@ -445,7 +448,12 @@ function nearThresholdReason(
 
   if (scored.contributors.length < markerMinimum) return "too-few-markers";
   if (scored.geneCount < geneMinimum) return "too-few-genes";
-  if (!measurement && scored.domainIds.length < 2) return "too-few-systems";
+  if (
+    !measurement &&
+    scored.domainIds.length < (scored.rule.minimumDomainCount ?? 2)
+  ) {
+    return "too-few-systems";
+  }
   if (scored.score < scoreMinimum) return "below-threshold";
   if (!selected.has(scored.rule.id)) return "outside-shortlist";
   return "below-threshold";

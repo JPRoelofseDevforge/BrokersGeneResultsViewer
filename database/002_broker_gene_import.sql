@@ -145,10 +145,42 @@ BEGIN
            COLLATE Latin1_General_100_BIN2 LIKE N'%[^0-9]%'
       OR LEN(source_row.GeneSymbol) = 0
       OR LEN(source_row.VariantId) NOT BETWEEN 3 AND 64
-      OR source_row.VariantId
-           COLLATE Latin1_General_100_BIN2 NOT LIKE N'rs[0-9]%'
-      OR SUBSTRING(source_row.VariantId, 3, 62)
-           COLLATE Latin1_General_100_BIN2 LIKE N'%[^0-9]%'
+      OR
+      (
+        (
+          source_row.VariantId
+            COLLATE Latin1_General_100_BIN2 NOT LIKE N'rs[0-9]%'
+          OR SUBSTRING(source_row.VariantId, 3, 62)
+            COLLATE Latin1_General_100_BIN2 LIKE N'%[^0-9]%'
+        )
+        AND NOT
+        (
+          (
+            source_row.GeneSymbol = N'PER3'
+            AND source_row.VariantId = N'vntr 4/5'
+          )
+          OR
+          (
+            source_row.GeneSymbol = N'SLC6A4'
+            AND source_row.VariantId = N'5-httlpr'
+          )
+          OR
+          (
+            source_row.GeneSymbol = N'DRD4'
+            AND source_row.VariantId = N'vntr 7r'
+          )
+          OR
+          (
+            source_row.GeneSymbol = N'AR'
+            AND source_row.VariantId = N'cag repeat'
+          )
+          OR
+          (
+            source_row.GeneSymbol = N'SLC6A3'
+            AND source_row.VariantId = N'dat1 vntr 9/10'
+          )
+        )
+      )
       OR LEN(source_row.NormalizedValue) = 0
       OR DATALENGTH(source_row.RawSourceRowJson) > 16000
   )
@@ -466,7 +498,7 @@ BEGIN
       @SourceFileName,
       @SourceByteLength,
       N'swab-rs-v1',
-      N'broker-gene-import-v2',
+      N'broker-gene-import-v3',
       @ExpectedProfileCount,
       @ExpectedRawResultRowCount,
       @EffectiveTimestampUtc
