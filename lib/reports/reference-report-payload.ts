@@ -38,6 +38,15 @@ export interface ReferenceReportPayload {
     processedAt: string;
     rulesVersion: string;
   };
+  ledger: {
+    called: number;
+    nocall: number;
+    unreadable: number;
+    design: number;
+    amb: number;
+    flip: number;
+    withheld: number;
+  };
   calls: Record<string, string>;
   results: Record<string, ReferenceMarkerResult>;
 }
@@ -65,6 +74,36 @@ function addReportedCall(
   calls[marker.variantId] = call;
   calls[marker.variantId.toLowerCase()] = call;
   calls[referenceMarkerKey(marker)] = call;
+}
+
+export function buildReferenceLedgerCounts(markers: ProcessedMarker[]) {
+  const counts: ReferenceReportPayload["ledger"] = {
+    called: 0,
+    nocall: 0,
+    unreadable: 0,
+    design: 0,
+    amb: 0,
+    flip: 0,
+    withheld: 0,
+  };
+
+  for (const marker of markers) {
+    if (marker.state === "unmapped") continue;
+    if (marker.variantId === "design item") {
+      counts.design += 1;
+      continue;
+    }
+
+    if (marker.strandAmbiguous) counts.amb += 1;
+    if (marker.strandFlipped) counts.flip += 1;
+
+    if (marker.state === "called") counts.called += 1;
+    if (marker.state === "not-called") counts.nocall += 1;
+    if (marker.state === "unreadable") counts.unreadable += 1;
+    if (marker.state === "withheld") counts.withheld += 1;
+  }
+
+  return counts;
 }
 
 /**
@@ -114,6 +153,7 @@ export function buildReferenceReportPayload(
       processedAt: report.receipt.processedAt,
       rulesVersion: report.receipt.rulesVersion,
     },
+    ledger: buildReferenceLedgerCounts(report.markers),
     calls,
     results,
   };

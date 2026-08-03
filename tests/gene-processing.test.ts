@@ -4,6 +4,7 @@ import test from "node:test";
 import { markerCatalogue } from "../lib/gene-processing/catalogue";
 import type {
   GeneProfile,
+  GenotypeRecord,
   MarkerCatalogue,
   MarkerDefinition,
 } from "../lib/gene-processing/types";
@@ -77,6 +78,39 @@ function testCatalogue(marker: MarkerDefinition): MarkerCatalogue {
     ],
     markers: [marker],
   };
+}
+
+function apoeTestCatalogue(): MarkerCatalogue {
+  const apoe = markerCatalogue.markers.find(
+    (marker) => marker.variantId === "rs429358+rs7412",
+  );
+  assert.ok(apoe);
+  return {
+    version: markerCatalogue.version,
+    domains: markerCatalogue.domains,
+    bands: markerCatalogue.bands,
+    markers: [apoe],
+  };
+}
+
+function apoeRecords(
+  rs429358: string,
+  rs7412: string,
+): GenotypeRecord[] {
+  return [
+    {
+      profileId: profile.id,
+      variantId: "rs429358",
+      genotype: rs429358,
+      quality: 0.99,
+    },
+    {
+      profileId: profile.id,
+      variantId: "rs7412",
+      genotype: rs7412,
+      quality: 0.99,
+    },
+  ];
 }
 
 test("builds the Phase 1 report from repository records", async () => {
@@ -268,6 +302,26 @@ test("treats UND as no-call before CNV handling and does not guess PRS", () => {
   assert.equal(prs.markers[0].state, "unreadable");
   assert.equal(prs.markers[0].genotype, "PRS");
   assert.equal(prs.domains[0].calledMarkers, 0);
+});
+
+test("keeps a nonempty malformed SNP call visible as unreadable", () => {
+  const report = processGeneReport(
+    profile,
+    [
+      {
+        profileId: profile.id,
+        variantId: "rs1",
+        genotype: "PRS",
+        quality: null,
+      },
+    ],
+    testCatalogue(testMarker()),
+  );
+
+  assert.equal(report.markers[0].state, "unreadable");
+  assert.equal(report.markers[0].rawGenotype, "PRS");
+  assert.equal(report.markers[0].genotype, null);
+  assert.equal(report.domains[0].calledMarkers, 0);
 });
 
 test("accepts single-allele calls only for X-linked markers with verified male sex", () => {
@@ -514,7 +568,7 @@ test("withholds the adult-only composite result for a minor", () => {
   assert.equal(report.markers[0].genotype, null);
 });
 
-test("withholds the adult-only composite result when age is unknown", () => {
+test("releases the APOE composite unless the reader is confirmed under 18", () => {
   const apoe = markerCatalogue.markers.find(
     (marker) => marker.variantId === "rs429358+rs7412",
   );
@@ -544,8 +598,55 @@ test("withholds the adult-only composite result when age is unknown", () => {
     },
   );
 
-  assert.equal(report.markers[0].state, "withheld");
-  assert.equal(report.markers[0].genotype, null);
+  assert.equal(report.markers[0].state, "called");
+  assert.equal(report.markers[0].genotype, "E3/E4");
+  assert.equal(report.receipt.withheldMarkers, 0);
+  assert.ok(
+    report.recommendations.safety.some(
+      (recommendation) => recommendation.id === "apoe-head-impact",
+    ),
+  );
+});
+
+test("releases APOE for a reader who is exactly 18", () => {
+  const report = processGeneReport(
+    { ...profile, dateOfBirth: "2008-07-30" },
+    apoeRecords("C/T", "C/C"),
+    apoeTestCatalogue(),
+  );
+
+  assert.equal(report.markers[0].state, "called");
+  assert.equal(report.markers[0].genotype, "E3/E4");
+});
+
+test("resolves only the six supported APOE diplotypes", () => {
+  const supported = [
+    ["T/T", "T/T", "E2/E2"],
+    ["T/T", "C/T", "E2/E3"],
+    ["C/T", "C/T", "E2/E4"],
+    ["T/T", "C/C", "E3/E3"],
+    ["C/T", "C/C", "E3/E4"],
+    ["C/C", "C/C", "E4/E4"],
+  ] as const;
+
+  for (const [rs429358, rs7412, expected] of supported) {
+    const report = processGeneReport(
+      profile,
+      apoeRecords(rs429358, rs7412),
+      apoeTestCatalogue(),
+    );
+    assert.equal(report.markers[0].state, "called");
+    assert.equal(report.markers[0].genotype, expected);
+  }
+
+  const unsupported = processGeneReport(
+    profile,
+    apoeRecords("C/C", "C/T"),
+    apoeTestCatalogue(),
+  );
+  assert.equal(unsupported.markers[0].state, "unreadable");
+  assert.equal(unsupported.markers[0].rawGenotype, "C/C · C/T");
+  assert.equal(unsupported.markers[0].genotype, null);
 });
 
 test("treats an UND APOE component as no-call", () => {
@@ -579,4 +680,16 @@ test("treats an UND APOE component as no-call", () => {
   );
 
   assert.equal(report.markers[0].state, "not-called");
+});
+
+test("does not claim APOE was withheld when a minor has no composite call", () => {
+  const report = processGeneReport(
+    { ...profile, dateOfBirth: "2012-01-01" },
+    apoeRecords("UND", "C/C"),
+    apoeTestCatalogue(),
+  );
+
+  assert.equal(report.markers[0].state, "not-called");
+  assert.equal(report.markers[0].genotype, null);
+  assert.equal(report.receipt.withheldMarkers, 0);
 });

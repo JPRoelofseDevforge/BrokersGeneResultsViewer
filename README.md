@@ -6,14 +6,18 @@ token, reads the matching approved gene-result profile from the shared Azure
 SQL database, applies the versioned marker catalogue, and returns a no-store
 report.
 
-`sam_report-new.html` is the authenticated report display source. It is
+`sam_report-7.html` is the authenticated report display source. It is
 rendered only after the token/database lookup succeeds, inside a sandboxed
 report frame. The production adapter removes its prototype upload, sample,
 editable-profile, external-model, wearable-pairing, and practitioner-override
 paths. Marker call states still come from the server processor; the reference
 renderer cannot turn a withheld, unreadable, or missing call into a result.
+Its ledger is generated from those same live marker objects and separates a
+lab no-call, an unreadable source value, and a marker not yet present on the
+panel.
 
-The original `sam_report-3.html` remains archived design source material.
+The earlier `sam_report-new.html` and original `sam_report-3.html` remain
+archived design source material.
 
 ## Production data flow
 
@@ -59,7 +63,9 @@ does not claim or infer clinical consent.
 - `PRS` is not guessed into a copy-number interpretation.
 - Single-allele calls require an X-linked marker and verified male sex.
 - Palindromic markers are excluded when the assay strand is unknown.
-- Adult-only APOE is withheld when age is unknown or under 18.
+- APOE is withheld only when the processed profile confirms the reader is
+  under 18; otherwise a valid composite call is released with its adult-use
+  context.
 - Exact duplicate rows are deduplicated; conflicting rows fail closed.
 - Five non-rs repeat assays are accepted only under their exact catalogue
   gene/assay pairs; arbitrary assay labels still fail closed.
@@ -73,6 +79,12 @@ does not claim or infer clinical consent.
 
 This report is educational and wellness-oriented. It does not diagnose,
 prescribe, or replace a qualified clinician.
+
+The Phase 1 Broker Day invitation cohort is an adults-only audience. A stored
+date of birth that proves the reader is under 18 always overrides that audience
+assumption and withholds APOE. Before this report is offered outside that
+adult-only cohort, the shared identity record must provide verified age
+eligibility rather than relying on a missing date of birth.
 
 ## Local development
 

@@ -115,6 +115,23 @@ test("does not expose calls for a withheld adult-only result", () => {
   assert.equal(payload.calls["APOE:rs429358+rs7412"], undefined);
 });
 
+test("projects a released adult APOE result into the revised report", () => {
+  const apoe = marker({
+    gene: "APOE",
+    variantId: "rs429358+rs7412",
+    state: "called",
+    rawGenotype: "C/T · C/C",
+    genotype: "E3/E4",
+    leverage: 2,
+    interpretation: "Adult recovery context after head impact.",
+  });
+  const payload = buildReferenceReportPayload(report([apoe]));
+
+  assert.equal(payload.results[referenceMarkerKey(apoe)].state, "called");
+  assert.equal(payload.results[referenceMarkerKey(apoe)].genotype, "E3/E4");
+  assert.equal(payload.calls["APOE:rs429358+rs7412"], "C/T · C/C");
+});
+
 test("keeps an unreadable source value visible without treating it as called", () => {
   const unreadable = marker({
     gene: "PER3",
@@ -128,4 +145,60 @@ test("keeps an unreadable source value visible without treating it as called", (
 
   assert.equal(payload.calls["PER3:VNTR 4/5"], "unexpected");
   assert.equal(payload.results["PER3:VNTR 4/5"].state, "unreadable");
+});
+
+test("builds authoritative live ledger counts without collapsing marker states", () => {
+  const payload = buildReferenceReportPayload(
+    report([
+      marker({
+        gene: "CALLED",
+        variantId: "rs-called",
+        strandFlipped: true,
+      }),
+      marker({
+        gene: "MISSING",
+        variantId: "rs-missing",
+        state: "not-called",
+        rawGenotype: null,
+        genotype: null,
+      }),
+      marker({
+        gene: "BAD",
+        variantId: "rs-bad",
+        state: "unreadable",
+        rawGenotype: "unexpected",
+        genotype: null,
+        strandAmbiguous: true,
+      }),
+      marker({
+        gene: "DESIGN",
+        variantId: "design item",
+        state: "not-called",
+        rawGenotype: null,
+        genotype: null,
+      }),
+      marker({
+        gene: "HELD",
+        variantId: "rs-held",
+        state: "withheld",
+        rawGenotype: null,
+        genotype: null,
+      }),
+      marker({
+        gene: "EXTRA",
+        variantId: "rs-extra",
+        state: "unmapped",
+      }),
+    ]),
+  );
+
+  assert.deepEqual(payload.ledger, {
+    called: 1,
+    nocall: 1,
+    unreadable: 1,
+    design: 1,
+    amb: 1,
+    flip: 1,
+    withheld: 1,
+  });
 });

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import referenceSource from "@/sam_report-new.html?raw";
+import referenceSource from "@/sam_report-7.html?raw";
 import type { GeneReport } from "@/lib/gene-processing/types";
 import {
   buildReferenceReportPayload,
@@ -87,9 +87,11 @@ const DATABASE_ADAPTER = String.raw`
   "use strict";
 
   var serverResults = Object.create(null);
+  var serverLedger = null;
   var originalBuildSupps = buildSupps;
   var originalBuildRoadmap = buildRoadmap;
   var originalBuildSexPanel = buildSexPanel;
+  var originalBuildLedger = buildLedger;
   var originalFindMarker = findM;
 
   function safe(value) {
@@ -110,7 +112,9 @@ const DATABASE_ADAPTER = String.raw`
     if (result.state === "unreadable") {
       return {
         state: "unreadable",
-        gt: result.genotype || result.rawGenotype || "—"
+        gt: result.genotype || result.rawGenotype || "—",
+        flip: !!result.strandFlipped,
+        amb: !!result.strandAmbiguous
       };
     }
 
@@ -137,6 +141,23 @@ const DATABASE_ADAPTER = String.raw`
   }
 
   markerResult = serverMarkerResult;
+
+  function applyServerLedgerCounts() {
+    if (!serverLedger || typeof STATUSES === "undefined") return;
+    var rows = document.querySelectorAll("#ledger table tbody tr");
+    STATUSES.forEach(function (status, index) {
+      var row = rows[index];
+      var cell = row && row.lastElementChild;
+      if (!cell || !Object.prototype.hasOwnProperty.call(serverLedger, status.k)) return;
+      cell.textContent = String(serverLedger[status.k]);
+    });
+  }
+
+  buildLedger = function () {
+    originalBuildLedger();
+    applyServerLedgerCounts();
+  };
+
   findM = function (reference) {
     var matched = originalFindMarker(reference);
     if (matched) return matched;
@@ -334,6 +355,7 @@ const DATABASE_ADAPTER = String.raw`
     if (!payload || payload.type !== "${REFERENCE_REPORT_MESSAGE}" || payload.version !== 1) return;
 
     serverResults = payload.results || Object.create(null);
+    serverLedger = payload.ledger || null;
     STATE.calls = Object.assign({}, payload.calls || {});
     STATE.person = {
       name: payload.profile.name || "Your report",

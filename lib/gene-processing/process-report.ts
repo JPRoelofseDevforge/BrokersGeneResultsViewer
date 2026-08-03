@@ -154,6 +154,15 @@ interface ResolvedCall {
 
 const NO_CALL_PATTERN = /^(--|NC|NN|UND|\.\/\.|0)$/i;
 
+const APOE_DIPLOTYPES: Record<string, string> = {
+  "TT|TT": "E2/E2",
+  "TT|CT": "E2/E3",
+  "CT|CT": "E2/E4",
+  "TT|CC": "E3/E3",
+  "CT|CC": "E3/E4",
+  "CC|CC": "E4/E4",
+};
+
 function isNoCall(value: string) {
   return NO_CALL_PATTERN.test(value.trim());
 }
@@ -397,32 +406,25 @@ function findRecord(
   );
 }
 
+function normalizeApoeComponent(record: GenotypeRecord) {
+  const alleles = record.genotype.toUpperCase().replace(/[^ACGT]/g, "");
+  if (alleles.length !== 2) return null;
+  return normalizePair(alleles[0], alleles[1]);
+}
+
 function resolveApoe(
-  marker: MarkerDefinition,
-  records: Map<string, GenotypeRecord>,
+  first: GenotypeRecord,
+  second: GenotypeRecord,
 ): ResolvedCall | null {
-  const first =
-    records.get("rs429358") ?? records.get("apoe:rs429358");
-  const second = records.get("rs7412") ?? records.get("apoe:rs7412");
-  if (!first || !second) return null;
-  if (isNoCall(first.genotype) || isNoCall(second.genotype)) return null;
+  const firstGenotype = normalizeApoeComponent(first);
+  const secondGenotype = normalizeApoeComponent(second);
+  if (!firstGenotype || !secondGenotype) return null;
 
-  const firstAlleles = first.genotype.toUpperCase().replace(/[^ACGT]/g, "");
-  const secondAlleles = second.genotype.toUpperCase().replace(/[^ACGT]/g, "");
-  if (firstAlleles.length !== 2 || secondAlleles.length !== 2) return null;
-  const cCount = (firstAlleles.match(/C/g) ?? []).length;
-  const tCount = (secondAlleles.match(/T/g) ?? []).length;
-
-  let alleles: string[];
-  if (tCount === 2) alleles = ["E2", "E2"];
-  else if (tCount === 1 && cCount === 0) alleles = ["E2", "E3"];
-  else if (tCount === 1 && cCount === 1) alleles = ["E2", "E4"];
-  else if (cCount === 2) alleles = ["E4", "E4"];
-  else if (cCount === 1) alleles = ["E3", "E4"];
-  else alleles = ["E3", "E3"];
+  const genotype = APOE_DIPLOTYPES[`${firstGenotype}|${secondGenotype}`];
+  if (!genotype) return null;
 
   return {
-    genotype: alleles.join("/"),
+    genotype,
     rawGenotype: `${first.genotype} · ${second.genotype}`,
     quality:
       first.quality === null || second.quality === null
@@ -453,10 +455,76 @@ function markerResult(
     assayNote: marker.assayNote,
   };
   const profileAge = ageAt(profile.dateOfBirth, profile.processedAt);
+  let resolved: ResolvedCall | null = null;
+  let unreadableRaw: string | null = null;
+
+  if (marker.variantId === "rs429358+rs7412") {
+    const first =
+      records.get("rs429358") ?? records.get("apoe:rs429358");
+    const second = records.get("rs7412") ?? records.get("apoe:rs7412");
+
+    if (!first || !second || isNoCall(first.genotype) || isNoCall(second.genotype)) {
+      return {
+        ...base,
+        state: "not-called",
+        rawGenotype: null,
+        genotype: null,
+        namedVariant: null,
+        leverage: null,
+        interpretation:
+          "No matching genotype record was available, so this marker is excluded from scoring.",
+        strandFlipped: false,
+        strandAmbiguous: false,
+        quality: null,
+      };
+    }
+
+    unreadableRaw = `${first.genotype} · ${second.genotype}`;
+    resolved = resolveApoe(first, second);
+  } else {
+    const record = findRecord(marker, records);
+    if (!record || isNoCall(record.genotype)) {
+      return {
+        ...base,
+        state: "not-called",
+        rawGenotype: null,
+        genotype: null,
+        namedVariant: null,
+        leverage: null,
+        interpretation:
+          marker.variantId === "design item"
+            ? "This pathway item is retained for coverage but has no confirmed assay call."
+            : "No matching genotype record was available, so this marker is excluded from scoring.",
+        strandFlipped: false,
+        strandAmbiguous: false,
+        quality: null,
+      };
+    }
+
+    unreadableRaw = record.genotype;
+    resolved = resolveSimpleCall(marker, record, profile.assayStrand);
+  }
+
+  if (!resolved) {
+    return {
+      ...base,
+      state: "unreadable",
+      rawGenotype: unreadableRaw,
+      genotype: null,
+      namedVariant: null,
+      leverage: null,
+      interpretation:
+        "The stored call does not match a supported genotype and has not been guessed.",
+      strandFlipped: false,
+      strandAmbiguous: false,
+      quality: null,
+    };
+  }
 
   if (
     marker.variantId === "rs429358+rs7412" &&
-    (profileAge === null || profileAge < 18)
+    profileAge !== null &&
+    profileAge < 18
   ) {
     return {
       ...base,
@@ -466,35 +534,7 @@ function markerResult(
       namedVariant: null,
       leverage: null,
       interpretation:
-        "This adult-only result is withheld until adult eligibility is verified.",
-      strandFlipped: false,
-      strandAmbiguous: false,
-      quality: null,
-    };
-  }
-
-  const resolved =
-    marker.variantId === "rs429358+rs7412"
-      ? resolveApoe(marker, records)
-      : (() => {
-          const record = findRecord(marker, records);
-          return record
-            ? resolveSimpleCall(marker, record, profile.assayStrand)
-            : null;
-        })();
-
-  if (!resolved) {
-    return {
-      ...base,
-      state: "not-called",
-      rawGenotype: null,
-      genotype: null,
-      namedVariant: null,
-      leverage: null,
-      interpretation:
-        marker.variantId === "design item"
-          ? "This pathway item is retained for coverage but has no confirmed assay call."
-          : "No matching genotype record was available, so this marker is excluded from scoring.",
+        "This result is withheld because the processed profile confirms the reader is under 18.",
       strandFlipped: false,
       strandAmbiguous: false,
       quality: null,
