@@ -1,13 +1,14 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import vm from "node:vm";
 
-const sourceUrl = new URL("../sam_report-3.html", import.meta.url);
+const sourceUrl = new URL("../sam_report-11.html", import.meta.url);
 const outputUrl = new URL("../data/marker-catalogue.json", import.meta.url);
 const profilesOutputUrl = new URL(
   "../data/phase-1-gene-records.json",
   import.meta.url,
 );
 const source = await readFile(sourceUrl, "utf8");
+const checkOnly = process.argv.includes("--check");
 
 function findBalanced(text, start, open, close) {
   let depth = 0;
@@ -161,9 +162,6 @@ const catalogue = {
   })),
 };
 
-await mkdir(new URL("../data/", import.meta.url), { recursive: true });
-await writeFile(outputUrl, `${JSON.stringify(catalogue, null, 2)}\n`, "utf8");
-
 const phaseOneRecords = {
   profiles: [
     {
@@ -176,7 +174,8 @@ const phaseOneRecords = {
       sampleId: "GNS-8810-24",
       assayName: "Pangenomix Whole Health Array",
       assayVersion: "v3.2",
-      consentStatus: "active",
+      assayStrand: "forward",
+      reportAccessStatus: "enabled",
       processedAt: "2026-07-30T06:42:00.000Z",
     },
   ],
@@ -190,12 +189,27 @@ const phaseOneRecords = {
   ),
 };
 
-await writeFile(
-  profilesOutputUrl,
-  `${JSON.stringify(phaseOneRecords, null, 2)}\n`,
-  "utf8",
-);
+const catalogueJson = `${JSON.stringify(catalogue, null, 2)}\n`;
+const phaseOneRecordsJson = `${JSON.stringify(phaseOneRecords, null, 2)}\n`;
+
+if (checkOnly) {
+  const [storedCatalogue, storedProfiles] = await Promise.all([
+    readFile(outputUrl, "utf8"),
+    readFile(profilesOutputUrl, "utf8"),
+  ]);
+  if (storedCatalogue !== catalogueJson || storedProfiles !== phaseOneRecordsJson) {
+    throw new Error(
+      "The active report source has drifted from the checked-in marker catalogue or seeded records.",
+    );
+  }
+} else {
+  await mkdir(new URL("../data/", import.meta.url), { recursive: true });
+  await Promise.all([
+    writeFile(outputUrl, catalogueJson, "utf8"),
+    writeFile(profilesOutputUrl, phaseOneRecordsJson, "utf8"),
+  ]);
+}
 
 console.log(
-  `Extracted ${catalogue.markers.length} marker definitions and ${phaseOneRecords.genotypeCalls.length} seeded genotype rows.`,
+  `${checkOnly ? "Verified" : "Extracted"} ${catalogue.markers.length} marker definitions and ${phaseOneRecords.genotypeCalls.length} seeded genotype rows.`,
 );

@@ -6,7 +6,7 @@ token, reads the matching approved gene-result profile from the shared Azure
 SQL database, applies the versioned marker catalogue, and returns a no-store
 report.
 
-`sam_report-7.html` is the authenticated report display source. It is
+`sam_report-11.html` is the authenticated report display source. It is
 rendered only after the token/database lookup succeeds, inside a sandboxed
 report frame. The production adapter removes its prototype upload, sample,
 editable-profile, external-model, wearable-pairing, and practitioner-override
@@ -16,8 +16,14 @@ Its ledger is generated from those same live marker objects and separates a
 lab no-call, an unreadable source value, and a marker not yet present on the
 panel.
 
-The earlier `sam_report-new.html` and original `sam_report-3.html` remain
-archived design source material.
+Report 11 adds the Pathology and All three layers views. In Phase 1, pathology
+values and food-intake answers are ephemeral browser inputs only. Sex-specific
+pathology comparisons remain unavailable until verified sex at birth is
+carried through the shared Broker Day profile, and sample wearable nights are
+never mixed into an authenticated member report.
+
+The earlier `sam_report-7.html`, `sam_report-new.html`, and original
+`sam_report-3.html` remain archived design source material.
 
 ## Production data flow
 

@@ -10,6 +10,7 @@
     "build": "vinext build",
     "start": "node dist/standalone/server.js",
     "catalogue:extract": "node scripts/extract-marker-catalogue.mjs",
+    "catalogue:check": "node scripts/extract-marker-catalogue.mjs --check",
     "test": "tsx --test tests/*.test.ts",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },

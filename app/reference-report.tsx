@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import referenceSource from "@/sam_report-7.html?raw";
+import referenceSource from "@/sam_report-11.html?raw";
 import type { GeneReport } from "@/lib/gene-processing/types";
 import {
   buildReferenceReportPayload,
@@ -88,10 +88,14 @@ const DATABASE_ADAPTER = String.raw`
 
   var serverResults = Object.create(null);
   var serverLedger = null;
+  var serverMode = false;
   var originalBuildSupps = buildSupps;
   var originalBuildRoadmap = buildRoadmap;
   var originalBuildSexPanel = buildSexPanel;
   var originalBuildLedger = buildLedger;
+  var originalBuildPathology = buildPathology;
+  var originalBuildConverge = buildConverge;
+  var originalBuildDashboard = buildDashboard;
   var originalFindMarker = findM;
 
   function safe(value) {
@@ -176,7 +180,7 @@ const DATABASE_ADAPTER = String.raw`
     var note = document.createElement("div");
     note.id = "samSupplementPhase";
     note.className = "notice sage sam-phase-note small";
-    note.innerHTML = "<b>Phase 1.</b> Pathology values entered here stay in this tab and are not written to the Broker Day database. Practitioner overrides require the audited clinical workflow and are not available yet.";
+    note.innerHTML = "<b>Phase 1 interactive preview.</b> This page combines the approved database calls with intake or pathology values you enter in this tab. Those inputs and outputs are not written to Broker Day, are not a prescription, and disappear when the tab closes. Iron and vitamin B12 remain clinician-gated; practitioner overrides are not connected yet.";
     host.prepend(note);
 
     host.querySelectorAll("button").forEach(function (button) {
@@ -206,6 +210,66 @@ const DATABASE_ADAPTER = String.raw`
   buildRoadmap = function () {
     originalBuildRoadmap();
     addRoadmapNotice();
+  };
+
+  function renderDatabasePathologyPolicy() {
+    var host = document.getElementById("pathology");
+    if (!host) return;
+    host.innerHTML =
+      '<div class="notice sage"><b>Waiting for a verified Broker Day profile value.</b> These ranges are sex-specific, and the approved database report does not currently include sex at birth. SAM will not default it to male or female. Pathology remains unavailable here until that verified field is carried through the shared profile.</div>';
+  }
+
+  buildPathology = function () {
+    if (serverMode && !labSex()) {
+      renderDatabasePathologyPolicy();
+      return;
+    }
+    originalBuildPathology();
+  };
+
+  function addConvergeNotice() {
+    var host = document.getElementById("converge");
+    if (!host || document.getElementById("samConvergePhase")) return;
+    var note = document.createElement("div");
+    note.id = "samConvergePhase";
+    note.className = "notice sage sam-phase-note small";
+    note.innerHTML = "<b>Phase 1.</b> Genetics is live from the approved database report. Pathology stays unscored until verified sex at birth is available, and wearable comparisons stay empty until the consented JCVital service is connected.";
+    host.prepend(note);
+  }
+
+  buildConverge = function () {
+    if (!serverMode) {
+      originalBuildConverge();
+      return;
+    }
+    var labs = STATE.labs;
+    var days = STATE.demoDays;
+    if (!labSex()) STATE.labs = {};
+    STATE.demoDays = null;
+    try {
+      originalBuildConverge();
+    } finally {
+      STATE.labs = labs;
+      STATE.demoDays = days;
+    }
+    addConvergeNotice();
+  };
+
+  function renderDatabaseWearablePolicy() {
+    var host = document.getElementById("dash");
+    if (!host) return;
+    STATE.demoDays = null;
+    host.innerHTML =
+      '<div class="notice sage small"><b>No sample nights are mixed into a private member report.</b> The dashboard will remain empty until the authenticated, consented JCVital connection supplies this member\'s own data.</div>';
+  }
+
+  buildDashboard = function () {
+    if (serverMode) {
+      renderDatabaseWearablePolicy();
+      buildConverge();
+      return;
+    }
+    originalBuildDashboard();
   };
 
   function renderDatabaseSexPolicy() {
@@ -333,6 +397,25 @@ const DATABASE_ADAPTER = String.raw`
         '<div class="notice sage small"><b>Not connected yet.</b> This section previews the approved data streams and safeguards. Account pairing will appear here only after the server-side consent flow is available.</div>';
     }
 
+    renderDatabaseWearablePolicy();
+    if (!labSex()) renderDatabasePathologyPolicy();
+    addConvergeNotice();
+
+    var dashboard = document.getElementById("dash");
+    var dashboardLead = dashboard && dashboard.previousElementSibling;
+    if (dashboardLead && dashboardLead.matches("p.lead")) {
+      dashboardLead.textContent = "The layout is ready, but private reports never load sample nights. It will fill only from this member's consented JCVital stream.";
+    }
+    var connectPanel = document.getElementById("p-connect");
+    if (connectPanel) {
+      connectPanel.querySelectorAll("details").forEach(function (details) {
+        var summary = details.querySelector("summary");
+        if (/what is in this sample/i.test((summary && summary.textContent) || "")) {
+          details.hidden = true;
+        }
+      });
+    }
+
     var rawPanel = document.getElementById("p-raw");
     if (rawPanel) {
       rawPanel.querySelectorAll("th").forEach(function (heading) {
@@ -356,7 +439,12 @@ const DATABASE_ADAPTER = String.raw`
 
     serverResults = payload.results || Object.create(null);
     serverLedger = payload.ledger || null;
+    serverMode = true;
     STATE.calls = Object.assign({}, payload.calls || {});
+    STATE.labs = {};
+    STATE.demoDays = null;
+    STATE.intake = {};
+    STATE.override = {};
     STATE.person = {
       name: payload.profile.name || "Your report",
       mode: "member"
