@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import referenceSource from "@/sam_report-11.html?raw";
+import referenceSource from "@/sam_report-12.html?raw";
 import type { GeneReport } from "@/lib/gene-processing/types";
 import {
   buildReferenceReportPayload,
@@ -97,9 +97,17 @@ const DATABASE_ADAPTER = String.raw`
   var originalBuildConverge = buildConverge;
   var originalBuildDashboard = buildDashboard;
   var originalFindMarker = findM;
+  var originalSetFlip = typeof setFlip === "function" ? setFlip : null;
+  var originalOpenOverride = typeof openOverride === "function" ? openOverride : null;
+  var originalCommitOverride = typeof commitOverride === "function" ? commitOverride : null;
 
   function safe(value) {
     return esc(String(value == null ? "" : value));
+  }
+
+  function verifiedSex() {
+    var sex = String((STATE.person && STATE.person.sex) || "").toLowerCase();
+    return sex === "f" || sex === "m" ? sex : null;
   }
 
   function serverMarkerResult(marker) {
@@ -137,14 +145,33 @@ const DATABASE_ADAPTER = String.raw`
     return {
       state: "ok",
       gt: result.genotype,
-      lev: entry ? entry[0] : result.leverage,
-      txt: entry ? entry[1] : result.interpretation,
+      lev: result.leverage != null && Number.isFinite(Number(result.leverage)) ? Number(result.leverage) : entry ? entry[0] : 1,
+      txt: result.interpretation || (entry ? entry[1] : "Result returned by the approved processing service."),
       flip: !!result.strandFlipped,
       amb: !!result.strandAmbiguous
     };
   }
 
   markerResult = serverMarkerResult;
+
+  if (originalSetFlip) {
+    setFlip = function (value) {
+      if (serverMode) return;
+      originalSetFlip(value);
+    };
+  }
+  if (originalOpenOverride) {
+    openOverride = function (key) {
+      if (serverMode) return;
+      originalOpenOverride(key);
+    };
+  }
+  if (originalCommitOverride) {
+    commitOverride = function (key) {
+      if (serverMode) return;
+      originalCommitOverride(key);
+    };
+  }
 
   function applyServerLedgerCounts() {
     if (!serverLedger || typeof STATUSES === "undefined") return;
@@ -220,7 +247,7 @@ const DATABASE_ADAPTER = String.raw`
   }
 
   buildPathology = function () {
-    if (serverMode && !labSex()) {
+    if (serverMode && !verifiedSex()) {
       renderDatabasePathologyPolicy();
       return;
     }
@@ -244,7 +271,7 @@ const DATABASE_ADAPTER = String.raw`
     }
     var labs = STATE.labs;
     var days = STATE.demoDays;
-    if (!labSex()) STATE.labs = {};
+    if (!verifiedSex()) STATE.labs = {};
     STATE.demoDays = null;
     try {
       originalBuildConverge();
@@ -398,7 +425,7 @@ const DATABASE_ADAPTER = String.raw`
     }
 
     renderDatabaseWearablePolicy();
-    if (!labSex()) renderDatabasePathologyPolicy();
+    if (!verifiedSex()) renderDatabasePathologyPolicy();
     addConvergeNotice();
 
     var dashboard = document.getElementById("dash");
@@ -424,6 +451,12 @@ const DATABASE_ADAPTER = String.raw`
         }
       });
     }
+
+    document.querySelectorAll('button[onclick*="setFlip"]').forEach(function (button) {
+      button.disabled = true;
+      button.classList.add("sam-integration-disabled");
+      button.title = "The approved server interpretation is fixed for this report.";
+    });
 
     var messages = document.getElementById("msgs");
     if (messages) messages.innerHTML = "";

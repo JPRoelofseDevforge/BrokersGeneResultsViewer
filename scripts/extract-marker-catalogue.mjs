@@ -1,7 +1,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import vm from "node:vm";
 
-const sourceUrl = new URL("../sam_report-11.html", import.meta.url);
+const sourceUrl = new URL("../sam_report-12.html", import.meta.url);
 const outputUrl = new URL("../data/marker-catalogue.json", import.meta.url);
 const profilesOutputUrl = new URL(
   "../data/phase-1-gene-records.json",
