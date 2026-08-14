@@ -20,8 +20,10 @@ import {
 type DbRow = Record<string, unknown>;
 
 const SUPPORTED_NON_RSID_ASSAYS = new Set([
+  "APOE|rs429358+rs7412",
   "AR|cag repeat",
   "DRD4|vntr 7r",
+  "NAT2|various",
   "PER3|vntr 4/5",
   "SLC6A3|dat1 vntr 9/10",
   "SLC6A4|5-httlpr",

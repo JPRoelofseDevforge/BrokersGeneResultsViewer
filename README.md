@@ -63,6 +63,13 @@ as its backwards-compatible fallback (132 for the original production panel).
 A profile is report-ready only when its observed variant count exactly matches
 its manifest. Partial profiles remain stored but cannot be served.
 
+The reviewed 2026-08-14 source manifest contains 22 profiles, 4,471 raw rows,
+and 3,878 canonical profile/variant calls. Its 593 surplus identical rows remain
+in the immutable audit trail. One expanded profile is checked against 193
+expected calls and the remaining profiles against the reviewed 187-call panel.
+Twenty profiles meet that contract; the two strict subsets are retained as
+partial snapshots and cannot be served as complete reports.
+
 `ReportAccessStatus` is an operational publication control. It deliberately
 does not claim or infer clinical consent.
 
@@ -76,8 +83,12 @@ does not claim or infer clinical consent.
   under 18; otherwise a valid composite call is released with its adult-use
   context.
 - Exact duplicate rows are deduplicated; conflicting rows fail closed.
-- Five non-rs repeat assays are accepted only under their exact catalogue
-  gene/assay pairs; arbitrary assay labels still fail closed.
+- Seven non-rs or composite assays are accepted only under their exact
+  gene/assay pairs; arbitrary assay labels still fail closed. The source APOE
+  summary is canonicalised to the catalogue composite, checked against its
+  component calls when present, and used as a strict fallback when they are
+  absent. The NAT2 summary row is retained for audit but remains unscored; its
+  separately supplied, versioned component markers drive the report.
 - Workbook-only variants remain visible as stored/unscored and never affect a
   domain score.
 - Catalogue markers without a usable call remain explicit.

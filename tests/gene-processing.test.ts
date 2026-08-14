@@ -113,6 +113,16 @@ function apoeRecords(
   ];
 }
 
+function directApoeRecord(genotype: string): GenotypeRecord {
+  return {
+    profileId: profile.id,
+    gene: "APOE",
+    variantId: "rs429358+rs7412",
+    genotype,
+    quality: 0.98,
+  };
+}
+
 test("builds the Phase 1 report from repository records", async () => {
   const report = await getGeneReport("sam-240184");
 
@@ -322,6 +332,26 @@ test("keeps a nonempty malformed SNP call visible as unreadable", () => {
   assert.equal(report.markers[0].rawGenotype, "PRS");
   assert.equal(report.markers[0].genotype, null);
   assert.equal(report.domains[0].calledMarkers, 0);
+});
+
+test("treats repeated dash source values as no-calls", () => {
+  for (const genotype of ["--", "---"]) {
+    const report = processGeneReport(
+      profile,
+      [
+        {
+          profileId: profile.id,
+          variantId: "rs1",
+          genotype,
+          quality: null,
+        },
+      ],
+      testCatalogue(testMarker()),
+    );
+
+    assert.equal(report.markers[0].state, "not-called");
+    assert.equal(report.markers[0].rawGenotype, null);
+  }
 });
 
 test("accepts single-allele calls only for X-linked markers with verified male sex", () => {
@@ -647,6 +677,64 @@ test("resolves only the six supported APOE diplotypes", () => {
   assert.equal(unsupported.markers[0].state, "unreadable");
   assert.equal(unsupported.markers[0].rawGenotype, "C/C · C/T");
   assert.equal(unsupported.markers[0].genotype, null);
+});
+
+test("uses a strictly supported direct APOE diplotype when components are absent", () => {
+  const report = processGeneReport(
+    profile,
+    [directApoeRecord("E2/E3")],
+    apoeTestCatalogue(),
+  );
+
+  assert.equal(report.markers[0].state, "called");
+  assert.equal(report.markers[0].genotype, "E2/E3");
+  assert.equal(report.markers[0].rawGenotype, "E2/E3");
+  assert.equal(report.receipt.unmappedMarkers, 0);
+});
+
+test("cross-checks a direct APOE diplotype against its component calls", () => {
+  const report = processGeneReport(
+    profile,
+    [...apoeRecords("C/T", "C/C"), directApoeRecord("E3/E4")],
+    apoeTestCatalogue(),
+  );
+
+  assert.equal(report.markers[0].state, "called");
+  assert.equal(report.markers[0].genotype, "E3/E4");
+  assert.equal(report.receipt.unmappedMarkers, 0);
+
+  assert.throws(
+    () =>
+      processGeneReport(
+        profile,
+        [...apoeRecords("C/T", "C/C"), directApoeRecord("E3/E3")],
+        apoeTestCatalogue(),
+      ),
+    GenotypeRecordIntegrityError,
+  );
+});
+
+test("fails closed for an unsupported direct APOE diplotype", () => {
+  assert.throws(
+    () =>
+      processGeneReport(
+        profile,
+        [directApoeRecord("E1/E4")],
+        apoeTestCatalogue(),
+      ),
+    GenotypeRecordIntegrityError,
+  );
+});
+
+test("withholds a valid direct APOE result for a confirmed minor", () => {
+  const report = processGeneReport(
+    { ...profile, dateOfBirth: "2012-01-01" },
+    [directApoeRecord("E2/E3")],
+    apoeTestCatalogue(),
+  );
+
+  assert.equal(report.markers[0].state, "withheld");
+  assert.equal(report.markers[0].genotype, null);
 });
 
 test("treats an UND APOE component as no-call", () => {

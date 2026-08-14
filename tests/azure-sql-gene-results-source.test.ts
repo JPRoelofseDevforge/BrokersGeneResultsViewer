@@ -111,11 +111,13 @@ test("fails closed for duplicate profiles or duplicate canonical variants", asyn
 
 test("accepts only the panel's exact non-rs assay identifiers", async () => {
   const supported = [
+    ["APOE", "rs429358+rs7412", "E3/E4"],
     ["PER3", "VNTR 4/5", "4/5"],
     ["SLC6A4", "5-HTTLPR", "S/L"],
     ["DRD4", "VNTR 7R", "4/7"],
     ["AR", "CAG repeat", "MID"],
     ["SLC6A3", "DAT1 VNTR 9/10", "10/10"],
+    ["NAT2", "various", "*4/*6J"],
   ];
   const source = new AzureSqlGeneResultsSource(async (procedure) =>
     procedure === "dbo.usp_BrokerGene_GetResultsByProfileId"

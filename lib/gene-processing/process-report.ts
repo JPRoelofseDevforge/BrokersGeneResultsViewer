@@ -152,7 +152,7 @@ interface ResolvedCall {
   strandAmbiguous: boolean;
 }
 
-const NO_CALL_PATTERN = /^(--|NC|NN|UND|\.\/\.|0)$/i;
+const NO_CALL_PATTERN = /^(?:-{2,}|NC|NN|UND|\.\/\.|0)$/i;
 
 const APOE_DIPLOTYPES: Record<string, string> = {
   "TT|TT": "E2/E2",
@@ -162,6 +162,7 @@ const APOE_DIPLOTYPES: Record<string, string> = {
   "CT|CC": "E3/E4",
   "CC|CC": "E4/E4",
 };
+const APOE_DIRECT_DIPLOTYPES = new Set(Object.values(APOE_DIPLOTYPES));
 
 function isNoCall(value: string) {
   return NO_CALL_PATTERN.test(value.trim());
@@ -435,6 +436,19 @@ function resolveApoe(
   };
 }
 
+function resolveDirectApoe(record: GenotypeRecord): ResolvedCall | null {
+  const genotype = record.genotype.toUpperCase().replace(/\s+/g, "");
+  if (!APOE_DIRECT_DIPLOTYPES.has(genotype)) return null;
+
+  return {
+    genotype,
+    rawGenotype: record.genotype,
+    quality: record.quality,
+    strandFlipped: false,
+    strandAmbiguous: false,
+  };
+}
+
 function markerResult(
   marker: MarkerDefinition,
   records: Map<string, GenotypeRecord>,
@@ -462,8 +476,46 @@ function markerResult(
     const first =
       records.get("rs429358") ?? records.get("apoe:rs429358");
     const second = records.get("rs7412") ?? records.get("apoe:rs7412");
+    const direct =
+      records.get("rs429358+rs7412") ??
+      records.get("apoe:rs429358+rs7412") ??
+      records.get("rs429358,rs7412") ??
+      records.get("apoe:rs429358,rs7412");
+    const directAvailable = Boolean(direct && !isNoCall(direct.genotype));
+    const directResolved =
+      directAvailable && direct ? resolveDirectApoe(direct) : null;
 
-    if (!first || !second || isNoCall(first.genotype) || isNoCall(second.genotype)) {
+    if (directAvailable && !directResolved) {
+      throw new GenotypeRecordIntegrityError(
+        marker.variantId,
+        "Unsupported direct APOE diplotype",
+      );
+    }
+
+    const componentsAvailable = Boolean(
+      first &&
+        second &&
+        !isNoCall(first.genotype) &&
+        !isNoCall(second.genotype),
+    );
+
+    if (componentsAvailable && first && second) {
+      unreadableRaw = `${first.genotype} · ${second.genotype}`;
+      resolved = resolveApoe(first, second);
+
+      if (
+        directResolved &&
+        (!resolved || directResolved.genotype !== resolved.genotype)
+      ) {
+        throw new GenotypeRecordIntegrityError(
+          marker.variantId,
+          "Conflicting direct and component APOE diplotypes",
+        );
+      }
+    } else if (directResolved) {
+      unreadableRaw = direct?.genotype ?? null;
+      resolved = directResolved;
+    } else {
       return {
         ...base,
         state: "not-called",
@@ -478,9 +530,6 @@ function markerResult(
         quality: null,
       };
     }
-
-    unreadableRaw = `${first.genotype} · ${second.genotype}`;
-    resolved = resolveApoe(first, second);
   } else {
     const record = findRecord(marker, records);
     if (!record || isNoCall(record.genotype)) {
@@ -634,6 +683,11 @@ function catalogueSourceKeys(catalogue: MarkerCatalogue) {
           keys.add(`${marker.gene.trim().toLowerCase()}:${component}`);
         }
       }
+    }
+
+    if (marker.gene === "APOE" && variantId === "rs429358+rs7412") {
+      keys.add("rs429358,rs7412");
+      keys.add("apoe:rs429358,rs7412");
     }
   }
 

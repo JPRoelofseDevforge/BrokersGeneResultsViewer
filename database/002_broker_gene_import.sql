@@ -113,7 +113,12 @@ BEGIN
     parsed.sourceRow,
     UPPER(LTRIM(RTRIM(parsed.swabCode))),
     UPPER(LTRIM(RTRIM(parsed.geneSymbol))),
-    LOWER(LTRIM(RTRIM(parsed.rsNumber))),
+    CASE
+      WHEN UPPER(LTRIM(RTRIM(parsed.geneSymbol))) = N'APOE'
+       AND LOWER(LTRIM(RTRIM(parsed.rsNumber))) = N'rs429358,rs7412'
+        THEN N'rs429358+rs7412'
+      ELSE LOWER(LTRIM(RTRIM(parsed.rsNumber)))
+    END,
     UPPER(LTRIM(RTRIM(parsed.result))),
     parsed.geneSymbol,
     parsed.rsNumber,
@@ -178,6 +183,16 @@ BEGIN
           (
             source_row.GeneSymbol = N'SLC6A3'
             AND source_row.VariantId = N'dat1 vntr 9/10'
+          )
+          OR
+          (
+            source_row.GeneSymbol = N'APOE'
+            AND source_row.VariantId = N'rs429358+rs7412'
+          )
+          OR
+          (
+            source_row.GeneSymbol = N'NAT2'
+            AND source_row.VariantId = N'various'
           )
         )
       )
@@ -498,7 +513,7 @@ BEGIN
       @SourceFileName,
       @SourceByteLength,
       N'swab-rs-v1',
-      N'broker-gene-import-v3',
+      N'broker-gene-import-v4',
       @ExpectedProfileCount,
       @ExpectedRawResultRowCount,
       @EffectiveTimestampUtc

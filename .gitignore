@@ -43,6 +43,6 @@ next-env.d.ts
 /outputs/
 /work/
 
-# Private one-time genetic result source; imported into Azure SQL, never Git.
-/Broker Genetic Results.xlsx
+# Private genetic result sources; imported into Azure SQL, never Git.
+/Broker Genetic Results*.xlsx
 /genetic_results_new.csv
