@@ -4,7 +4,8 @@ export type AssayStrand = "forward" | "reverse" | "unknown";
 
 export type EvidenceGrade = "A" | "B" | "C" | "D" | "ungraded";
 
-export type LeverageLevel = 1 | 2 | 3;
+/** Leverage 0 is reserved for clinician-referral markers and is never scored. */
+export type LeverageLevel = 0 | 1 | 2 | 3;
 
 export type DomainBand = 1 | 2 | 3 | 4 | 5;
 
@@ -35,6 +36,7 @@ export interface GeneReportProfile {
   lastName: string;
   displayName?: string;
   assayName: string;
+  sexAtBirth: SexAtBirth;
 }
 
 export interface GenotypeRecord {
@@ -71,6 +73,9 @@ export interface MarkerDefinition {
   assayNote: string | null;
   palindromic: boolean;
   xLinked: boolean;
+  clinicalReferral: boolean;
+  componentVariants: string[];
+  sourceOnly: boolean;
 }
 
 export interface MarkerCatalogue {
@@ -97,6 +102,9 @@ export interface ProcessedMarker {
   evidenceGrade: EvidenceGrade;
   impact: string;
   assayNote: string | null;
+  clinicalReferral: boolean;
+  componentVariants: string[];
+  sourceOnly: boolean;
   state: MarkerState;
   rawGenotype: string | null;
   genotype: string | null;
@@ -117,6 +125,7 @@ export interface DomainScore {
   bandName: string;
   bandSummary: string;
   averageLeverage: number | null;
+  bandScore: number | null;
   calledMarkers: number;
   totalMarkers: number;
   coverage: number;
@@ -207,6 +216,8 @@ export interface ProcessingReceipt {
 export interface ProcessingContext {
   source?: ProcessingReceipt["source"];
   sourceLabel?: string;
+  /** ISO timestamp used for age-gated release decisions. */
+  asOf?: string;
 }
 
 export interface GeneReport {

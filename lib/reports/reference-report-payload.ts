@@ -17,13 +17,28 @@ export interface ReferenceMarkerResult {
   strandAmbiguous: boolean;
 }
 
+export interface ReferenceUnmappedMarker {
+  key: string;
+  gene: string;
+  variantId: string;
+  expectedAlleles: string;
+  rawGenotype: string | null;
+  genotype: string | null;
+  interpretation: string;
+  assayNote: string | null;
+  quality: number | null;
+  state: Extract<MarkerState, "unmapped" | "not-called">;
+}
+
 export interface ReferenceReportPayload {
   type: typeof REFERENCE_REPORT_MESSAGE;
   version: 1;
+  reportKey: string;
   profile: {
     name: string;
     memberNumber: string;
     assayName: string;
+    sexAtBirth: GeneReport["profile"]["sexAtBirth"];
   };
   receipt: {
     sourceLabel: string;
@@ -49,6 +64,10 @@ export interface ReferenceReportPayload {
   };
   calls: Record<string, string>;
   results: Record<string, ReferenceMarkerResult>;
+  unmappedMarkers: ReferenceUnmappedMarker[];
+  domains: GeneReport["domains"];
+  priorities: GeneReport["priorities"];
+  recommendations: GeneReport["recommendations"];
 }
 
 export function referenceMarkerKey(
@@ -62,7 +81,10 @@ function addReportedCall(
   marker: ProcessedMarker,
 ) {
   if (
-    (marker.state !== "called" && marker.state !== "unreadable") ||
+    marker.state === "withheld" ||
+    (marker.state === "not-called" &&
+      !marker.id.startsWith("UNMAPPED:") &&
+      !marker.sourceOnly) ||
     (!marker.rawGenotype && !marker.genotype)
   ) {
     return;
@@ -88,7 +110,9 @@ export function buildReferenceLedgerCounts(markers: ProcessedMarker[]) {
   };
 
   for (const marker of markers) {
-    if (marker.state === "unmapped") continue;
+    if (marker.state === "unmapped" || marker.id.startsWith("UNMAPPED:")) {
+      continue;
+    }
     if (marker.variantId === "design item") {
       counts.design += 1;
       continue;
@@ -118,10 +142,12 @@ export function buildReferenceReportPayload(
 ): ReferenceReportPayload {
   const calls: Record<string, string> = {};
   const results: Record<string, ReferenceMarkerResult> = {};
+  const unmappedMarkers: ReferenceUnmappedMarker[] = [];
 
   for (const marker of report.markers) {
     addReportedCall(calls, marker);
-    results[referenceMarkerKey(marker)] = {
+    const key = referenceMarkerKey(marker);
+    results[key] = {
       state: marker.state,
       genotype: marker.genotype,
       rawGenotype: marker.rawGenotype,
@@ -130,15 +156,39 @@ export function buildReferenceReportPayload(
       strandFlipped: marker.strandFlipped,
       strandAmbiguous: marker.strandAmbiguous,
     };
+
+    if (
+      (marker.id.startsWith("UNMAPPED:") || marker.sourceOnly) &&
+      (marker.state === "unmapped" || marker.state === "not-called")
+    ) {
+      unmappedMarkers.push({
+        key,
+        gene: marker.gene,
+        variantId: marker.variantId,
+        expectedAlleles: marker.expectedAlleles,
+        rawGenotype: marker.rawGenotype,
+        genotype: marker.genotype,
+        interpretation: marker.interpretation,
+        assayNote: marker.assayNote,
+        quality: marker.quality,
+        state: marker.state,
+      });
+    }
   }
 
   return {
     type: REFERENCE_REPORT_MESSAGE,
     version: 1,
+    reportKey: [
+      report.profile.memberNumber,
+      report.receipt.processedAt,
+      report.receipt.rulesVersion,
+    ].join(":"),
     profile: {
       name: reportDisplayName(report.profile) ?? "Your report",
       memberNumber: report.profile.memberNumber,
       assayName: report.profile.assayName,
+      sexAtBirth: report.profile.sexAtBirth,
     },
     receipt: {
       sourceLabel: report.receipt.sourceLabel,
@@ -156,5 +206,9 @@ export function buildReferenceReportPayload(
     ledger: buildReferenceLedgerCounts(report.markers),
     calls,
     results,
+    unmappedMarkers,
+    domains: report.domains,
+    priorities: report.priorities,
+    recommendations: report.recommendations,
   };
 }

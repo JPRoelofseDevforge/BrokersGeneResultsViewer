@@ -46,3 +46,4 @@ next-env.d.ts
 # Private genetic result sources; imported into Azure SQL, never Git.
 /Broker Genetic Results*.xlsx
 /genetic_results_new.csv
+/Executive fitness report.docx

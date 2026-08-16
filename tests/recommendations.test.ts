@@ -29,7 +29,7 @@ function calledMarker(
 
   const [leverage, interpretationText] = interpretation;
 
-  return {
+  const result = {
     id: definition.id,
     gene: definition.gene,
     variantId: definition.variantId,
@@ -41,7 +41,7 @@ function calledMarker(
     evidenceGrade: definition.evidenceGrade,
     impact: definition.impact,
     assayNote: definition.assayNote,
-    state: "called",
+    state: "called" as const,
     rawGenotype: genotype,
     genotype,
     namedVariant: definition.namedVariants[genotype] ?? null,
@@ -51,6 +51,14 @@ function calledMarker(
     strandAmbiguous: false,
     quality: 0.99,
     ...overrides,
+  };
+  return {
+    ...result,
+    clinicalReferral:
+      overrides.clinicalReferral ?? definition.clinicalReferral,
+    componentVariants:
+      overrides.componentVariants ?? [...definition.componentVariants],
+    sourceOnly: overrides.sourceOnly ?? definition.sourceOnly,
   };
 }
 
@@ -98,22 +106,22 @@ test("every recommendation rule reference resolves to a unique supported catalog
 
 test("actions require enough independent markers and cross-system convergence", () => {
   const twoHighScoringMarkers = [
-    calledMarker("rs762551", "CC"),
-    calledMarker("rs5751876", "TT"),
+    calledMarker("rs1801260", "GG"),
+    calledMarker("rs1360780", "TT"),
   ];
   const belowMarkerMinimum = buildRecommendationSynthesis(
     twoHighScoringMarkers,
   );
-  const nearCaffeine = belowMarkerMinimum.nearThreshold.find(
-    (recommendation) => recommendation.id === "caffeine-cutoff",
+  const nearWakeTime = belowMarkerMinimum.nearThreshold.find(
+    (recommendation) => recommendation.id === "fixed-wake-time",
   );
 
-  assert.ok(nearCaffeine);
-  assert.ok(nearCaffeine.score > 3);
-  assert.equal(nearCaffeine.reason, "too-few-markers");
+  assert.ok(nearWakeTime);
+  assert.ok(nearWakeTime.score > 3);
+  assert.equal(nearWakeTime.reason, "too-few-markers");
   assert.equal(
     belowMarkerMinimum.actions.some(
-      (recommendation) => recommendation.id === "caffeine-cutoff",
+      (recommendation) => recommendation.id === "fixed-wake-time",
     ),
     false,
   );
@@ -121,16 +129,16 @@ test("actions require enough independent markers and cross-system convergence", 
 
   const convergedMarkers = [
     ...twoHighScoringMarkers,
-    calledMarker("rs73598374", "GG"),
+    calledMarker("rs1006737", "AA"),
   ];
   const converged = buildRecommendationSynthesis(convergedMarkers);
-  const caffeine = converged.actions.find(
-    (recommendation) => recommendation.id === "caffeine-cutoff",
+  const wakeTime = converged.actions.find(
+    (recommendation) => recommendation.id === "fixed-wake-time",
   );
 
-  assert.ok(caffeine);
-  assert.equal(caffeine.contributors.length, 3);
-  assert.ok(caffeine.domainIds.length >= 2);
+  assert.ok(wakeTime);
+  assert.equal(wakeTime.contributors.length, 3);
+  assert.ok(wakeTime.domainIds.length >= 2);
   assert.equal(converged.actionOutcome, "ready");
 
   const oneSystemOnly = convergedMarkers.map((marker) => ({
@@ -141,12 +149,12 @@ test("actions require enough independent markers and cross-system convergence", 
   const noCrossSystemConvergence =
     buildRecommendationSynthesis(oneSystemOnly);
   const nearSingleSystem = noCrossSystemConvergence.nearThreshold.find(
-    (recommendation) => recommendation.id === "caffeine-cutoff",
+    (recommendation) => recommendation.id === "fixed-wake-time",
   );
 
   assert.equal(
     noCrossSystemConvergence.actions.some(
-      (recommendation) => recommendation.id === "caffeine-cutoff",
+      (recommendation) => recommendation.id === "fixed-wake-time",
     ),
     false,
   );
@@ -168,7 +176,7 @@ test("one-carbon foods can converge across independent enzymes in one pathway", 
   assert.ok(oneCarbon);
   assert.equal(oneCarbon.kind, "food");
   assert.equal(oneCarbon.contributors.length, 3);
-  assert.deepEqual(oneCarbon.domainIds, ["methyl"]);
+  assert.deepEqual(oneCarbon.domainIds, ["sy_methyl"]);
 });
 
 test("non-called marker states never contribute to recommendation scores", () => {
@@ -181,24 +189,24 @@ test("non-called marker states never contribute to recommendation scores", () =>
 
   for (const state of nonCalledStates) {
     const synthesis = buildRecommendationSynthesis([
-      calledMarker("rs762551", "CC"),
-      calledMarker("rs5751876", "TT"),
-      calledMarker("rs73598374", "GG", { state }),
+      calledMarker("rs1801260", "GG"),
+      calledMarker("rs1360780", "TT"),
+      calledMarker("rs1006737", "AA", { state }),
     ]);
-    const nearCaffeine = synthesis.nearThreshold.find(
-      (recommendation) => recommendation.id === "caffeine-cutoff",
+    const nearWakeTime = synthesis.nearThreshold.find(
+      (recommendation) => recommendation.id === "fixed-wake-time",
     );
 
     assert.equal(
       synthesis.actions.some(
-        (recommendation) => recommendation.id === "caffeine-cutoff",
+        (recommendation) => recommendation.id === "fixed-wake-time",
       ),
       false,
       `${state} marker incorrectly unlocked an action`,
     );
-    assert.ok(nearCaffeine, `${state} case should remain near threshold`);
-    assert.equal(nearCaffeine.contributorCount, 2);
-    assert.equal(nearCaffeine.reason, "too-few-markers");
+    assert.ok(nearWakeTime, `${state} case should remain near threshold`);
+    assert.equal(nearWakeTime.contributorCount, 2);
+    assert.equal(nearWakeTime.reason, "too-few-markers");
     assert.equal(synthesis.actionOutcome, "insufficient-data");
   }
 });
@@ -295,6 +303,27 @@ test("safety notices require the exact called HFE or APOE result", () => {
   );
 });
 
+test("referral and source-only calls cannot enter recommendation synthesis", () => {
+  const referral = buildRecommendationSynthesis([
+    calledMarker("rs1800562", "AA", {
+      clinicalReferral: true,
+      leverage: 0,
+    }),
+  ]);
+  assert.deepEqual(referral.safety, []);
+  assert.deepEqual(referral.actions, []);
+  assert.deepEqual(referral.measurements, []);
+
+  const sourceOnly = buildRecommendationSynthesis([
+    calledMarker("rs1801260", "GG", { sourceOnly: true }),
+    calledMarker("rs1360780", "TT", { sourceOnly: true }),
+    calledMarker("rs1006737", "AA", { sourceOnly: true }),
+  ]);
+  assert.deepEqual(sourceOnly.actions, []);
+  assert.deepEqual(sourceOnly.measurements, []);
+  assert.equal(sourceOnly.actionOutcome, "insufficient-data");
+});
+
 test("rich whole-report synthesis is deterministic, capped, and keeps supplements locked", () => {
   const markers = [
     calledMarker("rs1801260", "GG"),
@@ -321,10 +350,7 @@ test("rich whole-report synthesis is deterministic, capped, and keeps supplement
   assert.deepEqual(
     forward.actions.map((recommendation) => recommendation.id),
     [
-      "space-maximal-sessions",
-      "nitrate-rich-greens",
       "fixed-wake-time",
-      "slow-heavy-loading",
       "sulphur-rich-vegetables",
     ],
   );

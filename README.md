@@ -6,27 +6,39 @@ token, reads the matching approved gene-result profile from the shared Azure
 SQL database, applies the versioned marker catalogue, and returns a no-store
 report.
 
-`sam_report-12.html` is the authenticated report display source. It is
+`sam_report-15.html` is the authenticated report display source. It is
 rendered only after the token/database lookup succeeds, inside a sandboxed
 report frame. The production adapter removes its prototype upload, sample,
 editable-profile, external-model, wearable-pairing, and practitioner-override
 paths. Marker call states still come from the server processor; the reference
 renderer cannot turn a withheld, unreadable, or missing call into a result.
 Its ledger is generated from those same live marker objects and separates a
-lab no-call, an unreadable source value, and a marker not yet present on the
-panel.
+lab no-call, an unreadable source value, a policy-held result, and a stored
+source-only call that is not interpreted.
 
-Report 12 keeps the Pathology and All three layers views and adds South African
-laboratory-source guidance, recognised unit conversion, structured supplement
-instructions, and explicit contraindication cards. In Phase 1, pathology
-values and food-intake answers are ephemeral browser inputs only. Imported
-pathology rows require a recognised unit; missing or unsupported units are not
-guessed. Sex-specific pathology comparisons remain unavailable until verified
-sex at birth is carried through the shared Broker Day profile, and sample
-wearable nights are never mixed into an authenticated member report.
+Report 15 adds a private, in-tab intake and action brief, nine Executive Fitness
+views, six cross-tagged Movement views, the revised
+Movement/Recovery/Sleep/Executive/Systems taxonomy, and a separate
+clinician-referral tier. Its active catalogue contains 161 rows across 18
+primary systems: 154 may contribute to leverage scoring, five are referral-only,
+and two NAT2 component calls are retained as source-only evidence.
+Referral-only and source-only results never enter a leverage score. Primary
+bands and the Necessary recommendations displayed in a private report come
+from the server payload.
 
-The earlier `sam_report-11.html`, `sam_report-7.html`, `sam_report-new.html`,
-and original `sam_report-3.html` remain archived design source material.
+The Pathology and All three layers views retain the report 12 fail-closed
+safeguards. In Phase 1, pathology values, intake answers, and the brief are
+ephemeral browser inputs only. Imported pathology rows require a recognised
+unit; missing or unsupported units are not guessed. A verified sex-at-birth
+value from Broker Day enables the matching sex-specific ranges; if it is
+missing, X-linked scoring and Pathology remain unavailable. Sample wearable
+nights are never mixed into an authenticated member report. Supplements remain
+locked in private reports: no product, dose or duration is released until an
+audited server-side pathology, medication and contraindication workflow exists.
+
+The earlier `sam_report-12.html`, `sam_report-11.html`, `sam_report-7.html`,
+`sam_report-new.html`, and original `sam_report-3.html` remain archived design
+source material.
 
 ## Production data flow
 
@@ -77,25 +89,33 @@ does not claim or infer clinical consent.
 
 - Missing and `UND` calls remain missing.
 - `PRS` is not guessed into a copy-number interpretation.
-- Single-allele calls require an X-linked marker and verified male sex.
+- Every X-linked interpretation requires verified sex at birth. A verified
+  male heterozygous diploid call is unreadable; a supported homozygous call is
+  collapsed to its one-copy interpretation.
 - Palindromic markers are excluded when the assay strand is unknown.
-- APOE is withheld only when the processed profile confirms the reader is
-  under 18; otherwise a valid composite call is released with its adult-use
-  context.
+- APOE is withheld only when the profile confirms the reader is under 18 at
+  report access; otherwise a valid composite call is released with its
+  adult-use context. Raw component calls are also suppressed for a confirmed
+  minor.
 - Exact duplicate rows are deduplicated; conflicting rows fail closed.
 - Seven non-rs or composite assays are accepted only under their exact
   gene/assay pairs; arbitrary assay labels still fail closed. The source APOE
   summary is canonicalised to the catalogue composite, checked against its
   component calls when present, and used as a strict fallback when they are
-  absent. The NAT2 summary row is retained for audit but remains unscored; its
-  separately supplied, versioned component markers drive the report.
+  absent. The laboratory's strictly validated NAT2 star-diplotype summary is
+  mapped once to rapid, intermediate, or slow acetylator status. Unknown star
+  alleles fail closed; unphased component SNPs are never guessed into a
+  haplotype.
+- Five clinician-referral markers use a factual, non-scored result path. They
+  remain visible but cannot lower or raise a domain band or unlock an automated
+  recommendation.
 - Workbook-only variants remain visible as stored/unscored and never affect a
   domain score.
 - Catalogue markers without a usable call remain explicit.
 - No raw file upload route exists.
-- Phase 1 lab values remain in the current report tab only. Practitioner
-  overrides, model endpoints, and wearable connections stay disabled until
-  their authenticated and audited server workflows exist.
+- Phase 1 lab values remain in the current report tab only. Supplement doses,
+  practitioner overrides, model endpoints, and wearable connections stay
+  disabled until their authenticated and audited server workflows exist.
 
 This report is educational and wellness-oriented. It does not diagnose,
 prescribe, or replace a qualified clinician.

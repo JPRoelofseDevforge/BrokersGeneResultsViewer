@@ -4,7 +4,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const projectRoot = fileURLToPath(new URL("../", import.meta.url));
-const source = readFileSync(`${projectRoot}sam_report-12.html`, "utf8");
+const source = readFileSync(`${projectRoot}sam_report-15.html`, "utf8");
 const bridge = readFileSync(
   `${projectRoot}app/reference-report.tsx`,
   "utf8",
@@ -13,27 +13,40 @@ const extractor = readFileSync(
   `${projectRoot}scripts/extract-marker-catalogue.mjs`,
   "utf8",
 );
+const catalogue = JSON.parse(
+  readFileSync(`${projectRoot}data/marker-catalogue.json`, "utf8"),
+) as {
+  version: string;
+  domains: Record<string, unknown>;
+  markers: Array<{
+    gene: string;
+    variantId: string;
+    domainIds: string[];
+    clinicalReferral: boolean;
+    sourceOnly: boolean;
+  }>;
+};
 const inlineScripts = [
   ...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi),
 ].map((match) => match[1]);
 
-test("uses report 12 with the ledger as the second of 19 matched tabs", () => {
-  assert.match(bridge, /sam_report-12\.html\?raw/);
-  assert.doesNotMatch(bridge, /sam_report-11\.html\?raw/);
-  assert.doesNotMatch(bridge, /sam_report-7\.html\?raw/);
-  assert.doesNotMatch(bridge, /sam_report-new\.html\?raw/);
+test("uses report 15 with 21 matched and sequentially numbered panels", () => {
+  assert.match(bridge, /sam_report-15\.html\?raw/);
+  assert.doesNotMatch(bridge, /sam_report-(?:12|11|7)\.html\?raw/);
 
-  const tabs = [...source.matchAll(/<button class="tab"[^>]+data-p="([^"]+)"/g)].map(
-    (match) => match[1],
-  );
+  const tabs = [
+    ...source.matchAll(/<button class="tab"[^>]+data-p="([^"]+)"/g),
+  ].map((match) => match[1]);
   const panels = [
     ...source.matchAll(
       /<section class="[^"]*\bpanel\b[^"]*" id="p-([^"]+)"/g,
     ),
   ].map((match) => match[1]);
 
-  assert.equal(tabs.length, 19);
-  assert.equal(tabs[1], "ledger");
+  assert.equal(tabs.length, 21);
+  assert.equal(tabs[1], "brief");
+  assert.equal(tabs[2], "ledger");
+  assert.ok(tabs.includes("refer"));
   assert.ok(tabs.includes("converge"));
   assert.ok(tabs.includes("pathology"));
   assert.deepEqual([...tabs].sort(), [...panels].sort());
@@ -47,38 +60,134 @@ test("uses report 12 with the ledger as the second of 19 matched tabs", () => {
     assert.ok(section, `missing numbered heading for ${tab}`);
     assert.equal(Number(section[1]), index + 1, `wrong visible number for ${tab}`);
   });
+
+  assert.match(source, /const REPORT_VERSION = "2026\.08\.16-r15"/);
+  assert.match(source, /const KB_VERSION = "2026\.08\.16"/);
+  assert.match(extractor, /sam_report-15\.html/);
 });
 
-test("keeps the revised result states and adult APOE release visible", () => {
+test("keeps result states and Phase 1 database boundaries explicit", () => {
   for (const label of [
     "No call from the lab",
     "Unreadable call",
-    "Not on this panel yet",
+    "Stored, not interpreted",
     "Withheld by policy",
   ]) {
     assert.match(source, new RegExp(label, "i"));
   }
 
-  assert.match(source, /function buildLedger\(\)/);
+  assert.match(source, /function displayStatus\(m,r\)/);
+  assert.match(source, /function displayStatusLabel\(status\)/);
   assert.match(source, /<b>Released\.<\/b>/);
   assert.match(source, /age&&age<18/);
-  assert.match(source, /const REPORT_VERSION = "2026\.08\.14-r12"/);
-});
-
-test("keeps database-only Phase 1 boundaries around the new layers", () => {
   assert.match(bridge, /No sample nights are mixed into a private member report/);
   assert.match(bridge, /Waiting for a verified Broker Day profile value/);
   assert.match(bridge, /STATE\.demoDays = null/);
   assert.match(bridge, /STATE\.labs = \{\}/);
-  assert.match(bridge, /Pathology stays unscored until verified sex at birth/);
   assert.match(bridge, /function verifiedSex\(\)/);
-  assert.match(bridge, /result\.leverage != null/);
+  assert.match(bridge, /Number\.isFinite\(leverage\)/);
   assert.match(bridge, /approved server interpretation is fixed/i);
-  assert.match(extractor, /sam_report-12\.html/);
+  assert.match(bridge, /#manifest,/);
+  assert.match(bridge, /querySelectorAll\("\.tab\[data-p\]"\)/);
+  assert.match(bridge, /result\.state === "unmapped"/);
 });
 
-test("all embedded report scripts remain syntactically valid", () => {
-  assert.equal(inlineScripts.length, 23);
+test("matches the report-15 catalogue and Executive Fitness taxonomy", () => {
+  assert.equal(catalogue.version, "2026.08.16");
+  assert.equal(Object.keys(catalogue.domains).length, 18);
+  assert.equal(catalogue.markers.length, 161);
+  assert.equal(
+    catalogue.markers.filter((marker) => marker.clinicalReferral).length,
+    5,
+  );
+  assert.equal(
+    catalogue.markers.filter((marker) => marker.sourceOnly).length,
+    2,
+  );
+
+  const engineIndex = inlineScripts.findIndex((script) =>
+    script.includes("function resolveCall(m,raw)"),
+  );
+  assert.ok(engineIndex >= 0, "gene engine script should be present");
+  const engine = new Function(
+    `${inlineScripts.slice(0, engineIndex + 1).join("\n")}\nreturn {EFCATS,MOVECATS,MARKERS};`,
+  )() as {
+    EFCATS: Array<{ n: string; f: string; prim: string[]; shared: string[] }>;
+    MOVECATS: Array<{ n: string; f: string; prim: string[]; shared: string[] }>;
+    MARKERS: Array<{ rs: string; d: string[]; refer?: boolean }>;
+  };
+  assert.equal(engine.EFCATS.length, 9);
+  assert.deepEqual(
+    engine.EFCATS.map((category) => category.n.match(/^EF-(\d)/)?.[1]),
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+  );
+
+  const catalogueVariants = new Set(
+    catalogue.markers.map((marker) => marker.variantId),
+  );
+  for (const category of engine.EFCATS) {
+    for (const reference of [...category.prim, ...category.shared]) {
+      assert.ok(
+        catalogueVariants.has(reference),
+        `${category.n} references missing catalogue marker ${reference}`,
+      );
+    }
+  }
+  assert.ok(engine.EFCATS[7].shared.includes("rs429358+rs7412"));
+  assert.ok(engine.EFCATS[8].shared.includes("rs762551"));
+  assert.match(engine.EFCATS[1].f, /tendency|liability/i);
+  assert.match(engine.EFCATS[1].f, /never.*diagnosis/i);
+
+  assert.equal(engine.MOVECATS.length, 6);
+  assert.deepEqual(
+    engine.MOVECATS.map((category) => category.n.match(/^(\d)/)?.[1]),
+    ["1", "2", "3", "4", "5", "6"],
+  );
+  assert.deepEqual(
+    engine.MOVECATS.map((category) => category.prim.length),
+    [5, 12, 4, 1, 2, 11],
+  );
+  assert.deepEqual(
+    engine.MOVECATS.flatMap((category) => category.shared).sort(),
+    [
+      "rs1137101",
+      "rs17782313",
+      "rs2943641",
+      "rs5219",
+      "rs6234",
+      "rs6235",
+      "rs7923837",
+      "rs7903146",
+      "rs9939609",
+    ].sort(),
+  );
+  for (const category of engine.MOVECATS) {
+    assert.ok(category.f.length > 20, `${category.n} needs focus copy`);
+    for (const reference of [...category.prim, ...category.shared]) {
+      assert.ok(
+        catalogueVariants.has(reference),
+        `${category.n} references missing catalogue marker ${reference}`,
+      );
+    }
+  }
+  assert.match(source, /id="movecats"/);
+  assert.match(source, /function buildMoveCats\(\)/);
+  assert.match(source, /buildMoveCats\(\)/);
+  assert.match(source, /const scored=all\.filter\(m=>!m\.refer/);
+
+  const apoe = catalogue.markers.find(
+    (marker) => marker.variantId === "rs429358+rs7412",
+  );
+  assert.ok(apoe);
+  assert.deepEqual(apoe.domainIds, ["rc_vitd"]);
+  assert.deepEqual(
+    engine.MARKERS.find((marker) => marker.rs === "rs429358+rs7412")?.d,
+    ["rc_vitd"],
+  );
+});
+
+test("all embedded report and database adapter scripts remain valid", () => {
+  assert.equal(inlineScripts.length, 27);
   inlineScripts.forEach((script, index) => {
     assert.doesNotThrow(
       () => new Function(script),
@@ -96,21 +205,34 @@ test("all embedded report scripts remain syntactically valid", () => {
     .replaceAll("${REFERENCE_READY_MESSAGE}", "sam-reference-ready");
   assert.ok(adapterScript, "database adapter script should be present");
   assert.doesNotThrow(() => new Function(adapterScript));
+
+  assert.doesNotMatch(source, /fonts\.(?:googleapis|gstatic)\.com/i);
 });
 
-test("keeps standalone calls, supplement gates, and pathology units fail-closed", () => {
+test("keeps standalone genotype, APOE, and NAT2 calls fail-closed", () => {
   const engineIndex = inlineScripts.findIndex((script) =>
     script.includes("function resolveCall(m,raw)"),
   );
-  assert.ok(engineIndex >= 0, "gene engine script should be present");
-  const engineScript = inlineScripts.slice(0, engineIndex + 1).join("\n");
   const engine = new Function(
-    `${engineScript}\nreturn {resolveCall,apoeCall,STATE};`,
+    `${inlineScripts.slice(0, engineIndex + 1).join("\n")}\nreturn {resolveCall,apoeCall,nat2Status,markerResult,STATE};`,
   )() as {
-    resolveCall: (marker: { al: string }, raw: string) => { bad?: boolean; gt?: string } | null;
+    resolveCall: (marker: { al: string }, raw: string) => {
+      bad?: boolean;
+      gt?: string;
+    } | null;
     apoeCall: () => string | null;
-    STATE: { calls: Record<string, string> };
+    nat2Status: (marker?: unknown) => { gt: string } | null;
+    markerResult: (marker: {
+      g: string;
+      rs: string;
+      al: string;
+      d: string[];
+      xl?: boolean;
+      gt: Record<string, [number, string]>;
+    }) => { state: string; gt?: string };
+    STATE: { calls: Record<string, string>; person: Record<string, string> };
   };
+
   assert.equal(engine.resolveCall({ al: "A/G" }, "0/1")?.bad, true);
   assert.equal(engine.resolveCall({ al: "A/G" }, "AA (het)")?.bad, true);
   assert.equal(engine.resolveCall({ al: "A/G" }, "A|G")?.gt, "AG");
@@ -119,15 +241,94 @@ test("keeps standalone calls, supplement gates, and pathology units fail-closed"
   engine.STATE.calls = { rs429358: "CC", rs7412: "TT" };
   assert.equal(engine.apoeCall(), null);
 
+  for (const [raw, expected] of [
+    ["*4/*4", "RAPID"],
+    ["*4/*6J", "INTERMEDIATE"],
+    ["*5E/*12K", "INTERMEDIATE"],
+    ["*6/*6P", "SLOW"],
+  ]) {
+    engine.STATE.calls = { "NAT2:various": raw };
+    assert.equal(engine.nat2Status()?.gt, expected, raw);
+  }
+  for (const raw of [
+    "*4/*6J EXTRA",
+    "*4/*6ZZ",
+    "*4/*6J2",
+    "*4/*99",
+    "UND",
+    "*4",
+  ] as const) {
+    engine.STATE.calls = { "NAT2:various": raw };
+    assert.equal(engine.nat2Status(), null, `${raw} must fail closed`);
+  }
+
+  engine.STATE.calls = { rsTest: "---" };
+  engine.STATE.person = {};
+  assert.equal(
+    engine.markerResult({
+      g: "TEST",
+      rs: "rsTest",
+      al: "A/G",
+      d: [],
+      gt: { AA: [1, "Test"] },
+    }).state,
+    "nocall",
+  );
+  engine.STATE.calls = { rsTest: "UND" };
+  assert.equal(
+    engine.markerResult({
+      g: "TEST",
+      rs: "rsTest",
+      al: "A/G",
+      d: [],
+      gt: { AA: [1, "Test"] },
+    }).state,
+    "nocall",
+  );
+
+  const xLinked: Parameters<typeof engine.markerResult>[0] = {
+    g: "MAOA",
+    rs: "rsX",
+    al: "A/G",
+    d: [],
+    xl: true,
+    gt: {
+      A: [1, "A"],
+      G: [3, "G"],
+      AA: [1, "AA"],
+      AG: [2, "AG"],
+      GG: [3, "GG"],
+    },
+  };
+  const dosageIndex = inlineScripts.findIndex((script) =>
+    script.includes("X-linked dosage check"),
+  );
+  assert.ok(dosageIndex > engineIndex, "X-linked dosage wrapper should be present");
+  const dosageEngine = new Function(
+    `${inlineScripts.slice(0, dosageIndex + 1).join("\n")}\nreturn {markerResult,STATE};`,
+  )() as typeof engine;
+  dosageEngine.STATE.person = {};
+  dosageEngine.STATE.calls = { rsX: "A/G" };
+  assert.equal(dosageEngine.markerResult(xLinked).state, "unreadable");
+  dosageEngine.STATE.person = { sex: "m" };
+  assert.equal(dosageEngine.markerResult(xLinked).state, "unreadable");
+  dosageEngine.STATE.calls = { rsX: "A/A" };
+  assert.equal(dosageEngine.markerResult(xLinked).state, "ok");
+  assert.equal(dosageEngine.markerResult(xLinked).gt, "A");
+  dosageEngine.STATE.person = { sex: "f" };
+  dosageEngine.STATE.calls = { rsX: "A" };
+  assert.equal(dosageEngine.markerResult(xLinked).state, "unreadable");
+});
+
+test("keeps supplements, pathology, and imported units fail-closed", () => {
   const supplementScript = inlineScripts.find((script) =>
     script.includes("const SUPPS=["),
   );
   assert.ok(supplementScript, "supplement script should be present");
-  const supplementState = { labs: {}, intake: {}, override: {} };
   const supplements = new Function(
     "STATE",
     `${supplementScript}\nreturn {SUPPS,suppState};`,
-  )(supplementState) as {
+  )({ labs: {}, intake: {}, override: {} }) as {
     SUPPS: Array<{
       k: string;
       clin?: boolean;
@@ -177,8 +378,9 @@ test("keeps standalone calls, supplement gates, and pathology units fail-closed"
   assert.ok(pathologyParserScript, "pathology parser script should be present");
   const units = new Function(
     "STATE",
+    "$",
     `${pathologyParserScript}\nreturn {toPanelUnits};`,
-  )({ lab: "ampath", labs: {} }) as {
+  )({ lab: "ampath", labs: {} }, () => ({})) as {
     toPanelUnits: (
       item: { u: string; si?: [number, string] },
       value: number,
@@ -194,15 +396,19 @@ test("keeps standalone calls, supplement gates, and pathology units fail-closed"
     units.toPanelUnits({ u: "%" }, 42, "mmol/mol").error || "",
     /unsupported unit/,
   );
-  assert.match(units.toPanelUnits({ u: "%" }, 5.4, "").error || "", /missing unit/);
+  assert.match(
+    units.toPanelUnits({ u: "%" }, 5.4, "").error || "",
+    /missing unit/,
+  );
 
   const printScript = inlineScripts.find((script) =>
     script.includes("function buildPrint(mode)"),
   );
   assert.ok(printScript, "print script should be present");
-  assert.doesNotMatch(printScript, /x\.st==="(?:released|indicated|waiting|trial)"/);
-  assert.match(source, /function displayStatus\(m,r\)/);
-  assert.match(source, /function displayStatusLabel\(status\)/);
+  assert.doesNotMatch(
+    printScript,
+    /x\.st==="(?:released|indicated|waiting|trial)"/,
+  );
 });
 
 test("three-layer verdicts do not claim a missing genetics layer", () => {
@@ -211,7 +417,9 @@ test("three-layer verdicts do not claim a missing genetics layer", () => {
   );
   assert.ok(convergenceScript, "convergence script should be present");
 
-  const definitions = new Function(`${convergenceScript}\nreturn CONVERGE;`)() as Array<{
+  const definitions = new Function(
+    `${convergenceScript}\nreturn CONVERGE;`,
+  )() as Array<{
     k: string;
     verdict: (...layers: boolean[]) => string;
   }>;
@@ -230,4 +438,14 @@ test("three-layer verdicts do not claim a missing genetics layer", () => {
   assert.doesNotMatch(verdict("methyl", false, true, false, true, false), falseGeneticClaim);
   assert.doesNotMatch(verdict("histamine", false, false, true, false, true), falseGeneticClaim);
   assert.doesNotMatch(convergenceScript, /\b130 markers\b/);
+});
+
+test("member-facing copy does not claim unsupported Phase 1 capabilities", () => {
+  assert.doesNotMatch(source, /reads lab reports through LOINC codes/i);
+  assert.doesNotMatch(source, /bloods .* are not permission/i);
+  assert.doesNotMatch(source, /your genotype sets how much you need/i);
+  assert.doesNotMatch(
+    source,
+    /the .* unread are design items: genes SAM carries without a confirmed probe/i,
+  );
 });

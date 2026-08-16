@@ -63,7 +63,7 @@ describe("private report route boundary", () => {
 
       assert.equal(response.status, 200);
       assert.equal(body.ok, true);
-      assert.equal(body.data?.id, "report-sam-240184-2026.07.29");
+      assert.equal(body.data?.id, "report-sam-240184-2026.08.16");
       assert.equal(
         response.headers.get("cache-control"),
         "no-store, no-cache, must-revalidate, private, max-age=0",

@@ -16,8 +16,6 @@ function marker(
 ): ProcessedMarker {
   return {
     id: `${overrides.gene}-${overrides.variantId}`,
-    gene: overrides.gene,
-    variantId: overrides.variantId,
     expectedAlleles: "A/G",
     domainIds: ["focus"],
     domainNames: ["Focus"],
@@ -34,6 +32,9 @@ function marker(
     strandAmbiguous: false,
     quality: 99,
     ...overrides,
+    clinicalReferral: overrides.clinicalReferral ?? false,
+    componentVariants: overrides.componentVariants ?? [],
+    sourceOnly: overrides.sourceOnly ?? false,
   };
 }
 
@@ -46,6 +47,7 @@ function report(markers: ProcessedMarker[]): GeneReport {
       lastName: "",
       displayName: "Elna van Wyk",
       assayName: "Broker Genetic Results",
+      sexAtBirth: "female",
     },
     receipt: {
       status: "complete",
@@ -91,11 +93,143 @@ test("projects approved database calls into the reference report contract", () =
   const payload = buildReferenceReportPayload(report([comt]));
 
   assert.equal(payload.profile.name, "Elna van Wyk");
+  assert.equal(payload.profile.sexAtBirth, "female");
+  assert.deepEqual(payload.domains, []);
+  assert.deepEqual(payload.priorities, []);
+  assert.equal(payload.recommendations.supplementsLocked, true);
+  assert.equal(payload.recommendations.rulesVersion, "2026.07");
   assert.equal(payload.calls.rs4680, "G/A");
   assert.equal(payload.calls["COMT:rs4680"], "G/A");
   assert.equal(payload.results["COMT:rs4680"].state, "called");
   assert.equal(payload.results["COMT:rs4680"].genotype, "AG");
   assert.equal(payload.receipt.sourceLabel, "Azure SQL gene results");
+  assert.equal(
+    payload.reportKey,
+    "IG8194:2026-07-31T09:00:00.000Z:2026.07",
+  );
+});
+
+test("retains unmapped source calls with raw metadata and without scoring them", () => {
+  const sourceOnly = marker({
+    id: "UNMAPPED:rs987654",
+    gene: "SOURCEGENE",
+    variantId: "rs987654",
+    expectedAlleles: "unknown",
+    domainIds: [],
+    domainNames: [],
+    evidenceGrade: "ungraded",
+    impact: "This source marker has no definition in the current catalogue.",
+    assayNote: "Retained for source visibility and excluded from scoring.",
+    state: "unmapped",
+    rawGenotype: "T/C",
+    genotype: "T/C",
+    leverage: null,
+    interpretation: "No catalogue interpretation exists.",
+    quality: 97.5,
+  });
+  const payload = buildReferenceReportPayload(report([sourceOnly]));
+
+  assert.equal(payload.calls.rs987654, "T/C");
+  assert.equal(payload.calls["SOURCEGENE:rs987654"], "T/C");
+  assert.equal(payload.results["SOURCEGENE:rs987654"].state, "unmapped");
+  assert.deepEqual(payload.unmappedMarkers, [
+    {
+      key: "SOURCEGENE:rs987654",
+      gene: "SOURCEGENE",
+      variantId: "rs987654",
+      expectedAlleles: "unknown",
+      rawGenotype: "T/C",
+      genotype: "T/C",
+      interpretation: "No catalogue interpretation exists.",
+      assayNote: "Retained for source visibility and excluded from scoring.",
+      quality: 97.5,
+      state: "unmapped",
+    },
+  ]);
+  assert.deepEqual(payload.ledger, {
+    called: 0,
+    nocall: 0,
+    unreadable: 0,
+    design: 0,
+    amb: 0,
+    flip: 0,
+    withheld: 0,
+  });
+});
+
+test("retains an uncatalogued source no-call as a visible raw row", () => {
+  const sourceNoCall = marker({
+    id: "UNMAPPED:rs-no-call",
+    gene: "SOURCEGENE",
+    variantId: "rs-no-call",
+    expectedAlleles: "unknown",
+    domainIds: [],
+    domainNames: [],
+    evidenceGrade: "ungraded",
+    state: "not-called",
+    rawGenotype: "--",
+    genotype: null,
+    leverage: null,
+    interpretation: "The source reported no call for this uncatalogued marker.",
+  });
+  const payload = buildReferenceReportPayload(report([sourceNoCall]));
+
+  assert.equal(payload.calls["rs-no-call"], "--");
+  assert.equal(payload.calls["SOURCEGENE:rs-no-call"], "--");
+  assert.equal(payload.unmappedMarkers.length, 1);
+  assert.deepEqual(payload.unmappedMarkers[0], {
+    key: "SOURCEGENE:rs-no-call",
+    gene: "SOURCEGENE",
+    variantId: "rs-no-call",
+    expectedAlleles: "unknown",
+    rawGenotype: "--",
+    genotype: null,
+    interpretation: "The source reported no call for this uncatalogued marker.",
+    assayNote: null,
+    quality: 99,
+    state: "not-called",
+  });
+  assert.equal(payload.ledger.nocall, 0);
+});
+
+test("includes catalogued source-only inputs in stored and unscored metadata", () => {
+  const nat2Component = marker({
+    id: "NAT2-rs1801280-160",
+    gene: "NAT2",
+    variantId: "rs1801280",
+    sourceOnly: true,
+    state: "unmapped",
+    rawGenotype: "C/T",
+    genotype: "C/T",
+    leverage: null,
+    interpretation:
+      "This component call is retained for source visibility and is not scored independently.",
+  });
+  const payload = buildReferenceReportPayload(report([nat2Component]));
+
+  assert.equal(payload.results["NAT2:rs1801280"].state, "unmapped");
+  assert.equal(payload.unmappedMarkers.length, 1);
+  assert.equal(payload.unmappedMarkers[0].key, "NAT2:rs1801280");
+  assert.equal(payload.unmappedMarkers[0].state, "unmapped");
+});
+
+test("keeps a catalogued source-only no-call visible in Raw", () => {
+  const nat2NoCall = marker({
+    id: "NAT2-rs1801280-160",
+    gene: "NAT2",
+    variantId: "rs1801280",
+    sourceOnly: true,
+    state: "not-called",
+    rawGenotype: "--",
+    genotype: null,
+    leverage: null,
+  });
+  const payload = buildReferenceReportPayload(report([nat2NoCall]));
+
+  assert.equal(payload.calls.rs1801280, "--");
+  assert.equal(payload.calls["NAT2:rs1801280"], "--");
+  assert.equal(payload.results["NAT2:rs1801280"].state, "not-called");
+  assert.equal(payload.unmappedMarkers[0]?.rawGenotype, "--");
 });
 
 test("does not expose calls for a withheld adult-only result", () => {

@@ -55,6 +55,9 @@ function testMarker(
     palindromic: false,
     xLinked: false,
     ...overrides,
+    clinicalReferral: overrides.clinicalReferral ?? false,
+    componentVariants: overrides.componentVariants ?? [],
+    sourceOnly: overrides.sourceOnly ?? false,
   };
 }
 
@@ -129,11 +132,11 @@ test("builds the Phase 1 report from repository records", async () => {
   assert.ok(report);
   assert.equal(report.profile.memberNumber, "SAM-240184");
   assert.equal(report.receipt.source, "seeded-repository");
-  assert.equal(report.receipt.genotypeRows, 131);
+  assert.equal(report.receipt.genotypeRows, 132);
   assert.equal(report.receipt.catalogueMarkers, markerCatalogue.markers.length);
-  assert.ok(report.receipt.calledMarkers > 100);
+  assert.ok(report.receipt.calledMarkers > 90);
   assert.ok(report.receipt.calledMarkers <= report.receipt.callableMarkers);
-  assert.equal(report.domains.length, 22);
+  assert.equal(report.domains.length, 18);
   assert.equal(report.priorities.length, 3);
   assert.ok(report.recommendations.actions.length > 0);
   assert.ok(report.recommendations.measurements.length > 0);
@@ -205,9 +208,10 @@ test("applies Broker Day identity only to a production gene source", async () =>
   assert.equal(report.profile.displayName, "Dr Amina Ndlovu");
   assert.equal(report.profile.firstName, "Amina");
   assert.equal(report.profile.lastName, "Ndlovu");
+  assert.equal(report.profile.sexAtBirth, "female");
   assert.doesNotMatch(
     JSON.stringify(report.profile),
-    /dateOfBirth|sexAtBirth|sampleId|reportAccessStatus/i,
+    /dateOfBirth|sampleId|reportAccessStatus/i,
   );
 });
 
@@ -247,6 +251,9 @@ test("resolves reverse-strand calls before interpretation", () => {
         assayNote: null,
         palindromic: false,
         xLinked: false,
+        clinicalReferral: false,
+        componentVariants: [],
+        sourceOnly: false,
       },
     ],
   };
@@ -315,23 +322,25 @@ test("treats UND as no-call before CNV handling and does not guess PRS", () => {
 });
 
 test("keeps a nonempty malformed SNP call visible as unreadable", () => {
-  const report = processGeneReport(
-    profile,
-    [
-      {
-        profileId: profile.id,
-        variantId: "rs1",
-        genotype: "PRS",
-        quality: null,
-      },
-    ],
-    testCatalogue(testMarker()),
-  );
+  for (const genotype of ["PRS", "AA (het)", "A/G EXTRA"]) {
+    const report = processGeneReport(
+      profile,
+      [
+        {
+          profileId: profile.id,
+          variantId: "rs1",
+          genotype,
+          quality: null,
+        },
+      ],
+      testCatalogue(testMarker()),
+    );
 
-  assert.equal(report.markers[0].state, "unreadable");
-  assert.equal(report.markers[0].rawGenotype, "PRS");
-  assert.equal(report.markers[0].genotype, null);
-  assert.equal(report.domains[0].calledMarkers, 0);
+    assert.equal(report.markers[0].state, "unreadable", genotype);
+    assert.equal(report.markers[0].rawGenotype, genotype);
+    assert.equal(report.markers[0].genotype, null);
+    assert.equal(report.domains[0].calledMarkers, 0);
+  }
 });
 
 test("treats repeated dash source values as no-calls", () => {
@@ -395,6 +404,27 @@ test("accepts single-allele calls only for X-linked markers with verified male s
   assert.equal(unspecified.markers[0].state, "unreadable");
   assert.equal(male.markers[0].state, "called");
   assert.equal(autosomal.markers[0].state, "unreadable");
+
+  const unspecifiedDiploid = processGeneReport(
+    { ...profile, sexAtBirth: "unspecified" },
+    [{ ...record, genotype: "A/G" }],
+    xLinkedCatalogue,
+  );
+  const maleHeterozygous = processGeneReport(
+    { ...profile, sexAtBirth: "male" },
+    [{ ...record, genotype: "A/G" }],
+    xLinkedCatalogue,
+  );
+  const maleHomozygous = processGeneReport(
+    { ...profile, sexAtBirth: "male" },
+    [{ ...record, genotype: "A/A" }],
+    xLinkedCatalogue,
+  );
+
+  assert.equal(unspecifiedDiploid.markers[0].state, "unreadable");
+  assert.equal(maleHeterozygous.markers[0].state, "unreadable");
+  assert.equal(maleHomozygous.markers[0].state, "called");
+  assert.equal(maleHomozygous.markers[0].genotype, "A");
 });
 
 test("does not score a palindromic marker when assay strand is unknown", () => {
@@ -473,10 +503,10 @@ test("retains uncatalogued source records without letting them affect scoring", 
   assert.equal(noCall?.evidenceGrade, "ungraded");
   assert.equal(unmapped?.state, "unmapped");
   assert.equal(unmapped?.evidenceGrade, "ungraded");
-  assert.equal(report.receipt.unmappedMarkers, 2);
   assert.equal(report.receipt.calledMarkers, 1);
   assert.equal(report.receipt.source, "azure-sql");
   assert.equal(report.receipt.sourceLabel, "Imported test batch");
+  assert.equal(report.receipt.unmappedMarkers, 1);
   assert.equal(report.domains[0].calledMarkers, 1);
   assert.equal(report.domains[0].totalMarkers, 1);
 });
@@ -548,6 +578,9 @@ test("excludes missing calls instead of assigning an average", () => {
         assayNote: null,
         palindromic: false,
         xLinked: false,
+        clinicalReferral: false,
+        componentVariants: [],
+        sourceOnly: false,
       },
     ],
   };
@@ -649,6 +682,41 @@ test("releases APOE for a reader who is exactly 18", () => {
   assert.equal(report.markers[0].genotype, "E3/E4");
 });
 
+test("releases APOE after the reader turns 18 even when the assay is older", () => {
+  const apoe = markerCatalogue.markers.find(
+    (marker) => marker.variantId === "rs429358+rs7412",
+  );
+  assert.ok(apoe);
+  const report = processGeneReport(
+    {
+      ...profile,
+      dateOfBirth: "2008-08-16",
+      processedAt: "2025-08-16T10:00:00.000Z",
+    },
+    [
+      {
+        profileId: profile.id,
+        gene: "APOE",
+        variantId: "rs429358",
+        genotype: "C/T",
+        quality: null,
+      },
+      {
+        profileId: profile.id,
+        gene: "APOE",
+        variantId: "rs7412",
+        genotype: "C/C",
+        quality: null,
+      },
+    ],
+    testCatalogue(apoe),
+    { asOf: "2026-08-16T10:00:00.000Z" },
+  );
+
+  assert.equal(report.markers[0].state, "called");
+  assert.equal(report.markers[0].genotype, "E3/E4");
+});
+
 test("resolves only the six supported APOE diplotypes", () => {
   const supported = [
     ["T/T", "T/T", "E2/E2"],
@@ -701,13 +769,42 @@ test("cross-checks a direct APOE diplotype against its component calls", () => {
 
   assert.equal(report.markers[0].state, "called");
   assert.equal(report.markers[0].genotype, "E3/E4");
-  assert.equal(report.receipt.unmappedMarkers, 0);
+  assert.equal(report.receipt.unmappedMarkers, 2);
 
   assert.throws(
     () =>
       processGeneReport(
         profile,
         [...apoeRecords("C/T", "C/C"), directApoeRecord("E3/E3")],
+        apoeTestCatalogue(),
+      ),
+    GenotypeRecordIntegrityError,
+  );
+});
+
+test("canonicalizes the comma APOE alias and rejects conflicting aliases", () => {
+  const commaAlias = {
+    ...directApoeRecord("E3/E4"),
+    variantId: "rs429358,rs7412",
+  };
+  const report = processGeneReport(
+    profile,
+    [directApoeRecord("E3/E4"), commaAlias],
+    apoeTestCatalogue(),
+  );
+
+  assert.equal(report.receipt.genotypeRows, 1);
+  assert.equal(report.markers[0].state, "called");
+  assert.equal(report.markers[0].genotype, "E3/E4");
+
+  assert.throws(
+    () =>
+      processGeneReport(
+        profile,
+        [
+          directApoeRecord("E3/E4"),
+          { ...commaAlias, genotype: "E3/E3" },
+        ],
         apoeTestCatalogue(),
       ),
     GenotypeRecordIntegrityError,

@@ -702,6 +702,12 @@
     },
     {
       "profileId": "sam-240184",
+      "variantId": "various",
+      "genotype": "*4/*6",
+      "quality": 0.99
+    },
+    {
+      "profileId": "sam-240184",
       "variantId": "rs1801198",
       "genotype": "C/G",
       "quality": 0.99

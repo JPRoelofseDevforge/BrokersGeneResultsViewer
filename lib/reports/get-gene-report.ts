@@ -79,6 +79,7 @@ async function buildReport(
       resultsSource.sourceMode === "production"
         ? "the protected Intelligene database"
         : "the Phase 1 member repository",
+    asOf: new Date().toISOString(),
   });
 
   return report.receipt.calledMarkers ? report : null;

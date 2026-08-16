@@ -13,6 +13,7 @@ const baseProfile: GeneReportProfile = {
   firstName: "Amina",
   lastName: "Ndlovu",
   assayName: "Test assay",
+  sexAtBirth: "unspecified",
 };
 
 test("uses the canonical Broker Day name for both greeting and initials", () => {

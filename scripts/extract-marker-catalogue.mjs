@@ -1,7 +1,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import vm from "node:vm";
 
-const sourceUrl = new URL("../sam_report-12.html", import.meta.url);
+const sourceUrl = new URL("../sam_report-15.html", import.meta.url);
 const outputUrl = new URL("../data/marker-catalogue.json", import.meta.url);
 const profilesOutputUrl = new URL(
   "../data/phase-1-gene-records.json",
@@ -84,9 +84,33 @@ function evaluate(expression) {
   });
 }
 
+function stripLeadingTrivia(value) {
+  let remaining = value.trimStart();
+  while (true) {
+    if (remaining.startsWith("/*")) {
+      const end = remaining.indexOf("*/", 2);
+      if (end < 0) throw new Error("Unterminated marker declaration comment.");
+      remaining = remaining.slice(end + 2).trimStart();
+      continue;
+    }
+    if (remaining.startsWith("//")) {
+      const end = remaining.indexOf("\n", 2);
+      remaining = end < 0 ? "" : remaining.slice(end + 1).trimStart();
+      continue;
+    }
+    return remaining;
+  }
+}
+
 const domains = evaluate(extractAssignmentExpression("DOMAINS", "{", "}"));
 const bands = evaluate(extractAssignmentExpression("BANDS", "[", "]"));
 const markers = evaluate(extractAssignmentExpression("MARKERS", "[", "]"));
+const taxonomyMap = evaluate(
+  extractAssignmentExpression("TAXMAP", "{", "}"),
+);
+const legacyDomains = evaluate(
+  extractAssignmentExpression("LEGACY", "{", "}"),
+);
 const demoSport = evaluate(
   extractAssignmentExpression("DEMO_SPORT", "{", "}"),
 );
@@ -116,7 +140,22 @@ while (true) {
 
   const open = source.indexOf("(", callStart);
   const close = findBalanced(source, open, "(", ")");
-  const argumentsSource = source.slice(open + 1, close);
+  const argumentsSource = source.slice(open + 1, close).trim();
+
+  // Only collect declarations whose arguments are literal objects, DESIGN
+  // calls, or a spread literal. The applyTaxonomy runtime loop also contains
+  // MARKERS.push(m); evaluating that identifier here would execute source
+  // behaviour instead of extracting source declarations.
+  const declarationStart = stripLeadingTrivia(argumentsSource);
+  const isStaticDeclaration =
+    declarationStart.startsWith("{") ||
+    declarationStart.startsWith("DESIGN(") ||
+    declarationStart.startsWith("...");
+  if (!isStaticDeclaration) {
+    searchFrom = close + 1;
+    continue;
+  }
+
   const additions = vm.runInNewContext(
     `[${argumentsSource}]`,
     { DESIGN },
@@ -127,9 +166,81 @@ while (true) {
   searchFrom = close + 1;
 }
 
+// Mirror applyTaxonomy from the active report source. The report's reference
+// list is authoritative; legacy domains are used only for the two retained
+// composites, exactly as they are in the source.
+const retainedCompositeIds = new Set([
+  "rs429358+rs7412",
+  "acetylator status",
+]);
+const taxonomyMarkers = markers.flatMap((marker) => {
+  const mapped = taxonomyMap[marker.rs];
+  if (mapped) {
+    return [{ ...marker, d: [...mapped], ref: true }];
+  }
+
+  if (!retainedCompositeIds.has(marker.rs)) return [];
+
+  const mappedLegacyDomains =
+    marker.rs === "rs429358+rs7412"
+      ? ["rc_vitd"]
+      : [
+          ...new Set(
+            (marker.d ?? [])
+              .map((domainId) =>
+                Object.hasOwn(domains, domainId)
+                  ? domainId
+                  : legacyDomains[domainId],
+              )
+              .filter(Boolean),
+          ),
+        ];
+  return [
+    {
+      ...marker,
+      d: mappedLegacyDomains.length
+        ? mappedLegacyDomains
+        : [marker.rs === "acetylator status" ? "rc_detox" : "rc_vitd"],
+      ref: true,
+    },
+  ];
+});
+
+const markerKeys = taxonomyMarkers.map(
+  (marker) => `${marker.g.trim().toUpperCase()}|${marker.rs.trim().toLowerCase()}`,
+);
+if (new Set(markerKeys).size !== markerKeys.length) {
+  throw new Error("The active report source contains duplicate marker definitions.");
+}
+
+for (const marker of taxonomyMarkers) {
+  for (const [genotype, interpretation] of Object.entries(marker.gt ?? {})) {
+    const leverage = interpretation?.[0];
+    if (![0, 1, 2, 3].includes(leverage)) {
+      throw new Error(`${marker.g} ${marker.rs} ${genotype} has invalid leverage.`);
+    }
+    if (leverage === 0 && !marker.refer) {
+      throw new Error(
+        `${marker.g} ${marker.rs} uses referral-only leverage 0 without refer:true.`,
+      );
+    }
+    if (marker.refer && leverage !== 0) {
+      throw new Error(
+        `${marker.g} ${marker.rs} is a referral marker with a scored leverage.`,
+      );
+    }
+  }
+}
+
 const xLinkedVariants = new Set(["rs1137070", "rs1799836", "rs6318"]);
+const nat2ComponentVariants = new Set(
+  taxonomyMarkers.find(
+    (marker) =>
+      marker.g === "NAT2" && marker.rs === "acetylator status",
+  )?.nat2 ?? [],
+);
 const catalogue = {
-  version: "2026.07.29",
+  version: "2026.08.16",
   domains: Object.fromEntries(
     Object.entries(domains).map(([id, domain]) => [
       id,
@@ -146,7 +257,7 @@ const catalogue = {
     name: band.n,
     summary: band.say,
   })),
-  markers: markers.map((marker, index) => ({
+  markers: taxonomyMarkers.map((marker, index) => ({
     id: `${marker.g}-${marker.rs}-${index + 1}`,
     gene: marker.g,
     variantId: marker.rs,
@@ -159,8 +270,25 @@ const catalogue = {
     assayNote: marker.as ?? null,
     palindromic: Boolean(marker.pal),
     xLinked: xLinkedVariants.has(marker.rs),
+    clinicalReferral: Boolean(marker.refer),
+    componentVariants: [...(marker.nat2 ?? [])],
+    sourceOnly:
+      marker.g === "NAT2" &&
+      marker.rs !== "acetylator status" &&
+      nat2ComponentVariants.has(marker.rs),
   })),
 };
+
+if (Object.keys(catalogue.domains).length !== 18) {
+  throw new Error(
+    `Expected 18 report domains, found ${Object.keys(catalogue.domains).length}.`,
+  );
+}
+if (catalogue.markers.length !== 161) {
+  throw new Error(
+    `Expected 161 report markers, found ${catalogue.markers.length}.`,
+  );
+}
 
 const phaseOneRecords = {
   profiles: [

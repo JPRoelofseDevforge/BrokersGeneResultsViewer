@@ -32,115 +32,95 @@ const DOMAIN_ACTIONS: Record<
   string,
   { title: string; description: string }
 > = {
-  power: {
-    title: "Protect quality in strength work",
+  mv_muscle: {
+    title: "Build a versatile movement base",
     description:
-      "Keep hard sets crisp, leave full recovery between efforts, and progress load in measured steps.",
+      "Combine progressive strength with repeatable aerobic work, then adjust fuel and recovery to the sessions you actually do.",
   },
-  endurance: {
-    title: "Build the quiet aerobic base",
+  mv_oxygen: {
+    title: "Confirm oxygen-carrying capacity",
     description:
-      "Frequent easy aerobic work is the dependable lever. Consistency matters more than heroic sessions.",
+      "Use measured blood values and clinician context for oxygen or haemoglobin questions; do not infer them from performance alone.",
   },
-  energy: {
-    title: "Train mitochondrial consistency",
+  mv_cardio: {
+    title: "Measure the cardiovascular basics",
     description:
-      "Repeat manageable aerobic sessions across the week and let volume accumulate before intensity.",
+      "Keep aerobic movement frequent and make resting blood pressure and a proper lipid panel part of routine care.",
   },
-  oxygen: {
-    title: "Support blood-flow demand",
-    description:
-      "Use a real warm-up, include nitrate-rich greens, and measure resting blood pressure routinely.",
-  },
-  fuel: {
-    title: "Match fuel to the work",
-    description:
-      "Put carbohydrate around demanding sessions and finish the last substantial meal well before sleep.",
-  },
-  inflam: {
+  rc_inflam: {
     title: "Create room for recovery",
     description:
       "Protect sleep duration, keep easy aerobic work frequent, and separate maximal training days.",
   },
-  oxstress: {
+  rc_antiox: {
     title: "Use food, not megadoses",
     description:
-      "Build colour and variety into daily meals; avoid high-dose antioxidant capsules around training.",
+      "Build colour, protein, and plant variety into daily meals; avoid high-dose antioxidant capsules around training.",
   },
-  histamine: {
-    title: "Test freshness and timing",
+  rc_detox: {
+    title: "Feed ordinary clearance pathways",
     description:
-      "Prefer freshly cooked food and track whether late meals, alcohol, or tightly stacked sessions affect sleep.",
+      "Make brassicas, alliums, adequate protein, and fresh food routine while reducing avoidable exposure.",
   },
-  structure: {
+  rc_tissue: {
     title: "Load connective tissue slowly",
     description:
-      "Use slow heavy strength work twice weekly and progress tendons in steps rather than jumps.",
+      "Use slow, progressive strength work and increase tendon and joint load in steps rather than jumps.",
   },
-  bone: {
-    title: "Make bone respond",
+  rc_vitd: {
+    title: "Measure before deciding",
     description:
-      "Combine resistance and impact work with daylight, then measure vitamin D when clinically appropriate.",
+      "Combine resistance and impact work with daylight, and use measured vitamin D or clinician context instead of guessing.",
   },
-  circadian: {
+  sl_circ: {
     title: "Anchor the body clock",
     description:
       "Get outdoor light soon after waking, dim evenings, and keep the wake time steadier than the bedtime.",
   },
-  sleeppress: {
+  sl_aden: {
     title: "Move the caffeine boundary",
     description:
       "Run a two-week earlier cut-off experiment and judge it by sleep onset and next-morning clarity.",
   },
-  depth: {
-    title: "Protect deep sleep",
+  sl_gaba: {
+    title: "Build a dependable downshift",
     description:
-      "Keep timing consistent, make the room cool and dark, and keep alcohol away from the sleep window.",
+      "Use a repeatable wind-down, a cool dark room, and a firm boundary between high-output work and bed.",
   },
-  rem: {
-    title: "Guard the second half",
+  sl_sero: {
+    title: "Stabilise the mood-to-sleep inputs",
     description:
-      "Give the final sleep cycles enough time and keep late caffeine and alcohol from fragmenting them.",
+      "Prioritise morning daylight, regular movement, adequate protein, and enough time for the final sleep cycles.",
   },
-  arousal: {
-    title: "Build a real downshift",
-    description:
-      "Create a repeatable wind-down hour and a hard boundary between high-output work and bed.",
-  },
-  focus: {
-    title: "Use the right pressure window",
-    description:
-      "Put demanding thinking into your strongest time of day and shape stimulation to the task.",
-  },
-  drive: {
-    title: "Make progress visible",
-    description:
-      "Use short feedback loops, clear milestones, and external structure instead of waiting for motivation.",
-  },
-  emotion: {
-    title: "Stabilise the inputs",
-    description:
-      "Keep sleep timing regular, get daylight, and use the social or quiet recovery that reliably steadies you.",
-  },
-  resilience: {
+  sl_stress: {
     title: "Shorten the stress tail",
     description:
-      "Use aerobic work, a protected wind-down, and recovery days before pressure becomes cumulative.",
+      "Protect a real transition out of work and use aerobic movement before pressure becomes cumulative.",
   },
-  vigilance: {
-    title: "Time alertness deliberately",
+  sl_qual: {
+    title: "Protect sleep continuity",
     description:
-      "Match caffeine to clearance, protect breaks, and reserve the longest focus blocks for your best window.",
+      "Keep timing consistent and test late caffeine, alcohol, temperature, or iron status against your own nights.",
   },
-  methyl: {
-    title: "Cover the food foundations",
+  ef_primary: {
+    title: "Design the conditions for good decisions",
     description:
-      "Prioritise greens, legumes, eggs, and beetroot; use a measured homocysteine result instead of guessing.",
+      "Put demanding thinking into your strongest window, make progress visible, and protect sleep under pressure.",
   },
-  detox: {
-    title: "Feed clearance pathways",
+  sy_methyl: {
+    title: "Cover the one-carbon food foundations",
     description:
-      "Make brassicas and alliums routine and reduce avoidable load rather than reaching for a cleanse.",
+      "Prioritise greens, legumes, eggs, and beetroot; use measured homocysteine instead of guessing from a genotype.",
+  },
+  sy_metab: {
+    title: "Shape the meal and movement environment",
+    description:
+      "Use protein and fibre early in meals, regular ordinary movement, and walking after meals before considering products.",
+  },
+  sy_renal: {
+    title: "Keep kidney checks measurable",
+    description:
+      "Use blood pressure, eGFR, and urine protein when a clinician says they are relevant; genetics is context, not the measurement.",
   },
 };
 
@@ -163,13 +143,18 @@ const APOE_DIPLOTYPES: Record<string, string> = {
   "CC|CC": "E4/E4",
 };
 const APOE_DIRECT_DIPLOTYPES = new Set(Object.values(APOE_DIPLOTYPES));
+const NAT2_RAPID_ALLELES = new Set(["4", "11", "12", "13"]);
+const NAT2_SLOW_ALLELES = new Set(["5", "6", "7", "14"]);
 
 function isNoCall(value: string) {
   return NO_CALL_PATTERN.test(value.trim());
 }
 
 function canonicalVariantId(value: string) {
-  return value.trim().toLowerCase();
+  const normalized = value.trim().toLowerCase();
+  return normalized === "rs429358,rs7412"
+    ? "rs429358+rs7412"
+    : normalized;
 }
 
 function normalizeRecord(record: GenotypeRecord): GenotypeRecord {
@@ -179,7 +164,7 @@ function normalizeRecord(record: GenotypeRecord): GenotypeRecord {
       ? { gene: record.gene.trim().toUpperCase() }
       : {}),
     variantId: canonicalVariantId(record.variantId),
-    genotype: record.genotype.trim().toUpperCase(),
+    genotype: record.genotype.trim(),
     quality: record.quality,
   };
 }
@@ -310,10 +295,21 @@ function resolveSimpleCall(
     };
   }
 
-  let alleles = rawUpper
-    .replace(/[^ACGT]/g, "")
-    .split("")
-    .slice(0, 2);
+  const simpleCall = /^(?:([ACGT])|([ACGT])([ACGT])|([ACGT])\s*[|/]\s*([ACGT]))$/.exec(
+    rawUpper,
+  );
+  if (!simpleCall) return null;
+
+  let alleles: string[];
+  if (simpleCall[1]) {
+    alleles = [simpleCall[1]];
+  } else if (simpleCall[2] && simpleCall[3]) {
+    alleles = [simpleCall[2], simpleCall[3]];
+  } else if (simpleCall[4] && simpleCall[5]) {
+    alleles = [simpleCall[4], simpleCall[5]];
+  } else {
+    return null;
+  }
   const expected = expectedAlleles(marker);
 
   if (!alleles.length || !expected.length) return null;
@@ -408,9 +404,14 @@ function findRecord(
 }
 
 function normalizeApoeComponent(record: GenotypeRecord) {
-  const alleles = record.genotype.toUpperCase().replace(/[^ACGT]/g, "");
-  if (alleles.length !== 2) return null;
-  return normalizePair(alleles[0], alleles[1]);
+  const raw = record.genotype.trim().toUpperCase();
+  const match = /^(?:([ACGT])([ACGT])|([ACGT])\s*[|/]\s*([ACGT]))$/.exec(
+    raw,
+  );
+  if (!match) return null;
+  const first = match[1] ?? match[3];
+  const second = match[2] ?? match[4];
+  return first && second ? normalizePair(first, second) : null;
 }
 
 function resolveApoe(
@@ -449,11 +450,49 @@ function resolveDirectApoe(record: GenotypeRecord): ResolvedCall | null {
   };
 }
 
+function nat2AlleleClass(allele: string): "rapid" | "slow" | null {
+  const match = /^\*(4|5|6|7|11|12|13|14)[A-Z]?$/.exec(allele);
+  if (!match) return null;
+  const family = match[1];
+  if (NAT2_RAPID_ALLELES.has(family)) return "rapid";
+  if (NAT2_SLOW_ALLELES.has(family)) return "slow";
+  return null;
+}
+
+function resolveNat2Summary(record: GenotypeRecord): ResolvedCall | null {
+  const raw = record.genotype.trim();
+  const match = /^(\*(?:4|5|6|7|11|12|13|14)[A-Z]?)\s*\/\s*(\*(?:4|5|6|7|11|12|13|14)[A-Z]?)$/i.exec(
+    raw,
+  );
+  if (!match) return null;
+  const alleles = [match[1].toUpperCase(), match[2].toUpperCase()];
+
+  const classes = alleles.map(nat2AlleleClass);
+  if (classes.some((value) => value === null)) return null;
+
+  const slowAlleles = classes.filter((value) => value === "slow").length;
+  const genotype =
+    slowAlleles === 0
+      ? "RAPID"
+      : slowAlleles === 1
+        ? "INTERMEDIATE"
+        : "SLOW";
+
+  return {
+    genotype,
+    rawGenotype: raw,
+    quality: record.quality,
+    strandFlipped: false,
+    strandAmbiguous: false,
+  };
+}
+
 function markerResult(
   marker: MarkerDefinition,
   records: Map<string, GenotypeRecord>,
   profile: GeneProfile,
   domains: MarkerCatalogue["domains"],
+  asOf: string,
 ): ProcessedMarker {
   const base = {
     id: marker.id,
@@ -467,12 +506,72 @@ function markerResult(
     evidenceGrade: marker.evidenceGrade,
     impact: marker.impact,
     assayNote: marker.assayNote,
+    clinicalReferral: Boolean(marker.clinicalReferral),
+    componentVariants: [...(marker.componentVariants ?? [])],
+    sourceOnly: Boolean(marker.sourceOnly),
   };
-  const profileAge = ageAt(profile.dateOfBirth, profile.processedAt);
+  const profileAge = ageAt(profile.dateOfBirth, asOf);
   let resolved: ResolvedCall | null = null;
   let unreadableRaw: string | null = null;
 
-  if (marker.variantId === "rs429358+rs7412") {
+  if (marker.sourceOnly) {
+    const record = findRecord(marker, records);
+    if (!record || isNoCall(record.genotype)) {
+      return {
+        ...base,
+        state: "not-called",
+        rawGenotype: record?.genotype ?? null,
+        genotype: null,
+        namedVariant: null,
+        leverage: null,
+        interpretation:
+          "This source-only component input was not called and is never scored independently.",
+        strandFlipped: false,
+        strandAmbiguous: false,
+        quality: record?.quality ?? null,
+      };
+    }
+
+    return {
+      ...base,
+      state: "unmapped",
+      rawGenotype: record.genotype,
+      genotype: record.genotype,
+      namedVariant: null,
+      leverage: null,
+      interpretation:
+        "This call is retained as a source-only component input and is not interpreted or scored independently.",
+      strandFlipped: false,
+      strandAmbiguous: false,
+      quality: record.quality,
+    };
+  }
+
+  if (marker.variantId === "acetylator status" && marker.gene === "NAT2") {
+    const summary = records.get("various");
+    if (
+      !summary ||
+      (summary.gene && summary.gene !== "NAT2") ||
+      isNoCall(summary.genotype)
+    ) {
+      return {
+        ...base,
+        state: "not-called",
+        rawGenotype: null,
+        genotype: null,
+        namedVariant: null,
+        leverage: null,
+        interpretation:
+          "No validated NAT2 star-diplotype summary was available, so acetylator status is not inferred from unphased SNP calls.",
+        strandFlipped: false,
+        strandAmbiguous: false,
+        quality: null,
+      };
+    }
+
+    unreadableRaw = summary.genotype;
+    resolved = resolveNat2Summary(summary);
+  } else if (marker.variantId === "rs429358+rs7412") {
     const first =
       records.get("rs429358") ?? records.get("apoe:rs429358");
     const second = records.get("rs7412") ?? records.get("apoe:rs7412");
@@ -590,6 +689,22 @@ function markerResult(
     };
   }
 
+  if (marker.xLinked && profile.sexAtBirth === "unspecified") {
+    return {
+      ...base,
+      state: "unreadable",
+      rawGenotype: resolved.rawGenotype,
+      genotype: resolved.genotype,
+      namedVariant: marker.namedVariants[resolved.genotype] ?? null,
+      leverage: null,
+      interpretation:
+        "This X-linked result requires verified sex at birth and is excluded from scoring until that profile value is available.",
+      strandFlipped: resolved.strandFlipped,
+      strandAmbiguous: resolved.strandAmbiguous,
+      quality: resolved.quality,
+    };
+  }
+
   let genotype = resolved.genotype;
   const singleAlleleCall = /^[ACGT]$/i.test(genotype);
   if (
@@ -631,6 +746,27 @@ function markerResult(
     marker.xLinked &&
     profile.sexAtBirth === "male" &&
     genotype.length === 2 &&
+    genotype[0] !== genotype[1]
+  ) {
+    return {
+      ...base,
+      state: "unreadable",
+      rawGenotype: resolved.rawGenotype,
+      genotype,
+      namedVariant: marker.namedVariants[genotype] ?? null,
+      leverage: null,
+      interpretation:
+        "A heterozygous diploid call is not valid for this X-linked marker with verified male sex, so the result is excluded from scoring.",
+      strandFlipped: resolved.strandFlipped,
+      strandAmbiguous: resolved.strandAmbiguous,
+      quality: resolved.quality,
+    };
+  }
+
+  if (
+    marker.xLinked &&
+    profile.sexAtBirth === "male" &&
+    genotype.length === 2 &&
     genotype[0] === genotype[1] &&
     marker.interpretations[genotype[0]]
   ) {
@@ -654,6 +790,13 @@ function markerResult(
     };
   }
 
+  if ((interpretation[0] === 0) !== Boolean(marker.clinicalReferral)) {
+    throw new GenotypeRecordIntegrityError(
+      marker.variantId,
+      "Marker leverage 0 is reserved for clinician-referral results",
+    );
+  }
+
   return {
     ...base,
     state: "called",
@@ -675,15 +818,6 @@ function catalogueSourceKeys(catalogue: MarkerCatalogue) {
     const variantId = canonicalVariantId(marker.variantId);
     keys.add(variantId);
     keys.add(`${marker.gene.trim().toLowerCase()}:${variantId}`);
-
-    if (variantId.includes("+")) {
-      for (const component of variantId.split("+")) {
-        if (component) {
-          keys.add(component);
-          keys.add(`${marker.gene.trim().toLowerCase()}:${component}`);
-        }
-      }
-    }
 
     if (marker.gene === "APOE" && variantId === "rs429358+rs7412") {
       keys.add("rs429358,rs7412");
@@ -709,6 +843,9 @@ function unmappedMarker(record: GenotypeRecord): ProcessedMarker {
       "This source marker has no definition in the current catalogue.",
     assayNote:
       "Retained for source visibility and excluded from all domain scoring.",
+    clinicalReferral: false,
+    componentVariants: [],
+    sourceOnly: true,
     state: noCall ? "not-called" : "unmapped",
     rawGenotype: record.genotype,
     genotype: noCall ? null : record.genotype,
@@ -723,11 +860,22 @@ function unmappedMarker(record: GenotypeRecord): ProcessedMarker {
   };
 }
 
-function bandForAverage(average: number): DomainBand {
-  return Math.max(
-    1,
-    Math.min(5, Math.round(((average - 1) / 2) * 4 + 1)),
-  ) as DomainBand;
+function bandForScore(score: number, calledMarkers: number): DomainBand {
+  let band: DomainBand =
+    score >= 2.55
+      ? 5
+      : score >= 2.25
+        ? 4
+        : score >= 1.95
+          ? 3
+          : score >= 1.7
+            ? 2
+            : 1;
+
+  if (calledMarkers < 5 && band === 5) band = 4;
+  if (calledMarkers < 5 && band === 1) band = 2;
+  if (calledMarkers < 3) band = 3;
+  return band;
 }
 
 function bandDefinition(
@@ -746,18 +894,49 @@ function buildDomains(
       const domainMarkers = catalogue.markers.filter(
         (marker) =>
           marker.domainIds.includes(domain.id) &&
+          !marker.clinicalReferral &&
+          !marker.sourceOnly &&
           Object.keys(marker.interpretations).length > 0,
       );
       const markerIds = new Set(domainMarkers.map((marker) => marker.id));
       const called = markers.filter(
         (marker) => markerIds.has(marker.id) && marker.state === "called",
       );
-      const sum = called.reduce(
-        (total, marker) => total + (marker.leverage ?? 0),
-        0,
+      const evidenceWeights: Record<string, number> = {
+        A: 1,
+        B: 0.85,
+        C: 0.55,
+        D: 0.25,
+      };
+      const weighted = called.reduce(
+        (result, marker) => {
+          const weight = evidenceWeights[marker.evidenceGrade] ?? 0.5;
+          result.sum += (marker.leverage ?? 0) * weight;
+          result.weight += weight;
+          if ((marker.leverage ?? 0) >= 3) result.high += 1;
+          if ((marker.leverage ?? 0) <= 1) result.low += 1;
+          return result;
+        },
+        { sum: 0, weight: 0, high: 0, low: 0 },
       );
-      const average = called.length ? sum / called.length : null;
-      const band = average === null ? null : bandForAverage(average);
+      const average =
+        called.length && weighted.weight
+          ? weighted.sum / weighted.weight
+          : null;
+      const unshrunkScore =
+        average === null
+          ? null
+          : average +
+            0.75 * (weighted.high / called.length) -
+            0.55 * (weighted.low / called.length);
+      const shrinkK = 2;
+      const score =
+        unshrunkScore === null
+          ? null
+          : (unshrunkScore * called.length + 2 * shrinkK) /
+            (called.length + shrinkK);
+      const band =
+        score === null ? null : bandForScore(score, called.length);
       const definition = bandDefinition(catalogue.bands, band);
       const total = domainMarkers.length;
 
@@ -772,6 +951,7 @@ function buildDomains(
           definition?.summary ??
           "No called markers were available, so the system remains unevaluated.",
         averageLeverage: average,
+        bandScore: score,
         calledMarkers: called.length,
         totalMarkers: total,
         coverage: total ? called.length / total : 0,
@@ -835,12 +1015,23 @@ export function processGeneReport(
   const indexedRecords = indexGenotypeRecords(genotypeRecords);
   const records = indexedRecords.records;
   const sourceKeys = catalogueSourceKeys(catalogue);
+  const asOf = context.asOf ?? profile.processedAt;
+  const profileAge = ageAt(profile.dateOfBirth, asOf);
+  const confirmedMinor = profileAge !== null && profileAge < 18;
   const unmapped = indexedRecords.uniqueRecords
     .filter((record) => !sourceKeys.has(record.variantId))
+    // APOE is reported as an adult-only composite. Its two raw component
+    // calls are sufficient to reconstruct that result, so they must not leak
+    // through the source-only/raw path for a confirmed minor.
+    .filter(
+      (record) =>
+        !confirmedMinor ||
+        (record.variantId !== "rs429358" && record.variantId !== "rs7412"),
+    )
     .map(unmappedMarker);
   const markers = [
     ...catalogue.markers.map((marker) =>
-      markerResult(marker, records, profile, catalogue.domains),
+      markerResult(marker, records, profile, catalogue.domains, asOf),
     ),
     ...unmapped,
   ];
@@ -852,7 +1043,8 @@ export function processGeneReport(
       : "Phase 1 member repository");
   const domains = buildDomains(catalogue, markers);
   const callableMarkers = catalogue.markers.filter(
-    (marker) => Object.keys(marker.interpretations).length > 0,
+    (marker) =>
+      !marker.sourceOnly && Object.keys(marker.interpretations).length > 0,
   ).length;
   const calledMarkers = markers.filter(
     (marker) => marker.state === "called",
@@ -872,6 +1064,7 @@ export function processGeneReport(
       lastName: profile.lastName,
       ...(profile.displayName ? { displayName: profile.displayName } : {}),
       assayName: profile.assayName,
+      sexAtBirth: profile.sexAtBirth,
     },
     receipt: {
       status: "complete",
@@ -884,7 +1077,8 @@ export function processGeneReport(
       calledMarkers,
       unreadableMarkers,
       withheldMarkers,
-      unmappedMarkers: unmapped.length,
+      unmappedMarkers: markers.filter((marker) => marker.state === "unmapped")
+        .length,
       strandFlips: markers.filter((marker) => marker.strandFlipped).length,
       overallCoverage: callableMarkers ? calledMarkers / callableMarkers : 0,
       rulesVersion: catalogue.version,

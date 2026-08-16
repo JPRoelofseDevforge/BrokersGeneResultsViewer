@@ -28,7 +28,7 @@ const mono = JetBrains_Mono({
 
 const title = "SAM. | Your gene blueprint";
 const description =
-  "A server-processed gene report that shows where everyday choices carry the most weight.";
+  "A private, server-processed gene and Executive Fitness report that shows where everyday choices carry the most weight.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -76,7 +76,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: socialImage,
           width: 1200,
           height: 630,
-          alt: "SAM — Know what responds. Spend attention there.",
+          alt: "SAM — Your blueprint, clearly. Private, server processed.",
         },
       ],
     },

@@ -7,7 +7,7 @@ import type {
   WholeReportRecommendation,
 } from "./types";
 
-export const RECOMMENDATION_RULES_VERSION = "2026.07.31";
+export const RECOMMENDATION_RULES_VERSION = "2026.08.16";
 
 interface RecommendationCriterion {
   variantId: string;
@@ -57,10 +57,7 @@ const RULES: RecommendationRule[] = [
     order: 1,
     criteria: [
       { variantId: "rs1801260", genotypes: ["GG", "AG"], weight: 2 },
-      { variantId: "rs2287161", genotypes: ["GG"], weight: 1 },
-      { variantId: "VNTR 4/5", genotypes: ["5/5", "4/5"], weight: 1 },
       { variantId: "rs1360780", genotypes: ["TT", "CT"], weight: 2 },
-      { variantId: "rs110402", genotypes: ["GG", "AG"], weight: 1 },
       { variantId: "rs1006737", genotypes: ["AA", "AG"], weight: 1 },
       { variantId: "rs5751876", genotypes: ["TT", "CT"], weight: 1 },
       { variantId: "rs2305160", genotypes: ["AA", "AG"], weight: 1 },
@@ -77,8 +74,6 @@ const RULES: RecommendationRule[] = [
     order: 2,
     criteria: [
       { variantId: "rs1801260", genotypes: ["GG", "AG"], weight: 2 },
-      { variantId: "rs1079610", genotypes: ["GG", "AG"], weight: 2 },
-      { variantId: "rs2287161", genotypes: ["GG"], weight: 1 },
       { variantId: "rs4446909", genotypes: ["GG", "AG"], weight: 1 },
       { variantId: "rs10830963", genotypes: ["GG", "CG"], weight: 1 },
       { variantId: "rs934945", genotypes: ["AA", "AG"], weight: 1 },
@@ -96,7 +91,6 @@ const RULES: RecommendationRule[] = [
     criteria: [
       { variantId: "rs762551", genotypes: ["CC", "AC"], weight: 3 },
       { variantId: "rs5751876", genotypes: ["TT", "CT"], weight: 2 },
-      { variantId: "rs73598374", genotypes: ["GG"], weight: 1 },
       { variantId: "rs1801253", genotypes: ["GG"], weight: 1 },
     ],
   },
@@ -383,6 +377,8 @@ function scoreRule(
     if (
       !marker ||
       marker.state !== "called" ||
+      marker.clinicalReferral ||
+      marker.sourceOnly ||
       !marker.genotype ||
       marker.leverage === null ||
       !criterion.genotypes.includes(marker.genotype)
@@ -467,6 +463,8 @@ function buildSafety(
     if (
       !marker ||
       marker.state !== "called" ||
+      marker.clinicalReferral ||
+      marker.sourceOnly ||
       !marker.genotype ||
       !rule.genotypes.includes(marker.genotype)
     ) {
@@ -534,6 +532,8 @@ export function buildRecommendationSynthesis(
   const relevantCalledMarkers = markers.filter(
     (marker) =>
       marker.state === "called" &&
+      !marker.clinicalReferral &&
+      !marker.sourceOnly &&
       actionRuleVariants.has(marker.variantId.toLowerCase()),
   ).length;
 
