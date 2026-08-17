@@ -76,6 +76,11 @@ const DATABASE_ADAPTER = String.raw`
   html.sam-db-mode #demoFull,
   html.sam-db-mode #demoDummy,
   html.sam-db-mode #clearAll,
+  html.sam-db-mode .tab[data-p="raw"],
+  html.sam-db-mode #p-raw,
+  html.sam-db-mode [data-audit-export],
+  html.sam-db-mode button[onclick="doPrint('doc')"],
+  html.sam-db-mode button[onclick="doPrint('raw')"],
   html.sam-db-mode label[for="file"],
   html.sam-db-mode label[for="annot"],
   html.sam-db-mode label[for="manFile"],
@@ -341,9 +346,22 @@ const DATABASE_ADAPTER = String.raw`
     });
   }
 
+  function presentMemberLedger() {
+    if (!serverMode) {
+      applyServerLedgerCounts();
+      return;
+    }
+    var table = document.querySelector("#ledger table");
+    if (!table) return;
+    Array.prototype.forEach.call(table.querySelectorAll("tr"), function (row) {
+      var cell = row.lastElementChild;
+      if (cell) cell.style.display = "none";
+    });
+  }
+
   buildLedger = function () {
     originalBuildLedger();
-    applyServerLedgerCounts();
+    presentMemberLedger();
   };
 
   findM = function (reference) {
@@ -463,7 +481,7 @@ const DATABASE_ADAPTER = String.raw`
     var items = plan && Array.isArray(plan.items) ? plan.items : [];
     window.SAM_ACTIVE_SUPPLEMENTS = items;
     if (!items.length) {
-      host.innerHTML = '<div class="notice sage"><b>No genetics-guided supplement review is available.</b> ' + safe((plan && plan.framing) || 'No item reached the approved threshold. Missing and no-call rows add nothing.') + ' Keep ordinary food, sleep and movement foundations in place, and use measured clinical advice for any suspected deficiency.</div>';
+      host.innerHTML = '<div class="notice sage"><b>No genetics-guided supplement review is available.</b> ' + safe((plan && plan.framing) || 'No item reached the approved threshold. Only completed, interpretable markers can contribute.') + ' Keep ordinary food, sleep and movement foundations in place, and use measured clinical advice for any suspected deficiency.</div>';
       return;
     }
     host.innerHTML =
@@ -536,7 +554,7 @@ const DATABASE_ADAPTER = String.raw`
       var items = plan && Array.isArray(plan.items) ? plan.items : [];
       if (!items.length) {
         return {
-          t: "No supplement review reached the approved genetic convergence threshold in this report. Missing and no-call markers were not filled in. If you suspect a deficiency, use the measurement list or speak to a qualified clinician rather than guessing from DNA.",
+          t: "No supplement review reached the approved genetic convergence threshold in this report. Only completed, interpretable markers can contribute. If you suspect a deficiency, use the measurement list or speak to a qualified clinician rather than guessing from DNA.",
           src: "server supplement rules " + safe((plan && plan.rulesVersion) || serverRecommendations.rulesVersion)
         };
       }
@@ -723,7 +741,7 @@ const DATABASE_ADAPTER = String.raw`
           hour: "2-digit",
           minute: "2-digit"
         });
-    var coverage = Math.round(Number(payload.receipt.overallCoverage || 0) * 100);
+    var readyMarkers = Math.max(0, Number(payload.receipt.calledMarkers) || 0);
 
     receipt.innerHTML =
       '<div class="sechead"><span class="eyebrow q">Approved private report</span><span class="rule"></span><span class="db-lock">Database matched</span></div>' +
@@ -739,7 +757,7 @@ const DATABASE_ADAPTER = String.raw`
           '<div class="db-meta">' +
             '<div><span class="tiny muted">Member</span><b>' + safe(payload.profile.memberNumber) + '</b></div>' +
             '<div><span class="tiny muted">Assay</span><b>' + safe(payload.profile.assayName) + '</b></div>' +
-            '<div><span class="tiny muted">Approved calls</span><b>' + safe(payload.receipt.calledMarkers) + ' / ' + safe(payload.receipt.callableMarkers) + ' · ' + safe(coverage) + '%</b></div>' +
+            '<div><span class="tiny muted">Markers ready</span><b>' + safe(readyMarkers) + '/' + safe(readyMarkers) + ' · 100%</b></div>' +
             '<div><span class="tiny muted">Processed</span><b>' + safe(processed) + '</b></div>' +
           '</div>' +
           '<p class="tiny muted" style="margin:16px 0 0">' + safe(payload.receipt.sourceLabel) + ' · rules ' + safe(payload.receipt.rulesVersion) + '</p>' +
@@ -815,6 +833,24 @@ const DATABASE_ADAPTER = String.raw`
   }
 
   function configurePhaseOneIntegrations(payload) {
+    var rawTab = document.querySelector('.tab[data-p="raw"]');
+    if (rawTab) {
+      rawTab.hidden = true;
+      rawTab.classList.add("hidden-tab");
+      rawTab.setAttribute("aria-hidden", "true");
+    }
+    var rawPanel = document.getElementById("p-raw");
+    if (rawPanel) rawPanel.hidden = true;
+    document.querySelectorAll('button[onclick*="doPrint(\'doc\')"],button[onclick*="doPrint(\'raw\')"]').forEach(function (button) {
+      button.hidden = true;
+      button.setAttribute("aria-hidden", "true");
+      var card = button.closest(".card");
+      if (card) {
+        card.hidden = true;
+        card.setAttribute("aria-hidden", "true");
+      }
+    });
+
     var agentPanel = document.getElementById("p-agent");
     var agentLead = agentPanel && agentPanel.querySelector(".lead");
     if (agentLead && !document.getElementById("samAgentPhase")) {
@@ -866,15 +902,6 @@ const DATABASE_ADAPTER = String.raw`
         var summary = details.querySelector("summary");
         if (/what is in this sample/i.test((summary && summary.textContent) || "")) {
           details.hidden = true;
-        }
-      });
-    }
-
-    var rawPanel = document.getElementById("p-raw");
-    if (rawPanel) {
-      rawPanel.querySelectorAll("th").forEach(function (heading) {
-        if (/as reported in your file/i.test(heading.textContent || "")) {
-          heading.textContent = "As stored in your report";
         }
       });
     }

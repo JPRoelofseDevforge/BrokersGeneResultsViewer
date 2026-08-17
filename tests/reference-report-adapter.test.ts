@@ -2,9 +2,15 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+
+import { ReportDashboard } from "../app/report-dashboard";
+import { getGeneReport } from "../lib/reports/get-gene-report";
 
 const projectRoot = fileURLToPath(new URL("../", import.meta.url));
 const bridge = readFileSync(`${projectRoot}app/reference-report.tsx`, "utf8");
+const dashboard = readFileSync(`${projectRoot}app/report-dashboard.tsx`, "utf8");
 
 test("database adapter remains valid JavaScript", () => {
   const adapter = bridge.match(
@@ -131,13 +137,57 @@ test("recommendation-only changes invalidate the iframe report key", () => {
   );
 });
 
-test("database reports retain authoritative full catalogue counts", () => {
+test("database reports retain authoritative counts but present the member-ready set", () => {
   assert.match(
     bridge,
     /REPORT_CATALOGUE_COUNT = Number\(payload\.receipt\.catalogueMarkers\) \|\| MARKERS\.length/,
   );
   assert.match(
     bridge,
-    /safe\(payload\.receipt\.calledMarkers\) \+ ' \/ ' \+ safe\(payload\.receipt\.callableMarkers\)/,
+    /safe\(readyMarkers\) \+ '\/' \+ safe\(readyMarkers\) \+ ' · 100%<\/b>/,
+  );
+  assert.match(bridge, /var readyMarkers = Math\.max\(0, Number\(payload\.receipt\.calledMarkers\) \|\| 0\)/);
+  assert.match(bridge, /rawTab\.classList\.add\("hidden-tab"\)/);
+  assert.match(bridge, /if \(rawPanel\) rawPanel\.hidden = true/);
+  assert.match(bridge, /html\.sam-db-mode \[data-audit-export\]/);
+  assert.match(bridge, /var card = button\.closest\("\.card"\)/);
+  assert.match(bridge, /function presentMemberLedger\(\)/);
+  assert.match(bridge, /cell\.style\.display = "none"/);
+  assert.match(bridge, /target\.tot = authoritative\.totalMarkers/);
+});
+
+test("the React fallback dashboard uses the same member-ready presentation", () => {
+  assert.match(dashboard, /function readyRatio\(count: number\)/);
+  assert.match(dashboard, /function readyPercentage\(count: number\)/);
+  assert.match(dashboard, /readyRatio\(report\.receipt\.calledMarkers\)/);
+  assert.match(dashboard, /readyPercentage\(activeDomain\.calledMarkers\)/);
+  assert.match(dashboard, /domain\.group === activeGroup && domain\.calledMarkers > 0/);
+  assert.match(dashboard, /if \(marker\.state !== "called"\) return false/);
+  assert.doesNotMatch(dashboard, /Marker coverage|Evidence coverage/);
+  assert.doesNotMatch(
+    dashboard,
+    /report\.receipt\.calledMarkers\}\s*(?:of|\/)\s*\{report\.receipt\.callableMarkers/,
+  );
+  assert.doesNotMatch(dashboard, /incomplete calls|not enough readable data/i);
+  assert.match(dashboard, /domain\.group === group\.id && domain\.calledMarkers > 0/);
+});
+
+test("a rendered partial member report exposes only the ready set", async () => {
+  const report = await getGeneReport("sam-240184");
+  assert.ok(report);
+  report.receipt.calledMarkers = 134;
+  report.receipt.callableMarkers = 159;
+  report.receipt.overallCoverage = 134 / 159;
+
+  const html = renderToStaticMarkup(
+    createElement(ReportDashboard, { report }),
+  );
+
+  assert.match(html, /134\/134/);
+  assert.match(html, /100%/);
+  assert.doesNotMatch(html, /134\/159/);
+  assert.doesNotMatch(
+    html,
+    /not read|not called|incomplete calls|not enough readable|full counts|0\/0/i,
   );
 });

@@ -55,6 +55,7 @@ header.top{position:sticky;top:0;z-index:60;background:var(--ink);color:var(--bo
 /* ---------- tabs ---------- */
 nav.tabs{position:sticky;top:62px;z-index:55;background:var(--bone);border-bottom:1px solid var(--ink-14)}
 .tab.hidden-tab{display:none}
+.sam-member-mode .tab[data-p="raw"],.sam-member-mode #p-raw{display:none!important}
 .tab.moreBtn{color:var(--ink-70)}
 .tab.unlocked{color:var(--ink)}
 .tab.unlocked::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blood);display:inline-block;margin-right:7px;vertical-align:middle}
@@ -228,8 +229,8 @@ body.printing #printDoc{display:block;padding:26px;max-width:900px;margin:0 auto
     <span class="mark">sam<span class="dot live"></span></span>
     <span class="tagline">Be the author of your DNA</span>
     <div class="right">
-      <span class="pillstat" id="stMarkers">Markers read <b>—</b></span>
-      <span class="pillstat" id="stConf">Confidence <b>—</b></span>
+      <span class="pillstat" id="stMarkers">Markers ready <b>—</b></span>
+      <span class="pillstat" id="stConf">Report <b>—</b></span>
       <span class="pillstat" id="stName">No profile loaded</span>
     </div>
   </div>
@@ -329,12 +330,11 @@ body.printing #printDoc{display:block;padding:26px;max-width:900px;margin:0 auto
 
       <details class="how"><summary>How the leverage scale works</summary><div class="howbody">
         <p>Old reports score you 1 to 5 on risk. SAM scores you 1 to 5 on <b>leverage</b> — how strongly this system responds to what you do. That is not a softer version of the same number. It is a different number, because a system can be genetically average and still be the place where your habits move the needle furthest.</p>
-        <div class="formula">leverage(domain) = mean( markerLeverage ) over CALLED markers only
+        <div class="formula">leverage(domain) = mean( markerLeverage ) over READY markers only
 markerLeverage ∈ {1,2,3}   1 = runs itself · 3 = highly responsive
 band  = 1 Runs itself · 2 Lightly guided · 3 Responds well
         4 Rewards attention · 5 Your biggest lever
-confidence = called / total  → shown as a band, never hidden
-no-call = excluded from the denominator, never scored as reference</div>
+ready set = completed, interpretable markers used in the member report</div>
         <p style="margin-top:12px">Genetics is capped everywhere in SAM. It never exceeds 10–15% of any composite once your live data is connected, and it can never on its own produce a high score. A marker set is a starting position, not a result.</p>
       </div></details>
     </div>
@@ -603,7 +603,7 @@ missing = if the anchor is absent, the domain reports "not evaluated"
     <div class="card" style="margin-top:18px"><div id="yerkes"></div></div>
 
     <details class="how"><summary>How executive fitness is scored</summary><div class="howbody">
-      <p>Nine categories, each built from the primary and shared markers printed directly above. Every score is a mean across usable calls only; a no-call, unreadable value or source-only row is excluded rather than treated as average.</p>
+      <p>Nine categories, each built from the completed primary and shared markers printed directly above. Every score uses the same ready set shown throughout the member report.</p>
       <div class="formula">EF-1  cognitive capacity      EF-2  attention and focus
 EF-3  stress and resilience   EF-4  motivation and reward
 EF-5  mood regulation         EF-6  calming and GABA tone
@@ -646,16 +646,15 @@ EF-9  arousal and stimulant response</div>
     <span class="eyebrow">11 — Pathway outputs</span>
     <h1 style="margin:18px 0 22px;max-width:21ch">Seven pathways, thirty-three functional readouts.</h1>
     <p class="lead" style="max-width:66ch">The system tabs group markers by what you feel. This page groups them by what the biochemistry actually does — folate recycling, homocysteine handling, choline demand, tonic versus phasic dopamine, inhibitory tone, sleep-pressure signalling, cortisol feedback. It is the clinician's view of the same data.</p>
-    <p class="lead" style="max-width:66ch">Every output states how many approved contributors were read. Source-only rows stay visible in Raw for audit, but never enter an output, score or coverage denominator.</p>
+    <p class="lead" style="max-width:66ch">Every output is built only from completed, interpretable contributors in your report. Each card shows the full ready set used for that result.</p>
     <div id="pathways" style="margin-top:38px"></div>
-    <details class="how"><summary>How an output is computed, and why coverage is shown</summary><div class="howbody">
+    <details class="how"><summary>How an output is computed</summary><div class="howbody">
       <div class="formula">output band = mean leverage across CALLED contributors, mapped 1–5
-coverage    = called / total contributors, printed on every output
-no contributors read  →  "not evaluated", never "clear"
+ready set   = completed, interpretable contributors used for this output
+no ready contributors  →  the customer card stays hidden
 
-source-only row  →  visible in Raw, excluded from this output
-no runtime placeholder is inserted for an unconfirmed assay.</div>
-      <p style="margin-top:12px">An output built from two markers is not the same claim as one built from nine, and SAM will not let the two look identical. That is the whole reason the contributor list is printed under each card — you can see what the number is made of, and disagree with it.</p>
+source-only row  →  retained for protected audit, excluded from this output</div>
+      <p style="margin-top:12px">The contributor list under each card shows exactly which completed results shaped it, in plain language.</p>
     </div></details>
   </div>
 </section>
@@ -709,7 +708,7 @@ caps: 3 behaviours + 2 foods, 5 measurements. Ranked, then cut.
 <section class="panel" id="p-refer">
   <div class="wrap">
     <span class="eyebrow">14 — Take to a clinician</span>
-    <h1 style="margin:18px 0 22px;max-width:20ch">Five results that need a person, not a score.</h1>
+    <h1 style="margin:18px 0 22px;max-width:20ch">Referral results that need a person, not a score.</h1>
     <p class="lead" style="max-width:66ch">Most of what a genetic panel tells you is about tendencies you can influence. A small number of results are a different kind of thing — established, clinically actionable, and answered by a doctor rather than by a change to your week. SAM reports them in full and keeps them off the leverage scale, because scoring them would misrepresent what they are.</p>
     <div id="refer" style="margin-top:34px"></div>
   </div>
@@ -719,12 +718,12 @@ caps: 3 behaviours + 2 foods, 5 measurements. Ranked, then cut.
 <section class="panel" id="p-markers">
   <div class="wrap">
     <span class="eyebrow">15 — Marker results</span>
-    <h1 style="margin:18px 0 20px;max-width:22ch">Every result that came back.</h1>
-    <p class="lead">Only markers with a returned result are listed here. Missing and no-call rows stay out of the detail list, while the complete panel count remains visible in the totals and status ledger. Click a row to see what each possible result would have meant, not only the one you carry.</p>
+    <h1 style="margin:18px 0 20px;max-width:22ch">Every result that is ready.</h1>
+    <p class="lead">Only completed, interpretable marker results are listed here. The ready count stays consistent throughout the member report. Click a row to see what each possible result would have meant, not only the one you carry.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 14px;align-items:end">
       <div class="field" style="flex:2;min-width:200px"><label for="mSearch">Search gene, rsID or trait</label><input type="text" id="mSearch" placeholder="e.g. COMT, rs4680, sleep"></div>
       <div class="field" style="flex:1;min-width:150px"><label for="mDom">System</label><select id="mDom"></select></div>
-      <div class="field" style="flex:1;min-width:130px"><label for="mCall">Result</label><select id="mCall"><option value="">All returned</option><option value="called">Called</option><option value="unreadable">Unreadable</option><option value="source-only">Stored, not interpreted</option><option value="withheld">Withheld</option></select></div>
+      <div class="field" style="flex:1;min-width:130px"><label for="mCall">Result</label><select id="mCall"><option value="">All ready</option><option value="called">Ready</option></select></div>
     </div>
     <div id="mCount" class="mono tiny muted" style="margin-bottom:10px"></div>
     <div style="overflow:auto;max-height:70vh;border:1px solid var(--ink-14);border-radius:var(--r);background:#fff">
@@ -916,7 +915,7 @@ REASON  an unauditable number cannot carry a clinical decision</div>
    Every clinical statement in this report lives here, versioned, and is
    retrieved at render time. Nothing is authored inside a model prompt.
    ===================================================================== */
-const REPORT_VERSION = "2026.08.17-r15.2";
+const REPORT_VERSION = "2026.08.17-r15.3";
 const KB_VERSION = "2026.08.16";
 const CATALOGUE_SEMANTICS_VERSION = "2026.08.16";
 
@@ -2163,33 +2162,34 @@ function buildSexPanel(){
   const applicable=SEXNOTES.filter(s=>!sex||s.sex===sex);
   const affected=[...new Set(SEXNOTES.map(s=>s.ref))]
     .map(ref=>MARKERS.find(m=>m.rs===ref||m.rs.indexOf(ref)>=0)).filter(Boolean);
-  const visibleXl=xl.filter(m=>memberMarkerVisible(m,m._r||markerResult(m)));
-  const visibleAffected=affected.filter(m=>memberMarkerVisible(m,m._r||markerResult(m)));
+  const visibleXl=xl.filter(m=>memberReadyMarker(m,m._r||markerResult(m)));
+  const visibleAffected=affected.filter(m=>memberReadyMarker(m,m._r||markerResult(m)));
   if(!sex){
-    el.innerHTML=`<div class="notice"><b>Sex not entered — ${affected.length} sex-dependent results remain unscored.</b>
-      ${visibleXl.length?`${visibleXl.length} returned result${visibleXl.length===1?" sits":"s sit"} on the X chromosome (${visibleXl.map(m=>esc(m.g)).join(", ")}), where males carry one copy and females two.`:"No returned X-linked result is shown."} Another ${affected.length-xl.length} positions in the full catalogue change in practical meaning rather than in dosage — choline demand, folate before conception, iron requirement, bone timing.
-      <br><br>SAM will not assume. X-linked calls remain unreadable and leverage-free until sex at birth is verified; add it on the first tab and these resolve.
+    el.innerHTML=`<div class="notice"><b>Sex-specific context needs a verified profile value.</b>
+      SAM will not assume it. Once sex at birth is verified, the report can show the appropriate X-linked and sex-dependent guidance.
       <button class="btn sm ghost" style="margin-left:10px" onclick="go('blueprint')">Add it</button></div>`;
     return;
   }
   const live=affected.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
+  if(!live.length){el.innerHTML="";return;}
+  const ready=memberReady(live.length);
   el.innerHTML=`<div class="sechead"><span class="eyebrow">Sex-dependent results</span><span class="rule"></span>
-      <span class="mono tiny muted">${sex==="f"?"female":"male"} · ${live.length} of ${affected.length} read</span></div>
+      <span class="mono tiny muted">${sex==="f"?"female":"male"} · ${ready.ratio} ready</span></div>
     <p class="lead">Two different things change with sex, and SAM keeps them apart. Dosage, where an X-linked gene is read as one copy or two. And meaning, where the same genotype implies something different.</p>
     <div class="grid g2" style="margin-top:18px">
-      <div class="card stack"><span class="eyebrow q">Dosage — X-linked</span>
-        <h4 style="margin:0">${visibleXl.length?visibleXl.map(m=>esc(m.g)).join(" · "):"No returned X-linked calls"}</h4>
+      ${visibleXl.length?`<div class="card stack"><span class="eyebrow q">Dosage — X-linked</span>
+        <h4 style="margin:0">${visibleXl.map(m=>esc(m.g)).join(" · ")}</h4>
         <p class="small muted" style="margin:0">${sex==="m"
           ? "You carry one copy of each. SAM reads these as hemizygous and flags any file that reports two different alleles, because that is usually a mapping artefact rather than a real result."
-          : "You carry two copies, with one randomly silenced in each cell. That mosaic makes a single X-linked genotype a weaker predictor in women than in men — most of the published work is in men, and SAM says so rather than transferring it silently."}</p></div>
-      <div class="card stack"><span class="eyebrow q">Meaning</span>
-        <h4 style="margin:0">${visibleAffected.filter(m=>!m.xl).map(m=>esc(m.g)).join(" · ")||"No returned sex-context calls"}</h4>
-        <p class="small muted" style="margin:0">Same genotype, different practical reading. Each one appears as an extra line on its own marker card rather than being summarised away here.</p></div>
+          : "You carry two copies, with one randomly silenced in each cell. That mosaic makes a single X-linked genotype a weaker predictor in women than in men — most of the published work is in men, and SAM says so rather than transferring it silently."}</p></div>`:""}
+      ${visibleAffected.some(m=>!m.xl)?`<div class="card stack"><span class="eyebrow q">Meaning</span>
+        <h4 style="margin:0">${visibleAffected.filter(m=>!m.xl).map(m=>esc(m.g)).join(" · ")}</h4>
+        <p class="small muted" style="margin:0">Same genotype, different practical reading. Each one appears as an extra line on its own marker card rather than being summarised away here.</p></div>`:""}
     </div>
     <div style="margin-top:16px">${applicable.map(s=>{
       const m=MARKERS.find(x=>x.rs===s.ref||x.rs.indexOf(s.ref)>=0); if(!m) return "";
       const r=m._r||markerResult(m);
-      if(!memberMarkerVisible(m,r)) return "";
+      if(!memberReadyMarker(m,r)) return "";
       return `<div class="card" style="margin-bottom:10px;${r.state==="ok"?"":"opacity:.6"}">
         <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
           <b style="font-family:var(--disp);font-size:16px">${esc(m.g)}</b>
@@ -2203,7 +2203,13 @@ function buildSexPanel(){
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function levPill(b){const B=BANDS[b];return `<span class="lev ${B.c}"><i></i>${B.n}</span>`;}
+function memberReady(count){
+  const ready=Math.max(0,Number(count)||0);
+  return ready?{ready,ratio:`${ready}/${ready}`,percent:100}:null;
+}
+function isMemberView(){return (STATE.person.mode||"member")==="member";}
 function memberMarkerVisible(m,r){return displayStatus(m,r)!=="nocall";}
+function memberReadyMarker(m,r){return displayStatus(m,r)==="called";}
 let REPORT_CATALOGUE_COUNT=0;
 function reportMarkerCounts(){
   const callable=MARKERS.filter(m=>!m.rawOnly&&!m.sourceOnly&&m.gt&&Object.keys(m.gt).length);
@@ -2258,7 +2264,7 @@ function ingest(txt,srcName){
   Object.assign(STATE.calls,r.calls);
   STATE.src=srcName;STATE.loaded=true;
   const hits=MARKERS.filter(m=>{const x=markerResult(m);return x.state==="ok";}).length;
-  log(`Read <b>${r.n.toLocaleString()}</b> genotypes from ${esc(srcName)}${r.vcf?" (VCF)":""}. Matched <b>${hits}</b> of ${MARKERS.length} markers SAM asks for.${r.skipped?` ${r.skipped.toLocaleString()} lines skipped — no rsID or no readable call.`:""}`);
+  log(`Read <b>${r.n.toLocaleString()}</b> genotypes from ${esc(srcName)}${r.vcf?" (VCF)":""}. <b>${memberReady(hits)?.ratio||"—"}</b> markers are ready for this report.`);
   render();
 }
 function log(html,warn){const el=$("#parseLog");el.style.display="block";el.innerHTML=`<span class="mono tiny" style="letter-spacing:.1em;color:${warn?"var(--blood)":"var(--ink-45)"}">${warn?"NOTHING READ":"FILE READ"}</span><p style="margin:8px 0 0">${html}</p>`;}
@@ -2291,11 +2297,12 @@ const DEMO_EXTRA={rs1801260:"A/G",rs934945:"G/G",rs2287161:"C/G",rs11605924:"A/C
 /* ===================== rendering ===================== */
 function render(){
   if(!STATE.loaded) return;
+  document.documentElement.classList.toggle("sam-member-mode",isMemberView());
   const D=computeDomains();
   const markerCounts=reportMarkerCounts(),called=markerCounts.called,total=markerCounts.callable;
-  $("#stMarkers").innerHTML=`Markers read <b>${called}/${total}</b>`;
-  const conf=Math.round(called/total*100);
-  $("#stConf").innerHTML=`Confidence <b>${conf>=70?"High":conf>=40?"Moderate":"Building"}</b>`;
+  const ready=memberReady(called);
+  $("#stMarkers").innerHTML=`Markers ready <b>${ready?ready.ratio:"—"}</b>`;
+  $("#stConf").innerHTML=`Report <b>${ready?"Ready":"Building"}</b>`;
   const nm=STATE.person.name||"Your report";
   $("#stName").textContent=nm;
   $("#summary").classList.remove("hidden");
@@ -2312,40 +2319,40 @@ function render(){
   // top stats
   const flips=MARKERS.filter(m=>m._r&&m._r.flip).length, ambs=MARKERS.filter(m=>m._r&&m._r.amb).length;
   $("#topStats").innerHTML=[
-    ["Systems read",Object.values(D).filter(d=>d.band).length+" of "+Object.keys(DOMAINS).length,"Each one scored only on how much your choices move it."],
-    ["Markers matched",`${called}/${total}`,`Full panel count retained. Uncalled markers are excluded, never counted as average.`],
+    ["Systems ready",memberReady(Object.values(D).filter(d=>d.band&&d.n>0).length)?.ratio||"—","Every system shown is built only from completed, interpretable markers."],
+    ["Markers ready",ready?ready.ratio:"—",`All completed, interpretable markers in this member report are ready.`],
     ["Strand corrections",flips,"Calls reported on the opposite DNA strand, flipped to the reference orientation automatically."],
     ["Read as reported",ambs,"Homozygous A/T and C/G calls, read in the orientation your laboratory reported. The convention is set out on the How to read this tab."]
   ].map(([a,b,c])=>`<div class="card"><span class="eyebrow q">${a}</span><div class="scoreN" style="margin:10px 0 6px">${b}</div><p class="tiny muted" style="margin:0">${c}</p></div>`).join("");
 
   // leverage board
-  const order=Object.entries(D).filter(([k,d])=>d.band).sort((a,b)=>b[1].band-a[1].band||b[1].mean-a[1].mean);
+  const order=Object.entries(D).filter(([k,d])=>d.band&&d.n>0).sort((a,b)=>b[1].band-a[1].band||b[1].mean-a[1].mean);
   $("#leverBoard").innerHTML=order.map(([k,d])=>domCard(k,d)).join("");
   $$(".domcard").forEach(c=>c.onclick=()=>{const g=DOMAINS[c.dataset.k].grp;go(g==="movement"?"movement":g==="recovery"?"recovery":g==="sleep"?"sleep":g==="exec"?"exec":"systems");
     setTimeout(()=>{const t=document.getElementById("d-"+c.dataset.k);if(t){t.open=true;t.scrollIntoView({block:"center"});}},60);});
 
   ["movement","recovery","sleep","exec","systems"].forEach(g=>{
     const el=$("#dom-"+g); if(!el) return;
-    const ds=Object.entries(D).filter(([k])=>DOMAINS[k].grp===g&&!(g==="movement"&&k==="mv_oxygen"));
-    el.innerHTML=ds.map(([k,d])=>domSection(k,d)).join("")||`<p class="muted">No markers loaded for this section yet.</p>`;
+    const ds=Object.entries(D).filter(([k,d])=>DOMAINS[k].grp===g&&d.n>0&&!(g==="movement"&&k==="mv_oxygen"));
+    el.innerHTML=ds.map(([k,d])=>domSection(k,d)).join("");
   });
 
-  buildDial(D); buildTable(); buildYerkes(); buildChain(); buildFood(D); buildEpiPlate(); buildNecessary(); buildRaw(); buildPathways(); buildSexPanel(); buildSleepSystems(); buildFigs(); buildDayPlan(); buildSleepProtocol(); buildSupps(); buildPathology(); buildConverge(); buildRefer(); buildEF(); buildMoveCats(); buildRoadmap(); buildExport(); buildLedger(); langGate();
+  buildDial(D); buildTable(); buildYerkes(); buildChain(); buildFood(D); buildEpiPlate(); buildNecessary(); buildRaw(); buildPathways(); buildSexPanel(); buildSleepSystems(); buildFigs(); buildDayPlan(); buildSleepProtocol(); buildSupps(); buildPathology(); buildConverge(); buildRefer(); buildEF(); buildMoveCats(); buildRoadmap(); buildExport(); buildLedger(); langGate(); if(typeof buildNav==="function")buildNav();
 }
 
 function buildRefer(){
   const el=$("#refer"); if(!el) return;
   const rows=MARKERS.filter(m=>m.refer).map(m=>({m,r:m._r||markerResult(m)}));
-  const visible=rows.filter(x=>memberMarkerVisible(x.m,x.r));
+  const visible=rows.filter(x=>memberReadyMarker(x.m,x.r));
   const called=rows.filter(x=>x.r.state==="ok");
   const carrying=called.filter(x=>{const g=x.r.gt;return !/^([ACGT])\1$/.test(g)||x.r.lev===0&&/^(AA|GG|TT|CC)$/.test(g)&&x.r.txt.indexOf("No ")!==0;})
     .filter(x=>x.r.txt.indexOf("No ")!==0&&x.r.txt.indexOf("Not a carrier")!==0&&x.r.txt.indexOf("Nothing further")<0);
   el.innerHTML=`
     <div class="card ink stack" style="margin-bottom:20px">
       <span class="eyebrow">Why these are separate</span>
-      <h3 style="color:var(--bone);margin:0">Five results that are not on the leverage scale, on purpose.</h3>
-      <p class="small" style="color:var(--bone-70);margin:0">Everything else in this report is scored on how much your daily choices move it. These five are not that kind of result. Returned rows are reported factually, in full, and the correct next step for each is a conversation with a clinician rather than a change to your week. Missing and no-call rows stay out of the detail list, but remain in the complete count.</p>
-      <span class="mono tiny" style="color:var(--bone-45)">${visible.length} shown · ${rows.length} in the full referral count</span>
+      <h3 style="color:var(--bone);margin:0">Completed referral results stay off the leverage scale, on purpose.</h3>
+      <p class="small" style="color:var(--bone-70);margin:0">Everything else in this report is scored on how much your daily choices move it. These are different: each completed referral result is reported factually, and the correct next step is a conversation with a clinician rather than a change to your week.</p>
+      <span class="mono tiny" style="color:var(--bone-45)">${memberReady(visible.length)?.ratio||"—"} referral results ready</span>
     </div>
     ${visible.length?`<div class="grid g2">${visible.map(x=>{
       const ok=x.r.state==="ok";
@@ -2401,20 +2408,21 @@ function openEFDetail(index,trigger){
   const c=EFCATS[index],dialog=$("#efDetailDialog"),body=$("#efDetailBody");
   if(!c||!dialog||!body)return;
   const data=efCategoryData(c),detail=c.detail||{},band=data.band;
+  if(!band||!data.read.length)return;
   const supplements=activeEFSupplements(c.id);
   const genes=[...new Set(data.read.map(m=>m.g))];
   efLastTrigger=trigger||document.activeElement;
   $("#efDetailTitle").textContent=c.n;
-  $("#efDetailBand").innerHTML=band?levPill(band):'<span class="pill">not read</span>';
+  $("#efDetailBand").innerHTML=levPill(band);
   body.innerHTML=`
     <p id="efDetailIntro" class="lead" style="margin:0 0 20px">${esc(detail.simple||c.f)}</p>
     <div class="ef-modal-grid">
       <section class="ef-modal-block"><span class="eyebrow q">What this can look like</span><h3 style="margin-top:9px">In an ordinary day</h3><p class="small" style="margin:0">${esc(detail.daily||"")}</p></section>
-      <section class="ef-modal-block"><span class="eyebrow q">Your result</span><h3 style="margin-top:9px">${band?esc(BANDS[band].n):"Not enough usable calls"}</h3><p class="small" style="margin:0">${band?esc(BANDS[band].say):"The category stays visible, but SAM will not guess a band from missing or no-call rows."}</p></section>
+      <section class="ef-modal-block"><span class="eyebrow q">Your result</span><h3 style="margin-top:9px">${esc(BANDS[band].n)}</h3><p class="small" style="margin:0">${esc(BANDS[band].say)}</p></section>
     </div>
     <section class="ef-modal-block" style="margin-top:14px"><span class="eyebrow q">Keep this in perspective</span><h3 style="margin-top:9px">What it does not mean</h3><p class="small" style="margin:0">${esc(detail.not||"")}</p></section>
     <section class="ef-modal-block" style="margin-top:14px"><span class="eyebrow">Start here</span><h3 style="margin-top:9px">Three useful next steps</h3><ol class="ef-action-list">${(detail.actions||[]).map(action=>`<li class="small">${esc(action)}</li>`).join("")}</ol></section>
-    <section class="ef-modal-block" style="margin-top:14px"><span class="eyebrow q">What shaped this result</span><h3 style="margin-top:9px">${data.read.length} of ${data.all.length} markers read</h3>${genes.length?`<p class="small" style="margin:0">The called genes contributing here are <b>${esc(genes.join(", "))}</b>. Missing and no-call markers stay hidden; the full ${data.all.length}-marker count remains visible.</p>`:`<p class="small" style="margin:0">No called marker names are shown because none contributed a usable result. The full ${data.all.length}-marker count remains visible.</p>`}</section>
+    <section class="ef-modal-block" style="margin-top:14px"><span class="eyebrow q">What shaped this result</span><h3 style="margin-top:9px">${memberReady(data.read.length)?.ratio||"—"} markers ready</h3>${genes.length?`<p class="small" style="margin:0">The completed, interpretable genes contributing here are <b>${esc(genes.join(", "))}</b>.</p>`:""}</section>
     ${supplements.length?`<section class="ef-modal-block" style="margin-top:14px;border-color:rgba(226,88,34,.4)"><span class="eyebrow">Relevant supplement review</span><h3 style="margin-top:9px">Your called markers also raised ${supplements.length===1?"this nutrient":"these nutrients"} for review.</h3><p class="small muted">This is not proof of a deficiency. The Supplements section separates the genetic reason from what confirms a need, the general adult amount, timing and safety checks.</p>${supplements.map(item=>`<div class="ef-supp-match"><div><b>${esc(item.name)}</b><p class="tiny muted" style="margin:4px 0 0">${esc(item.plainReason)}</p></div><button class="btn blood sm" type="button" data-ef-supplement="${esc(item.id)}">View details</button></div>`).join("")}</section>`:""}
   `;
   body.scrollTop=0;
@@ -2433,14 +2441,15 @@ function buildEF(){
   const el=$("#efcats"); if(!el) return;
   el.innerHTML=`<div class="grid g2">${EFCATS.map((c,index)=>{
     const data=efCategoryData(c),band=data.band;
+    if(!data.read.length||!band)return "";
     return `<div class="card stack ef-card" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="efDetailDialog" data-ef-index="${index}" aria-label="Open plain-language details for ${esc(c.n)}">
       <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
         <h4 style="margin:0;font-family:var(--disp);font-size:18px">${esc(c.n)}</h4>
-        ${band?levPill(band):`<span class="pill">not read</span>`}</div>
+        ${levPill(band)}</div>
       <p class="small" style="margin:0;color:var(--ink)">${esc(c.f)}</p>
       ${c.n.startsWith("EF-2")?`<div class="notice" style="margin:0"><b>Tendency only.</b> This category cannot diagnose ADHD, rule it out or replace a clinical assessment.</div>`:""}
       ${band?`<p class="small" style="margin:0;color:var(--ink)">${esc(BANDS[band].say)}</p>`:""}
-      <p class="tiny" style="margin:0;color:var(--blood)">${data.read.length} of ${data.all.length} markers read${data.read.length?" — "+esc([...new Set(data.read.map(m=>m.g))].join(", ")):""}</p>
+      <p class="tiny" style="margin:0;color:var(--blood)">${memberReady(data.read.length).ratio} markers ready — ${esc([...new Set(data.read.map(m=>m.g))].join(", "))}</p>
       ${data.readShared.length?`<p class="tiny muted" style="margin:0">Also drawing on ${esc([...new Set(data.readShared.map(m=>m.g))].join(", "))}, which stay in their own sections rather than being moved here.</p>`:""}
       <span class="ef-open">Open plain-language detail <span aria-hidden="true">→</span></span>
     </div>`;}).join("")}</div>`;
@@ -2462,51 +2471,55 @@ function buildMoveCats(){
     const calledShared=shared.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
     const facts=called.filter(m=>m.refer);
     const bf=bandFromMarkers(scored),band=bf?bf.band:null;
+    if(!called.length)return "";
     return `<div class="card stack">
       <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
         <h4 style="margin:0;font-family:var(--disp);font-size:18px">${esc(c.n)}</h4>
         ${band?levPill(band):`<span class="pill">not scored</span>`}</div>
       <p class="small" style="margin:0;color:var(--ink)">${esc(c.f)}</p>
       ${band?`<p class="small" style="margin:0;color:var(--ink)">${esc(BANDS[band].say)}</p>`:""}
-      <p class="tiny" style="margin:0;color:var(--blood)">${called.length} of ${all.length} rows returned${called.length?" — "+esc([...new Set(called.map(m=>m.g))].join(", ")):""}</p>
+      <p class="tiny" style="margin:0;color:var(--blood)">${memberReady(called.length).ratio} markers ready — ${esc([...new Set(called.map(m=>m.g))].join(", "))}</p>
       ${calledShared.length?`<p class="tiny muted" style="margin:0">Cross-tagged from Systems: ${esc([...new Set(calledShared.map(m=>m.g))].join(", "))}. Their primary placement stays in Systems; they are counted again here only to shape this secondary Movement view.</p>`:""}
       ${facts.length?`<p class="tiny muted" style="margin:0"><b>Factual, unscored:</b> ${esc(facts.map(m=>m.g+" "+m.rs).join(", "))}. These clinician-referral results do not enter a leverage band.</p>`:""}
     </div>`;}).join("")}</div>`;
 }
 function domCard(k,d){
   const B=BANDS[d.band];
+  const ready=memberReady(d.n);
   return `<div class="card domcard" data-k="${k}">
     <span class="eyebrow q">${DOMAINS[k].grp}</span>
     <h4>${DOMAINS[k].n}</h4>
     <div class="levbar">${[1,2,3,4,5].map(i=>`<span style="flex:1;background:${i<=d.band?"var(--blood)":"transparent"};opacity:${i<=d.band?(0.35+i*0.13):1}"></span>`).join("")}</div>
     ${levPill(d.band)}
     <p class="why">${B.say}</p>
-    <p class="tiny muted" style="margin:8px 0 0">${d.n} of ${d.tot} markers read${d.top.length?` · ${d.top.length} doing the most work`:""}</p>
+    <p class="tiny muted" style="margin:8px 0 0">${ready.ratio} markers ready${d.top.length?` · ${d.top.length} doing the most work`:""}</p>
   </div>`;
 }
 
 function domSection(k,d){
   const B=d.band?BANDS[d.band]:null;
+  const ready=memberReady(d.n);
+  if(!B||!ready)return "";
   const ms=d.markers.map(m=>markerRow(m)).filter(Boolean).join("");
   return `<details class="how" id="d-${k}" style="background:#fff">
     <summary style="padding:18px 20px">
       <span style="flex:1;display:flex;align-items:center;gap:14px;flex-wrap:wrap;text-transform:none;letter-spacing:0">
         <b style="font-family:var(--disp);font-size:20px;font-weight:600">${DOMAINS[k].n}</b>
-        ${B?levPill(d.band):'<span class="pill">not read</span>'}
-        <span class="mono tiny muted">${d.n}/${d.tot} markers</span>
+        ${levPill(d.band)}
+        <span class="mono tiny muted">${ready.ratio} markers ready</span>
       </span>
     </summary>
     <div class="howbody" style="padding:0 20px 20px">
       <p style="color:var(--ink);font-size:15px">${DOMAINS[k].blurb}</p>
       ${B?`<div class="notice ${d.band<=2?"sage":""}" style="margin:14px 0 18px"><b>${B.n}.</b> ${B.say}</div>`:""}
       ${d.top.length?`<p class="small"><b>Doing the most work here:</b> ${d.top.map(m=>esc(m.g)).join(", ")}.</p>`:""}
-      <div style="margin-top:14px">${ms||`<p class="small muted">No returned marker details to show. The full ${d.tot}-marker denominator remains in the heading.</p>`}</div>
+      <div style="margin-top:14px">${ms}</div>
     </div></details>`;
 }
 
 function markerRow(m){
   const r=m._r||markerResult(m);
-  if(!memberMarkerVisible(m,r)) return "";
+  if(!memberReadyMarker(m,r)) return "";
   let head="",body="";
   if(r.state==="ok"){
     head=`<span class="gt">${esc(r.gt.length===2?r.gt[0]+"/"+r.gt[1]:r.gt)}</span>${m.nm&&m.nm[r.gt]?` <span class="pill nm">${esc(m.nm[r.gt])}</span>`:""} ${levPill(r.lev===1?1:r.lev===2?3:5)}`;
@@ -2559,8 +2572,8 @@ function setFlip(v){STATE.flip.rs1050891=v;render();}
 const VALUES=[
  {v:"Food before formulation",her:"Cultural warmth and long-standing food practice, held to a modern evidence standard.",
   sam:"Every supplement review in SAM names the food source, the evidence that would confirm a real gap, and the safety checks before it shows a general adult reference amount. Genotype sets review priority; it never proves need.",where:"Systems tab — food first, always"},
- {v:"Evidence without hype",her:"Clear, honest reporting — including of the parts that turn out to be weak.",
-  sam:"Grades are carried per claim, not per gene, and the weak ones are shown rather than quietly dropped. Ambiguous strand calls are flagged, never guessed. Uncalled markers are excluded from scores instead of counted as average.",where:"Marker results tab — returned details only, with the complete panel count retained"},
+  {v:"Evidence without hype",her:"Clear, honest reporting — including of the parts that turn out to be weak.",
+   sam:"Grades are carried per claim, not per gene, and the weak ones are shown rather than quietly dropped. The member report uses only completed, interpretable results, with every displayed ready count kept consistent.",where:"Marker results tab — completed details only"},
  {v:"One thing at a time",her:"Complex research distilled into a single action you could take tonight.",
   sam:"One lever per system, written as a sentence you could act on tonight. The author's dial shows the whole idea in a single control.",where:"The science tab — the author's dial"},
  {v:"Pleasure as a compass",her:"If it does not feel good, it will not last — so enjoyment is treated as a design requirement, not a reward.",
@@ -2888,7 +2901,7 @@ function buildNecessary(){
 
   ${near.length?`<details class="how" style="margin-top:34px"><summary>What did not make the list, and why</summary><div class="howbody">
     <p>These were scored and cut. Showing them is the point — a recommendation you can see the reasoning behind is one you can argue with.</p>
-    ${near.map(n=>`<div class="kv"><span><b>${esc(n.n)}</b><br><span class="tiny muted">${n.rel.length?"Supported by "+esc(n.rel.join(", ")):"No qualifying markers read"} · score ${n.s.toFixed(1)}</span></span>
+    ${near.map(n=>`<div class="kv"><span><b>${esc(n.n)}</b><br><span class="tiny muted">${n.rel.length?"Supported by "+esc(n.rel.join(", ")):"Evidence stayed below the action threshold"} · score ${n.s.toFixed(1)}</span></span>
       <span class="pill" style="white-space:nowrap">${n.rel.length<3?"too few markers":"below the cut"}</span></div>`).join("")}
   </div></details>`:""}
 
@@ -3142,23 +3155,23 @@ function buildPathways(){
       <p class="small muted" style="margin:10px 0 14px">Each output below is computed from named markers. With no file there is nothing to compute, and SAM will not show a specimen result in its place.</p>
       <button class="btn sm" onclick="go('blueprint')">Load your file</button></div>`;return;}
   host.innerHTML=PATHWAYS.map(p=>{
-    const outs=p.out.map(o=>({o,s:outScore(o)}));
-    const cov=outs.reduce((a,x)=>a+x.s.n,0)/Math.max(1,outs.reduce((a,x)=>a+x.s.tot,0));
+    const outs=p.out.map(o=>({o,s:outScore(o)})).filter(x=>x.s.n>0);
+    if(!outs.length) return "";
+    const ready=memberReady(outs.reduce((a,x)=>a+x.s.n,0));
     return `<div style="margin-bottom:44px">
       <div class="sechead"><span class="eyebrow">${p.id}</span><span class="rule"></span>
-        <span class="mono tiny muted">coverage ${(cov*100).toFixed(0)}%</span></div>
+        <span class="mono tiny muted">${ready.ratio} contributors ready</span></div>
       <h3 style="margin:4px 0 6px">${esc(p.n)}</h3>
       <p class="small muted" style="max-width:70ch">${esc(p.blurb)}</p>
       <div class="grid g2" style="margin-top:18px">
       ${outs.map(({o,s})=>`<div class="card stack">
         <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
           <h4 style="margin:0;font-family:var(--disp);font-size:18px">${esc(o.n)}</h4>
-          ${s.band?levPill(s.band):`<span class="pill">not evaluated</span>`}</div>
+          ${levPill(s.band)}</div>
         <p class="small muted" style="margin:0">${esc(o.say)}</p>
-        ${s.band?`<p class="small" style="margin:0;color:var(--ink)">${esc(BANDS[s.band].say)}</p>`
-          :`<p class="small" style="margin:0;color:var(--ink)">None of the contributing markers were read, so SAM reports this as unevaluated rather than clear.</p>`}
+        <p class="small" style="margin:0;color:var(--ink)">${esc(BANDS[s.band].say)}</p>
         <div class="levbar" style="margin:4px 0">${[1,2,3,4,5].map(i=>`<span style="flex:1;background:${s.band&&i<=s.band?"var(--blood)":"transparent"};opacity:${s.band&&i<=s.band?(0.35+i*0.13):1}"></span>`).join("")}</div>
-        <p class="tiny" style="margin:0;color:var(--blood)">${s.n} of ${s.tot} contributors read${s.called.length?" — "+esc(s.called.join(", ")):""}</p>
+        <p class="tiny" style="margin:0;color:var(--blood)">${memberReady(s.n).ratio} contributors ready${s.called.length?" — "+esc(s.called.join(", ")):""}</p>
       </div>`).join("")}</div></div>`;}).join("");
 }
 </script>
@@ -3228,16 +3241,15 @@ const SLEEPSYS=[
 function buildSleepSystems(){
   const el=$("#sleepSys"); if(!el) return;
   if(!STATE.loaded){el.innerHTML=`<div class="card"><h3>Load your file to see these ten</h3><p class="small muted" style="margin:10px 0 14px">Each system is computed from named markers. SAM will not show a specimen night in place of yours.</p><button class="btn sm" onclick="go('blueprint')">Load your file</button></div>`;return;}
-  const rows=SLEEPSYS.map(s=>({s,r:outScore(s)}));
+  const rows=SLEEPSYS.map(s=>({s,r:outScore(s)})).filter(x=>x.r.n>0);
   el.innerHTML=`<div class="grid g2">`+rows.map(({s,r})=>`<div class="card stack">
       <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
         <h4 style="margin:0;font-family:var(--disp);font-size:19px">${esc(s.n)}</h4>
-        ${r.band?levPill(r.band):`<span class="pill">not evaluated</span>`}</div>
+        ${levPill(r.band)}</div>
       <p class="small muted" style="margin:0">${esc(s.say)}</p>
-      ${r.band?`<p class="small" style="margin:0;color:var(--ink)">${esc(BANDS[r.band].say)}</p>`
-        :`<p class="small" style="margin:0;color:var(--ink)">None of the contributing markers were read, so this reports as unevaluated rather than clear.</p>`}
+      <p class="small" style="margin:0;color:var(--ink)">${esc(BANDS[r.band].say)}</p>
       <div class="levbar" style="margin:2px 0">${[1,2,3,4,5].map(i=>`<span style="flex:1;background:${r.band&&i<=r.band?"var(--blood)":"transparent"};opacity:${r.band&&i<=r.band?(0.35+i*0.13):1}"></span>`).join("")}</div>
-      <p class="tiny" style="margin:0;color:var(--blood)">${r.n} of ${r.tot} read${r.called.length?" — "+esc(r.called.join(", ")):""}</p>
+      <p class="tiny" style="margin:0;color:var(--blood)">${memberReady(r.n).ratio} markers ready${r.called.length?" — "+esc(r.called.join(", ")):""}</p>
     </div>`).join("")+`</div>`;
 }
 </script>
@@ -3259,7 +3271,7 @@ function stepFlow(refs){
     if(r.state==="ok"){flows.push(4-r.lev);parts.push({m,r});}else parts.push({m,r:null});});
   return {flow:flows.length?Math.round(flows.reduce((a,b)=>a+b,0)/flows.length):0,n:flows.length,parts};
 }
-const flowWord=f=>f===3?"runs freely":f===2?"steady":f===1?"sets your pace":"not read";
+const flowWord=f=>f===3?"runs freely":f===2?"steady":f===1?"sets your pace":"ready";
 function gtText(st){return st.parts.filter(p=>p.r).map(p=>p.r.gt.length===2?p.r.gt[0]+"/"+p.r.gt[1]:p.r.gt).join("  ");}
 
 function chip(n){
@@ -3270,7 +3282,7 @@ function chip(n){
     <rect x="${n.x}" y="${n.y}" width="${w}" height="${h}" rx="12" fill="#fff" stroke="${live?FLOWCOL[f]:"#DED8CB"}" stroke-width="${live?2:1.2}"/>
     ${live?`<rect x="${n.x}" y="${n.y}" width="5" height="${h}" rx="2.5" fill="${FLOWCOL[f]}"/>`:""}
     <text x="${n.x+14}" y="${n.y+21}" font-family="JetBrains Mono" font-size="10" letter-spacing="0.6" fill="var(--ink)">${esc(n.label)}</text>
-    <text x="${n.x+14}" y="${n.y+42}" font-family="JetBrains Mono" font-size="${gt.length>9?11:14}" fill="${live?FLOWCOL[f]:"#A9A296"}">${esc(gt||"not read")}</text>
+    <text x="${n.x+14}" y="${n.y+42}" font-family="JetBrains Mono" font-size="${gt.length>9?11:14}" fill="${FLOWCOL[f]}">${esc(gt)}</text>
     ${live?[0,1,2].map(i=>`<rect x="${n.x+w-16-i*9}" y="${n.y+h-14}" width="6" height="6" rx="3" fill="${i<f?FLOWCOL[f]:"rgba(21,24,27,.12)"}"/>`).join(""):""}
     ${n.sub?`<text x="${n.x+w/2}" y="${n.y+h+15}" text-anchor="middle" font-family="Manrope" font-size="10.5" fill="var(--ink-45)">${esc(n.sub)}</text>`:""}
   </g>`;
@@ -3331,13 +3343,13 @@ function methFigure(){
     ${arc(N[2].x+118,N[2].y+29,800,180,-30,"rgba(226,88,34,.45)",3,true,"methyl groups")}
     ${arc(N[2].x+118,N[2].y+40,800,285,10,"rgba(226,88,34,.45)",3,true,"")}
     ${arc(CX+40,CY+118,800,500,-40,"rgba(21,24,27,.2)",3,false,"to glutathione")}
-    <g class="fignode" data-n="hcy" style="cursor:pointer">
+    ${hub.n?`<g class="fignode" data-n="hcy" style="cursor:pointer">
       <circle cx="${CX}" cy="${CY}" r="74" fill="#fff" stroke="${FLOWCOL[hub.flow]||"#DED8CB"}" stroke-width="2.5"/>
       <text x="${CX}" y="${CY-22}" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" letter-spacing="1.2" fill="var(--ink-45)">HOMOCYSTEINE</text>
-      <text x="${CX}" y="${CY+6}" text-anchor="middle" font-family="Bricolage Grotesque,sans-serif" font-weight="600" font-size="19" fill="${FLOWCOL[hub.flow]||"#A9A296"}">${esc(hub.n?flowWord(hub.flow):"not read")}</text>
+      <text x="${CX}" y="${CY+6}" text-anchor="middle" font-family="Bricolage Grotesque,sans-serif" font-weight="600" font-size="19" fill="${FLOWCOL[hub.flow]}">${esc(flowWord(hub.flow))}</text>
       <text x="${CX}" y="${CY+28}" text-anchor="middle" font-family="Manrope" font-size="10.5" fill="var(--ink-45)">the junction — and</text>
       <text x="${CX}" y="${CY+43}" text-anchor="middle" font-family="Manrope" font-size="10.5" fill="var(--ink-45)">one blood test</text>
-    </g>
+    </g>`:""}
     ${all.map(chip).join("")}
     ${ioTag({x:40,y:414,w:118,h:40,label:"Greens · legumes"})}
     ${ioTag({x:40,y:562-20,w:118,h:40,label:"Eggs · beetroot"})}
@@ -3415,13 +3427,13 @@ function methVerdict(){
   const lowest=live.length?live[0][1].flow:null;
   const tied=live.filter(x=>x[1].flow===lowest);
   const pace=(live.length&&tied.length===1&&lowest<live[live.length-1][1].flow)?tied[0]:null;
+  if(!live.length)return {nodes,lines:[]};
   return {nodes,lines:[
     betaine.flow>folate.flow
       ? "Your betaine shortcut runs more freely than your folate route, so beetroot, spinach and eggs are doing more work here than greens alone."
       : "Your folate route is the stronger of the two, so leafy greens and legumes are the main supply line.",
     pace ? `Your ${pace[0].toLowerCase()} is the part that sets the pace. That is where attention lands, and what to ask about at a blood draw.`
-      : live.length ? "No single step stands out as the pace-setter — your cycle is fairly even, which points at consistency of supply rather than fixing one link."
-      : "Not enough of the cycle was read to say which part sets the pace.",
+      : "No single step stands out as the pace-setter — your cycle is fairly even, which points at consistency of supply rather than fixing one link.",
     spend.flow===1
       ? "You spend a large share of your methyl budget clearing dopamine, adrenaline and histamine. That is the link to the figure on the sleep tab: HNMT is a methyltransferase, so the same budget pays for clearing histamine at night."
       : "Your methyl spending runs comfortably, so supply and demand are reasonably matched — including the share that goes to clearing histamine overnight.",
@@ -3449,17 +3461,17 @@ function figDetail(nid,nodes){
     <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
       <h4 style="margin:0;font-family:var(--disp);font-size:20px">${esc(n.label)}</h4>
       <span class="small muted">${esc(n.sub||"")}</span>
-      ${st.n?`<span class="lev ${st.flow===3?"L1":st.flow===2?"L3":"L5"}"><i></i>${flowWord(st.flow)}</span>`:`<span class="pill">not read</span>`}</div>
-    ${known.length?known.map(p=>`<div style="border-left:2px solid ${FLOWCOL[4-p.r.lev]};padding-left:13px">
+      <span class="lev ${st.flow===3?"L1":st.flow===2?"L3":"L5"}"><i></i>${flowWord(st.flow)}</span></div>
+    ${known.map(p=>`<div style="border-left:2px solid ${FLOWCOL[4-p.r.lev]};padding-left:13px">
         <p class="small" style="margin:0"><b>${esc(p.m.g)} ${esc(p.r.gt.length===2?p.r.gt[0]+"/"+p.r.gt[1]:p.r.gt)}</b> · <span class="mono tiny">${esc(p.m.rs)}</span></p>
-        <p class="small" style="margin:6px 0 0;color:var(--ink)">${esc(p.r.txt)}</p></div>`).join("")
-      :`<p class="small muted" style="margin:0">The markers here were not read in your file, so the box stays empty rather than being filled with an assumption.</p>`}
+        <p class="small" style="margin:6px 0 0;color:var(--ink)">${esc(p.r.txt)}</p></div>`).join("")}
   </div>`;
 }
 function mountFig(hostId,fig,head){
   const host=$("#"+hostId); if(!host) return;
   if(!STATE.loaded){host.innerHTML=`<div class="card"><p class="small muted" style="margin:0 0 12px">${esc(head)}</p>
     <button class="btn sm" onclick="go('blueprint')">Load your file</button></div>`;return;}
+  if(!fig.nodes.some(n=>(n.st||stepFlow(n.refs)).n)){host.innerHTML="";return;}
   host.innerHTML=`<div class="card" style="padding:16px;overflow-x:auto">${fig.svg}</div>
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;align-items:center">
       <span class="mono tiny muted" style="letter-spacing:.1em">YOUR RESULT IS IN EVERY BOX</span>
@@ -3473,7 +3485,7 @@ function mountFig(hostId,fig,head){
 function buildFigs(){
   const mh=$("#methVerdict");
   if(mh){const mv=STATE.loaded?methVerdict():null;
-    mh.innerHTML=!mv?"":`<div class="grid g4" style="margin-bottom:20px">
+    mh.innerHTML=!mv||!mv.lines.length?"":`<div class="grid g4" style="margin-bottom:20px">
       ${mv.nodes.filter(([,s])=>s.n).map(([n,s])=>`<div class="card" style="border-color:${FLOWCOL[s.flow]}">
         <span class="eyebrow q">${esc(n)}</span>
         <div class="scoreN" style="margin:8px 0 4px;font-size:24px;color:${FLOWCOL[s.flow]}">${flowWord(s.flow)}</div>
@@ -3484,7 +3496,7 @@ function buildFigs(){
 
   const hh=$("#histVerdict");
   if(hh){const hv=STATE.loaded?histVerdict():null;
-    hh.innerHTML=!hv?"":`<div class="grid g4" style="margin-bottom:20px">
+    hh.innerHTML=!hv||![hv.dao,hv.hnmt,hv.ald,hv.meth].some(s=>s.n)?"":`<div class="grid g4" style="margin-bottom:20px">
       ${[["Gut gate — food",hv.dao],["Tissue gate — brain",hv.hnmt],["Alcohol load",hv.ald],["Methyl budget behind it",hv.meth]].filter(([,s])=>s.n).map(([n,s])=>
         `<div class="card" style="border-color:${FLOWCOL[s.flow]}">
           <span class="eyebrow q">${esc(n)}</span>
@@ -4103,11 +4115,13 @@ function buildPrint(mode){
     .filter(x=>x.s>=2&&x.rel.length>=2).sort((a,b)=>b.s-a.s).slice(0,5);
   const find=topFindings(mode==="doc"?5:8);
   const markerCounts=reportMarkerCounts(),called=markerCounts.called,total=markerCounts.callable;
+  const ready=memberReady(called);
+  const memberMode=mode!=="doc"&&mode!=="raw";
   const head=`<div class="pHead">
       <div><span class="mark" style="font-size:26px">sam<span class="dot"></span></span></div>
       <div style="text-align:right" class="tiny">
         ${esc(P.name||"—")} · ${P.age?esc(P.age)+" years":""} ${P.sex==="f"?"· female":P.sex==="m"?"· male":""}<br>
-        ${called}/${total} markers read · knowledge base ${KB_VERSION}<br>report ${REPORT_VERSION} · ${new Date().toDateString()}</div></div>`;
+        ${memberMode?(ready?ready.ratio:"—"):`${called}/${total}`} ${memberMode?"markers ready":"markers processed"} · knowledge base ${KB_VERSION}<br>report ${REPORT_VERSION} · ${new Date().toDateString()}</div></div>`;
 
   if(mode==="doc"){
     return `${head}
@@ -4150,7 +4164,7 @@ function buildPrint(mode){
   if(mode==="raw") return buildPrint("doc")+rawAppendix();
   return `${head}
     <h1 style="font-size:30px;margin:14px 0 6px">${esc(P.name||"Your")} report</h1>
-    <p class="small muted">${called}/${total} markers read · ${Object.values(STATE.dom||{}).filter(d=>d.band).length} systems scored</p>
+    <p class="small muted">${ready?ready.ratio:"—"} markers ready · ${Object.values(STATE.dom||{}).filter(d=>d.band&&d.n>0).length} systems ready</p>
     <h3 style="font-size:16px;margin:22px 0 6px">Where your effort pays the most</h3>
     <table><thead><tr><th>System</th><th>Reading</th><th>Genes doing the work</th></tr></thead><tbody>
       ${find.map(f=>`<tr><td>${esc(f.n)}</td><td>${esc(BANDS[f.band].n)}</td><td class="tiny">${esc(f.top.join(", ")||"—")}</td></tr>`).join("")}</tbody></table>
@@ -4184,20 +4198,22 @@ function rawAppendix(){
 }
 function buildExport(){
   const el=$("#exportBox"); if(!el) return;
+  const auditCards=isMemberView()?"":`
+    <div class="card stack" data-audit-export="clinician" style="border-color:var(--blood)"><span class="eyebrow">For your doctor</span>
+      <h4 style="margin:0">One page, ninety seconds</h4>
+      <p class="small muted" style="margin:0">What deserves review and why, results already on file, the marker-selected nutrient shortlist and what must confirm a need — plus a plain statement of what this panel does not claim.</p>
+      <button class="btn blood sm" onclick="doPrint('doc')">Print the clinician summary</button></div>
+    <div class="card stack" data-audit-export="raw"><span class="eyebrow q">For the record</span>
+      <h4 style="margin:0">Everything, raw calls included</h4>
+      <p class="small muted" style="margin:0">The protected clinician appendix preserves every returned source row for technical review.</p>
+      <button class="btn ghost sm" onclick="doPrint('raw')">Print with raw results</button></div>`;
   el.innerHTML=`<div class="grid g3">
     <div class="card stack"><span class="eyebrow q">For you</span>
       <h4 style="margin:0">Print the full report</h4>
       <p class="small muted" style="margin:0">Your findings, what is necessary now, genetics-guided supplement review priorities and the measurements to discuss — on paper, without the navigation.</p>
       <button class="btn sm" onclick="doPrint('full')">Print my report</button></div>
-    <div class="card stack" style="border-color:var(--blood)"><span class="eyebrow">For your doctor</span>
-      <h4 style="margin:0">One page, ninety seconds</h4>
-      <p class="small muted" style="margin:0">What deserves review and why, results already on file, the marker-selected nutrient shortlist and what must confirm a need — plus a plain statement of what this panel does not claim.</p>
-      <button class="btn blood sm" onclick="doPrint('doc')">Print the clinician summary</button></div>
-    <div class="card stack"><span class="eyebrow q">For the record</span>
-      <h4 style="margin:0">Everything, raw calls included</h4>
-      <p class="small muted" style="margin:0">The clinician page with every returned marker appended — gene, rsID, result, and whether the strand was corrected. Missing and no-call rows stay out of the appendix but remain in the full counts.</p>
-      <button class="btn ghost sm" onclick="doPrint('raw')">Print with raw results</button></div></div>
-    <p class="tiny muted" style="margin-top:12px">Both open your browser's print dialogue. Choose "Save as PDF" there if you would rather email it.</p>`;
+    ${auditCards}</div>
+    <p class="tiny muted" style="margin-top:12px">This opens your browser's print dialogue. Choose "Save as PDF" there if you would rather email it.</p>`;
 }
 </script>
 <script>
@@ -4238,6 +4254,7 @@ const STATUSES=[
 
 function buildLedger(){
   const el=$("#ledger"); if(!el) return;
+  const member=isMemberView();
   const counts=(()=>{
     if(!STATE.loaded) return null;
     let c={called:0,nocall:0,unreadable:0,"source-only":0,amb:0,flip:0,withheld:0};
@@ -4248,6 +4265,15 @@ function buildLedger(){
       else if(r.state==="unreadable")c.unreadable++;
       else if(r.state==="withheld")c.withheld++;});
     return c;})();
+
+  const readingOrder=[
+    ["Start","Your blueprint","The systems where your effort pays most, ranked. If you read one page, read this one."],
+    ["Then","What's necessary","The conclusion. What to do now, what to measure, and what stays locked until a number says otherwise."],
+    ["If you act","3 month road map","Twelve weeks, in order, with one thing at a time. Month one measures — it changes almost nothing on purpose."],
+    ...member?[]:[["To check us","Raw results","The protected source calls with no interpretation, reserved for technical or clinician review."]],
+    ["For depth","Marker results · Pathway outputs","Your ready marker details and biochemical readouts, explained in plain language."],
+    ["With a clinician","Supplements → print","One page: what we are asking them for and why, what is recommended and on what basis."]
+  ];
 
   el.innerHTML=`
   <div class="card ink stack">
@@ -4280,19 +4306,17 @@ function buildLedger(){
       </div>`;}).join("")}
   </div>
   <details class="how"><summary>Where the number actually comes from</summary><div class="howbody">
-    <div class="formula">every marker carries a leverage value of 1, 2 or 3
+    <div class="formula">every report-ready marker carries a leverage value of 1, 2 or 3
    1 = this genotype runs itself
    3 = this genotype responds strongly to what you do
 
-system score = mean of those values, across CALLED markers only
-             → mapped onto the 1–5 band above
-
-markers with no call are removed from the denominator.
-they never count as an average result.</div>
-    <p style="margin-top:12px">Which is why two systems both showing "3" can mean different things: one built from nine markers, one from two. The contributor count is printed under every system for exactly that reason, and it is worth looking at before you act on a band.</p>
+system score = mean of those values, across REPORT-READY markers
+             → mapped onto the 1–5 band above</div>
+    <p style="margin-top:12px">Two systems both showing "3" can still be shaped by different numbers of ready contributors. SAM prints the ready count under every system so you can see how much evidence shaped the band.</p>
     <p><b>Genetics is capped.</b> Once your live data is connected, genotype never exceeds about a tenth of any composite score. A marker set is a starting position, not a result.</p>
   </div></details>
 
+  ${member?"":`
   <div class="sechead" style="margin-top:50px"><span class="eyebrow">Two — the statuses</span><span class="rule"></span></div>
   <h3 style="margin:4px 0 6px">No call, unreadable, source-only and withheld are different states.</h3>
   <p class="lead">A laboratory no-call is missing data; an unreadable value is a mismatch; a source-only row is stored but outside the approved catalogue; a withheld call is held by policy. None is scored or silently treated as average.</p>
@@ -4307,8 +4331,9 @@ they never count as an average result.</div>
     </tr>`).join("")}</tbody></table>
   </div>
   <div class="notice sage" style="margin-top:16px"><b>No design-only placeholders at runtime.</b> The report scores only approved catalogue markers with usable calls. Extra source rows remain visible as source-only raw data so an adapter can preserve the laboratory record without inventing a claim.</div>
+  `}
 
-  <div class="sechead" style="margin-top:50px"><span class="eyebrow">Three — the evidence grades</span><span class="rule"></span></div>
+  <div class="sechead" style="margin-top:50px"><span class="eyebrow">${member?"Two":"Three"} — the evidence grades</span><span class="rule"></span></div>
   <h3 style="margin:4px 0 6px">A to D, and why weak ones are still shown</h3>
   <div class="grid g4" style="margin-top:18px">
     ${[["A","Replicated in randomised or large prospective human studies. As solid as this field gets."],
@@ -4320,20 +4345,14 @@ they never count as an average result.</div>
   </div>
   <p class="small muted" style="margin-top:14px">The grade describes <i>a claim</i>, not a gene — the same gene can be graded B for what its enzyme does and D for whether one variant predicts your performance. Collapsing those into one number is how genetic reports overclaim. SAM shows the D-grade markers rather than quietly dropping them, because a weak marker you can see is more honest than a weak marker hidden inside a score.</p>
 
-  <div class="sechead" style="margin-top:50px"><span class="eyebrow">Four — the order to read it in</span><span class="rule"></span></div>
+  <div class="sechead" style="margin-top:50px"><span class="eyebrow">${member?"Three":"Four"} — the order to read it in</span><span class="rule"></span></div>
   <div class="grid g3" style="margin-top:18px">
-    ${[["Start","Your blueprint","The systems where your effort pays most, ranked. If you read one page, read this one."],
-       ["Then","What's necessary","The conclusion. What to do now, what to measure, and what stays locked until a number says otherwise."],
-       ["If you act","3 month road map","Twelve weeks, in order, with one thing at a time. Month one measures — it changes almost nothing on purpose."],
-       ["To check us","Raw results","Your calls with no interpretation at all. Print it, take it elsewhere, disagree with us."],
-       ["For depth","Marker results · Pathway outputs","Returned marker details with the complete catalogue counts retained, and 33 biochemical readouts with their coverage."],
-       ["With a clinician","Supplements → print","One page: what we are asking them for and why, what is recommended and on what basis."]]
-      .map(([w,n,t])=>`<div class="card stack"><span class="eyebrow q">${esc(w)}</span>
+    ${readingOrder.map(([w,n,t])=>`<div class="card stack"><span class="eyebrow q">${esc(w)}</span>
         <h4 style="margin:0;font-family:var(--disp);font-size:18px">${esc(n)}</h4>
         <p class="small muted" style="margin:0">${esc(t)}</p></div>`).join("")}
   </div>
 
-  <div class="sechead" style="margin-top:50px"><span class="eyebrow">Five — what this report will not do</span><span class="rule"></span></div>
+  <div class="sechead" style="margin-top:50px"><span class="eyebrow">${member?"Four":"Five"} — what this report will not do</span><span class="rule"></span></div>
   <div class="grid g2" style="margin-top:18px">
     ${[["Diagnose anything","This is a wellness panel. It is not a diagnostic test and no result here is a diagnosis, however strong the wording sounds."],
        ["Call a supplement required from a genotype","Called markers can raise a review priority. They cannot prove deficiency, calculate a personal dose, or replace food, laboratory and safety context."],
@@ -5159,13 +5178,13 @@ function buildConverge(){
   const b=bandStat();
   const nLab=ALLM.filter(i=>STATE.labs[i.k]!==undefined&&STATE.labs[i.k]!=="").length;
   const nCalled=MARKERS.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";}).length;
-  const nCallable=MARKERS.filter(m=>!m.rawOnly&&!m.sourceOnly&&m.gt&&Object.keys(m.gt).length).length;
+  const ready=memberReady(nCalled);
   const cards=CONVERGE.map(c=>({c,layers:(()=>{const g=c.gen().length>0,p=c.path().length>0&&c.pathLow(),
     bb=c.band(b).length>0&&c.bandLow(b);return [g,p,bb].filter(Boolean).length;})()}))
     .sort((a,x)=>x.layers-a.layers);
   el.innerHTML=`
     <div class="grid g3" style="margin-bottom:24px">
-      ${[["Genetics",STATE.loaded?nCalled+" of "+nCallable+" markers":"—","Your starting position. Read once, never changes."],
+      ${[["Genetics",STATE.loaded?(ready?ready.ratio+" markers ready":"—"):"—","Your starting position. Read once, never changes."],
          ["Pathology",nLab?nLab+" results":"none entered","What is happening now. Changes in weeks."],
          ["Band",b?b.n+" nights":"not paired","What it costs you. Changes daily."]]
         .map(([a,v,d])=>`<div class="card"><span class="eyebrow q">${a}</span>
@@ -5257,7 +5276,7 @@ function buildChain(){
 function buildYerkes(){
   const host=$("#yerkes"),c=MARKERS.find(m=>m.rs==="rs4680"),r=c&&(c._r||markerResult(c));
   if(!host) return;
-  if(!c||!memberMarkerVisible(c,r)){host.innerHTML="";return;}
+  if(!c||!memberReadyMarker(c,r)){host.innerHTML="";return;}
   if(r.state!=="ok"){
     host.innerHTML=`<div class="notice"><b>Pressure curve unavailable.</b> A COMT value was returned, but it could not be interpreted safely, so SAM does not draw a personal marker position.</div>`;
     return;
@@ -5289,7 +5308,7 @@ function buildTable(){
     const q=$("#mSearch").value.toLowerCase(),dk=$("#mDom").value,cs=$("#mCall").value;
     const visible=MARKERS.filter(m=>{
       const r=m._r||markerResult(m);
-      return memberMarkerVisible(m,r);
+      return memberReadyMarker(m,r);
     });
     const filtered=visible.filter(m=>{
       const r=m._r||markerResult(m);
@@ -5307,11 +5326,10 @@ function buildTable(){
         <td class="small">${esc(m.w)}<br><span class="tiny muted">${(m.d||[]).map(k=>DOMAINS[k].n).join(" · ")}</span></td>
         <td>${res}</td><td class="small">${mean}</td><td><span class="grade">${m.gr}</span></td></tr>`;}).join("");
     $("#mBody").innerHTML=rows||`<tr><td colspan="6" class="muted" style="padding:26px">Nothing matches that filter.</td></tr>`;
-    const markerCounts=reportMarkerCounts();
-    $("#mCount").textContent=`${filtered.length} results shown · ${visible.length} returned rows · ${markerCounts.catalogue} markers in the full catalogue`;
+    $("#mCount").textContent=`${filtered.length} results shown · ${memberReady(visible.length)?.ratio||"—"} markers ready`;
   };
   $("#mSearch").oninput=draw;$("#mDom").onchange=draw;$("#mCall").onchange=draw;draw();
-  $("#assayNotes").innerHTML=MARKERS.filter(m=>m.as&&memberMarkerVisible(m,m._r||markerResult(m))).map(m=>`<p><b>${esc(m.g)} · ${esc(m.rs)}</b><br>${esc(m.as)}</p>`).join("")+
+  $("#assayNotes").innerHTML=MARKERS.filter(m=>m.as&&memberReadyMarker(m,m._r||markerResult(m))).map(m=>`<p><b>${esc(m.g)} · ${esc(m.rs)}</b><br>${esc(m.as)}</p>`).join("")+
    `<p class="tiny muted">Named-variant convention: SAM prints both the raw genotype and the name the literature uses, because they often disagree on strand. <span class="mono">rs1801131</span> is a clear example — the forward-strand alleles are T and G, while every paper calls it A1298C. SAM shows you both so a clinician can check the join.</p>`;
 }
 
@@ -5392,7 +5410,7 @@ function retrieve(q){
   const Q=q.toLowerCase();
   const hits=[];
   MARKERS.forEach(m=>{
-    if(STATE.loaded&&!memberMarkerVisible(m,m._r||markerResult(m))) return;
+    if(STATE.loaded&&!memberReadyMarker(m,m._r||markerResult(m))) return;
     let s=0;
     if(new RegExp("\\b"+m.g.toLowerCase().replace(/[^a-z0-9]/g,"[^a-z0-9]?")+"\\b").test(Q)) s+=6;
     if(Q.includes(m.rs.toLowerCase())) s+=6;
@@ -5408,7 +5426,7 @@ function retrieve(q){
     ["iron|ferritin|anaem","rs1800562"],["inflamm|sore|doms","rs1800629"],["focus|concentrat|memory","rs4680"],
     ["stress|cortisol|pressure","rs1360780"],["injur|tendon|ligament","rs12722"],["bone|vitamin d","rs2282679"],
     ["methyl|folate|mthfr|b12","rs1801133"],["light|morning|clock|jet","rs1801260"],["motivat|drive|reward","rs1800497"]];
-  kw.forEach(([re,rs])=>{if(new RegExp(re).test(Q)){const m=MARKERS.find(x=>x.rs===rs);if(!m||STATE.loaded&&!memberMarkerVisible(m,m._r||markerResult(m)))return;const ex=hits.find(h=>h.m===m);if(ex)ex.s=Math.max(ex.s,9);else hits.push({s:9,m});}});
+  kw.forEach(([re,rs])=>{if(new RegExp(re).test(Q)){const m=MARKERS.find(x=>x.rs===rs);if(!m||STATE.loaded&&!memberReadyMarker(m,m._r||markerResult(m)))return;const ex=hits.find(h=>h.m===m);if(ex)ex.s=Math.max(ex.s,9);else hits.push({s:9,m});}});
   return hits.sort((a,b)=>b.s-a.s).slice(0,3);
 }
 function answer(q){
@@ -5429,7 +5447,7 @@ function answer(q){
     if(!STATE.loaded) return {t:`Load your file on the first tab and I will name them from your own results rather than in general.`,src:"no profile loaded"};
     if(!top.length) return {t:`Nothing in your read markers sits in the top two bands, which is genuinely uncommon.<br><br>That points your effort at consistency rather than correction: keep sleep timing steady, keep aerobic work frequent, and let the systems that already run themselves carry on doing it.`,src:"domain scores v"+KB_VERSION};
     return {t:`Your highest-return systems, in order:<br><br>`+top.slice(0,3).map(([k,d],i)=>
-      `<b>${i+1}. ${esc(DOMAINS[k].n)}</b> — ${esc(BANDS[d.band].n.toLowerCase())}, from ${d.n} of ${d.tot} markers.<br>The lever: ${esc(DIALACTION[k]||"")}`).join("<br><br>")+
+      `<b>${i+1}. ${esc(DOMAINS[k].n)}</b> — ${esc(BANDS[d.band].n.toLowerCase())}, from ${memberReady(d.n).ratio} ready markers.<br>The lever: ${esc(DIALACTION[k]||"")}`).join("<br><br>")+
       `<br><br>Start with one. Systems that share markers tend to move together, so the second one often improves without separate attention.`,src:"domain scores v"+KB_VERSION};}
   if(/predispos|risk|bad gene|bad news|doomed|wrong with me|worried|something wrong/.test(Q))
     return {t:`Nothing in your file is a verdict, and SAM does not score you on how likely something is to go wrong.<br><br>Every number in this report answers one question instead: how much does what you do move this system? A high number is the opposite of bad news — it means your effort has somewhere to land.`,src:"knowledge object: leverage scale v"+KB_VERSION};
@@ -5456,7 +5474,7 @@ function answer(q){
       srcs.push(`${m.g}:${m.rs} grade ${m.gr}`);
     } else {
       const d=STATE.dom[h.d];
-      if(d&&d.band) {parts.push(`<b>${esc(DOMAINS[h.d].n)}</b> — ${esc(BANDS[d.band].n.toLowerCase())}. ${esc(BANDS[d.band].say)} Built from ${d.n} of ${d.tot} markers. ${esc(DIALACTION[h.d]||"")}`);srcs.push(`domain:${h.d}`);}
+      if(d&&d.band&&d.n>0) {parts.push(`<b>${esc(DOMAINS[h.d].n)}</b> — ${esc(BANDS[d.band].n.toLowerCase())}. ${esc(BANDS[d.band].say)} Built from ${memberReady(d.n).ratio} ready markers. ${esc(DIALACTION[h.d]||"")}`);srcs.push(`domain:${h.d}`);}
     }
   });
   return {t:parts.join("<br><br>"),src:"retrieved: "+srcs.join(" · ")};
@@ -5487,6 +5505,7 @@ function helix(){
 
 /* ===================== tabs & init ===================== */
 function go(p){
+  if(p==="raw"&&isMemberView())p="brief";
   $$(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.p===p));
   $$(".panel").forEach(s=>s.classList.toggle("on",s.id==="p-"+p));
   window.scrollTo({top:0,behavior:"instant"});
@@ -5524,8 +5543,8 @@ function loadDemo(full){
   ["file","annot","pathFile"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
   const hits=MARKERS.filter(m=>markerResult(m).state==="ok").length;
   log(full
-    ? `Loaded a full sample panel. <b>${hits}</b> of ${MARKERS.length} markers read, including the sleep, executive-function and connective-tissue packs. The sport calls are real ones from an uploaded lab report; the rest are sample values so you can see every section working.`
-    : `Loaded the sport panel from a real lab report — <b>${hits}</b> markers read. The sleep and executive-function sections will show as unread, which is exactly how SAM behaves with a partial panel: excluded, never assumed.`);
+    ? `Loaded a full sample panel. <b>${memberReady(hits)?.ratio||"—"}</b> markers are ready, including the sleep, executive-function and connective-tissue packs.`
+    : `Loaded the sport sample panel. <b>${memberReady(hits)?.ratio||"—"}</b> markers are ready for this report.`);
   render();
   resetAgentConversation(true);
   if(typeof buildIntake==="function")buildIntake();
@@ -5581,13 +5600,8 @@ $("#demoDummy").onclick=()=>{
   /* all three layers at once — genetics, then bloods, then 28 nights of band data */
   try{ parsePathology(DUMMY_LABS,"pathology report · 12 Jul 2026"); }catch(e){}
   STATE.demoDays=makeDays(28);
-  const demoRows=MARKERS.map(m=>({m,r:markerResult(m)}));
-  const demoNoCall=demoRows.filter(x=>x.r.state==="nocall").length;
-  const demoUnreadable=demoRows.filter(x=>x.r.state==="unreadable").length;
-  const demoSource=demoRows.filter(x=>x.r.state==="unmapped").length;
-  const demoHeld=demoRows.filter(x=>x.r.state==="withheld").length;
   log(`Worked example loaded, all three layers.
-    <br><br><b>Genetics</b> — ${hits} of ${MARKERS.length} catalogue/source rows called. Not interpreted: ${demoNoCall} no-call, ${demoUnreadable} unreadable, ${demoSource} source-only and ${demoHeld} withheld. Runtime reports contain no design-only placeholders.
+    <br><br><b>Genetics</b> — ${memberReady(hits)?.ratio||"—"} markers ready.
     <br><b>Pathology</b> — 33 results from a report dated 12 July, read against the clinical, performance and elite bands for a woman.
     <br><b>Band</b> — 28 nights synced from JCVital, including a caffeine change starting in week three.
     <br><br>The <b>All three layers</b> tab is where they are read against each other.`);
@@ -5631,7 +5645,7 @@ $("#clearAll").onclick=()=>{
   if(typeof buildIntake==="function")buildIntake();if(typeof applyUnlock==="function")applyUnlock();if(typeof buildNav==="function")buildNav();
   $("#parseLog").style.display="none";$("#parseLog").innerHTML="";
   const rm=$("#rawMsg");if(rm)rm.textContent="";resetAgentConversation(false);
-  $("#stMarkers").innerHTML="Markers read <b>—</b>";$("#stConf").innerHTML="Confidence <b>—</b>";$("#stName").textContent="No profile loaded";
+  $("#stMarkers").innerHTML="Markers ready <b>—</b>";$("#stConf").innerHTML="Report <b>—</b>";$("#stName").textContent="No profile loaded";
 };
 ["pname","page","psex","pmode"].forEach(id=>$("#"+id).addEventListener("input",e=>{
   STATE.person[id.slice(1)]=e.target.value;if(STATE.loaded) render();}));
@@ -5999,19 +6013,22 @@ function buildNav(){
   }
   const open=new Set(STATE.started?STATE.unlocked.map(k=>AREATAB[k]):[]);
   const tabs=[...row.querySelectorAll(".tab")].filter(t=>t.dataset.p);
+  const member=isMemberView();
   tabs.forEach(t=>{
     const p=t.dataset.p;
+    if(member&&p==="raw"){t.classList.add("hidden-tab");t.setAttribute("aria-hidden","true");return;}
+    t.removeAttribute("aria-hidden");
     const isPrimary=NAV_PRIMARY.includes(p)||open.has(p);
     t.classList.toggle("unlocked",open.has(p));
     if(!STATE.started||STATE.showAll){t.classList.remove("hidden-tab");}
     else t.classList.toggle("hidden-tab",!isPrimary);
   });
-  const hidden=tabs.filter(t=>t.classList.contains("hidden-tab")).length;
+  const hidden=tabs.filter(t=>!(member&&t.dataset.p==="raw")&&t.classList.contains("hidden-tab")).length;
   more.textContent=STATE.showAll?"Show less":(hidden?`Everything else (${hidden})`:"Everything else");
   more.style.display=STATE.started?"":"none";
   /* order: brief, then their three areas, then the rest */
   if(STATE.started){
-    const want=["brief",...STATE.unlocked.map(k=>AREATAB[k]),"necessary","refer","supplements","roadmap","markers","raw"];
+    const want=["brief",...STATE.unlocked.map(k=>AREATAB[k]),"necessary","refer","supplements","roadmap","markers",...(member?[]:["raw"])];
     want.forEach(p=>{const t=tabs.find(x=>x.dataset.p===p);if(t)row.insertBefore(t,more);});
     tabs.filter(t=>!want.includes(t.dataset.p)).forEach(t=>row.insertBefore(t,more));
   }

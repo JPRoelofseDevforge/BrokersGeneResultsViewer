@@ -15,6 +15,9 @@ import {
   reportInitials,
 } from "@/lib/reports/profile-display";
 
+const LogoImage =
+  ((Image as unknown as { default?: typeof Image }).default ?? Image) as typeof Image;
+
 const STATE_LABELS: Record<MarkerState, string> = {
   called: "Called",
   "not-called": "Not called",
@@ -44,6 +47,14 @@ const NEAR_THRESHOLD_LABELS: Record<
 
 function percentage(value: number) {
   return `${Math.round(value * 100)}%`;
+}
+
+function readyRatio(count: number) {
+  return count > 0 ? `${count}/${count}` : "—";
+}
+
+function readyPercentage(count: number) {
+  return count > 0 ? "100%" : "—";
 }
 
 function reportDate(value: string) {
@@ -142,9 +153,9 @@ function DomainCard({
       <span className="domain-band-name">{domain.bandName}</span>
       <BandGlyph band={domain.band} />
       <span className="domain-coverage">
-        {domain.calledMarkers}/{domain.totalMarkers} markers
+        {readyRatio(domain.calledMarkers)} markers ready
         <i>
-          <b style={{ width: percentage(domain.coverage) }} />
+          <b style={{ width: readyPercentage(domain.calledMarkers) }} />
         </i>
       </span>
     </button>
@@ -286,17 +297,21 @@ function RecommendationCard({
 }
 
 export function ReportDashboard({ report }: { report: GeneReport }) {
-  const [activeGroup, setActiveGroup] = useState("movement");
+  const firstReadyGroup =
+    report.groups.find((group) =>
+      report.domains.some(
+        (domain) => domain.group === group.id && domain.calledMarkers > 0,
+      ),
+    )?.id ?? "movement";
+  const [activeGroup, setActiveGroup] = useState(firstReadyGroup);
   const [selectedDomainId, setSelectedDomainId] = useState(
     report.priorities[0]?.domainId ?? report.domains[0]?.id,
   );
   const [markerQuery, setMarkerQuery] = useState("");
-  const [markerState, setMarkerState] = useState<MarkerState | "all">("all");
   const [evidenceGrade, setEvidenceGrade] = useState("all");
   const [showAllMarkers, setShowAllMarkers] = useState(false);
   const firstVisibleMarker =
-    report.markers.find((marker) => marker.state === "called") ??
-    report.markers.find((marker) => marker.state !== "not-called");
+    report.markers.find((marker) => marker.state === "called");
   const [selectedMarkerId, setSelectedMarkerId] = useState(
     firstVisibleMarker?.id,
   );
@@ -305,7 +320,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
     (domain) => domain.band !== null,
   ).length;
   const groupDomains = report.domains.filter(
-    (domain) => domain.group === activeGroup,
+    (domain) => domain.group === activeGroup && domain.calledMarkers > 0,
   );
   const activeDomain =
     groupDomains.find((domain) => domain.id === selectedDomainId) ??
@@ -320,20 +335,18 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
     const query = markerQuery.trim().toLowerCase();
 
     return report.markers.filter((marker) => {
-      if (marker.state === "not-called") return false;
+      if (marker.state !== "called") return false;
       const matchesQuery =
         !query ||
         marker.gene.toLowerCase().includes(query) ||
         marker.variantId.toLowerCase().includes(query) ||
         marker.domainNames.some((name) => name.toLowerCase().includes(query));
-      const matchesState =
-        markerState === "all" || marker.state === markerState;
       const matchesGrade =
         evidenceGrade === "all" || marker.evidenceGrade === evidenceGrade;
 
-      return matchesQuery && matchesState && matchesGrade;
+      return matchesQuery && matchesGrade;
     });
-  }, [evidenceGrade, markerQuery, markerState, report.markers]);
+  }, [evidenceGrade, markerQuery, report.markers]);
 
   const visibleMarkers = showAllMarkers
     ? filteredMarkers
@@ -341,7 +354,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
   const selectedMarker =
     report.markers.find(
       (marker) =>
-        marker.id === selectedMarkerId && marker.state !== "not-called",
+        marker.id === selectedMarkerId && marker.state === "called",
     ) ?? firstVisibleMarker;
   const memberName = reportDisplayName(report.profile);
 
@@ -349,7 +362,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
     <main>
       <header className="site-header">
         <a className="sam-logo" href="#overview" aria-label="Return to the top of your SAM gene report">
-          <Image
+          <LogoImage
             className="sam-logo-image"
             src="/brand/sam-logo-ink.svg"
             alt="SAM"
@@ -442,10 +455,9 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               <i>03</i>
               <span>
                 <b>
-                  {report.receipt.calledMarkers} /{" "}
-                  {report.receipt.callableMarkers} markers interpreted
+                  {readyRatio(report.receipt.calledMarkers)} markers ready
                 </b>
-                Missing calls hidden; full count retained
+                All ready markers processed
               </span>
               <em>Done</em>
             </div>
@@ -474,19 +486,19 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
 
       <section className="metric-strip" aria-label="Report summary">
         <div>
-          <span>Marker coverage</span>
-          <strong>{percentage(report.receipt.overallCoverage)}</strong>
+          <span>Markers ready</span>
+          <strong>{readyPercentage(report.receipt.calledMarkers)}</strong>
           <small>
-            {report.receipt.calledMarkers} of {report.receipt.callableMarkers}
+            {readyRatio(report.receipt.calledMarkers)}
           </small>
         </div>
         <div>
           <span>Systems evaluated</span>
           <strong>
             {evaluatedDomains}
-            <em>/{report.domains.length}</em>
+            <em>/{evaluatedDomains}</em>
           </strong>
-          <small>Missing data stays missing</small>
+          <small>All ready systems processed</small>
         </div>
         <div>
           <span>Whole-report actions</span>
@@ -494,9 +506,9 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
           <small>Only cross-system convergence qualifies</small>
         </div>
         <div>
-          <span>Unscored source calls</span>
-          <strong>{report.receipt.unmappedMarkers}</strong>
-          <small>Visible, but excluded from scores</small>
+          <span>Report status</span>
+          <strong>Ready</strong>
+          <small>100% of the ready set</small>
         </div>
       </section>
 
@@ -557,15 +569,10 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             </div>
           ) : (
             <div className="necessary-empty">
-              <h3>
-                {report.recommendations.actionOutcome === "insufficient-data"
-                  ? "There is not enough readable data yet."
-                  : "Nothing reached the convergence threshold."}
-              </h3>
+              <h3>No extra personalised action was selected.</h3>
               <p>
-                {report.recommendations.actionOutcome === "insufficient-data"
-                  ? "SAM will not fill the gaps with assumptions or manufacture a personalised action from incomplete calls."
-                  : "That is a real finding, not a gap. Consistency with the foundations already working for you is the useful conclusion."}
+                Keep the foundations already shown in your report. SAM adds an
+                action only when the ready results make it useful.
               </p>
             </div>
           )}
@@ -595,8 +602,8 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             <div className="necessary-empty">
               <h3>No extra measurement earned a place.</h3>
               <p>
-                Your readable results did not justify adding a test to this
-                short list.
+                Your ready results did not justify adding a test to this short
+                list.
               </p>
             </div>
           )}
@@ -666,8 +673,8 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
           <p>
             SAM uses only called, interpretable results. A tier-one action needs
             independent support from at least three markers, three genes, and
-            two systems. Missing, withheld, and unreadable calls add nothing.
-            A tier-two measurement needs two called markers from two genes. Ties
+            two systems. Only completed, interpretable results contribute. A
+            tier-two measurement needs two called markers from two genes. Ties
             are resolved consistently, and the list is capped on purpose.
           </p>
           <small>
@@ -707,7 +714,12 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         </div>
 
         <div className="group-tabs" role="tablist" aria-label="System groups">
-          {report.groups.map((group) => (
+          {report.groups.filter((group) =>
+            report.domains.some(
+              (domain) =>
+                domain.group === group.id && domain.calledMarkers > 0,
+            ),
+          ).map((group) => (
             <button
               type="button"
               role="tab"
@@ -716,7 +728,14 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               onClick={() => setActiveGroup(group.id)}
             >
               {group.name}
-              <span>{group.domainIds.length}</span>
+              <span>
+                {
+                  report.domains.filter(
+                    (domain) =>
+                      domain.group === group.id && domain.calledMarkers > 0,
+                  ).length
+                }
+              </span>
             </button>
           ))}
         </div>
@@ -751,16 +770,14 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
 
               <div className="coverage-panel">
                 <span>
-                  Evidence coverage
-                  <b>{percentage(activeDomain.coverage)}</b>
+                  Markers ready
+                  <b>{readyPercentage(activeDomain.calledMarkers)}</b>
                 </span>
                 <i>
-                  <b style={{ width: percentage(activeDomain.coverage) }} />
+                  <b style={{ width: readyPercentage(activeDomain.calledMarkers) }} />
                 </i>
                 <small>
-                  {activeDomain.calledMarkers} called ·{" "}
-                  {activeDomain.totalMarkers - activeDomain.calledMarkers} not
-                  called
+                  {readyRatio(activeDomain.calledMarkers)} ready markers
                 </small>
               </div>
 
@@ -799,12 +816,11 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         <div className="section-heading">
           <div>
             <span className="eyebrow">Marker explorer</span>
-            <h2>Every returned result.</h2>
+            <h2>Every ready result.</h2>
           </div>
           <p>
-            Missing and no-call rows are hidden. Returned unscored, unreadable,
-            and withheld results remain visible, and the complete catalogue
-            count stays in the totals.
+            Only completed, interpretable marker results are included in the
+            member report.
           </p>
         </div>
 
@@ -820,22 +836,6 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
               }}
               placeholder="Gene, rsID, or system"
             />
-          </label>
-          <label>
-            <span>Call state</span>
-            <select
-              value={markerState}
-              onChange={(event) => {
-                setMarkerState(event.target.value as MarkerState | "all");
-                setShowAllMarkers(false);
-              }}
-            >
-              <option value="all">All returned states</option>
-              <option value="called">Called</option>
-              <option value="unmapped">Stored / unscored</option>
-              <option value="unreadable">Needs review</option>
-              <option value="withheld">Withheld</option>
-            </select>
           </label>
           <label>
             <span>Evidence</span>
@@ -855,8 +855,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             </select>
           </label>
           <span className="result-count">
-            <b>{filteredMarkers.length}</b> shown · {report.receipt.catalogueMarkers}{" "}
-            in the full catalogue
+            <b>{filteredMarkers.length}</b> shown · {readyRatio(report.receipt.calledMarkers)} markers ready
           </span>
         </div>
 

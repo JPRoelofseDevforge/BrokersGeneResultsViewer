@@ -61,7 +61,7 @@ test("uses report 15 with 21 matched and sequentially numbered panels", () => {
     assert.equal(Number(section[1]), index + 1, `wrong visible number for ${tab}`);
   });
 
-  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.2"/);
+  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.3"/);
   assert.match(source, /const KB_VERSION = "2026\.08\.16"/);
   assert.match(extractor, /sam_report-15\.html/);
 });
@@ -92,7 +92,7 @@ test("keeps result states and Phase 1 database boundaries explicit", () => {
   assert.match(bridge, /result\.state === "unmapped"/);
 });
 
-test("hides missing marker details while retaining full panel denominators and status counts", () => {
+test("member views show only ready marker details while audit totals stay authoritative", () => {
   const rawIndex = inlineScripts.findIndex((script) =>
     script.includes("function rawCSV()"),
   );
@@ -100,7 +100,7 @@ test("hides missing marker details while retaining full panel denominators and s
 
   const report = new Function(
     "window",
-    `${inlineScripts.slice(0, rawIndex + 1).join("\n")}\nreturn {MARKERS,STATE,applyTaxonomy,computeDomains,markerResult,markerRow,rawCSV,memberMarkerVisible,reportMarkerCounts};`,
+    `${inlineScripts.slice(0, rawIndex + 1).join("\n")}\nreturn {MARKERS,STATE,applyTaxonomy,computeDomains,markerResult,markerRow,rawCSV,memberMarkerVisible,memberReadyMarker,memberReady,reportMarkerCounts};`,
   )({}) as {
     MARKERS: Array<{
       g: string;
@@ -118,6 +118,10 @@ test("hides missing marker details while retaining full panel denominators and s
     markerRow: (marker: unknown) => string;
     rawCSV: () => string;
     memberMarkerVisible: (marker: unknown, result: { state: string }) => boolean;
+    memberReadyMarker: (marker: unknown, result: { state: string }) => boolean;
+    memberReady: (count: number) =>
+      | { ready: number; ratio: string; percent: number }
+      | null;
     reportMarkerCounts: () => {
       catalogue: number;
       callable: number;
@@ -136,6 +140,15 @@ test("hides missing marker details while retaining full panel denominators and s
   assert.equal(report.memberMarkerVisible(comt, { state: "unreadable" }), true);
   assert.equal(report.memberMarkerVisible(comt, { state: "unmapped" }), true);
   assert.equal(report.memberMarkerVisible(comt, { state: "withheld" }), true);
+  assert.equal(report.memberReadyMarker(comt, missing), false);
+  assert.equal(report.memberReadyMarker(comt, { state: "unreadable" }), false);
+  assert.equal(report.memberReadyMarker(comt, { state: "unmapped" }), false);
+  assert.equal(report.memberReadyMarker(comt, { state: "withheld" }), false);
+  assert.deepEqual(report.memberReady(134), {
+    ready: 134,
+    ratio: "134/134",
+    percent: 100,
+  });
   assert.equal(report.markerRow(comt), "");
   assert.equal(report.rawCSV().split("\n").length, 1, "no-call rows stay out of CSV");
   assert.deepEqual(report.reportMarkerCounts(), {
@@ -153,21 +166,53 @@ test("hides missing marker details while retaining full panel denominators and s
   assert.equal(report.reportMarkerCounts().called, 1);
 
   assert.match(source, /function memberMarkerVisible\(m,r\)\{return displayStatus\(m,r\)!=="nocall";\}/);
-  assert.match(source, /const visible=rows\.filter\(x=>memberMarkerVisible\(x\.m,x\.r\)\)/);
+  assert.match(source, /function memberReadyMarker\(m,r\)\{return displayStatus\(m,r\)==="called";\}/);
+  assert.match(source, /const visible=rows\.filter\(x=>memberReadyMarker\(x\.m,x\.r\)\)/);
   assert.match(source, /if\(!memberMarkerVisible\(x\.m,x\.r\)\) return false;/);
-  assert.match(source, /if\(!memberMarkerVisible\(m,r\)\) return;/);
+  assert.match(source, /if\(!memberReadyMarker\(m,r\)\) return "";/);
   assert.match(source, /MARKERS\.forEach\(m=>\{const r=m\._r\|\|markerResult\(m\);/);
-  assert.match(source, /\$\("#mCount"\)\.textContent=`\$\{filtered\.length\} results shown · \$\{visible\.length\} returned rows · \$\{markerCounts\.catalogue\} markers in the full catalogue`/);
-  assert.match(source, /\["Markers matched",`\$\{called\}\/\$\{total\}`/);
-  assert.match(source, /\$\{called\}\/\$\{total\} markers read · knowledge base/);
-  assert.match(source, /STATE\.loaded&&!memberMarkerVisible\(m,m\._r\|\|markerResult\(m\)\)\) return;/);
-  assert.match(source, /if\(!c\|\|!memberMarkerVisible\(c,r\)\)\{host\.innerHTML="";return;\}/);
-  assert.match(source, /m\.as&&memberMarkerVisible\(m,m\._r\|\|markerResult\(m\)\)/);
+  assert.match(source, /\$\("#mCount"\)\.textContent=`\$\{filtered\.length\} results shown · \$\{memberReady\(visible\.length\)\?\.ratio\|\|"—"\} markers ready`/);
+  assert.match(source, /\["Markers ready",ready\?ready\.ratio:"—"/);
+  assert.match(source, /memberMode\?\(ready\?ready\.ratio:"—"\)/);
+  assert.match(source, /STATE\.loaded&&!memberReadyMarker\(m,m\._r\|\|markerResult\(m\)\)\) return;/);
+  assert.match(source, /if\(!c\|\|!memberReadyMarker\(c,r\)\)\{host\.innerHTML="";return;\}/);
+  assert.match(source, /m\.as&&memberReadyMarker\(m,m\._r\|\|markerResult\(m\)\)/);
   assert.match(source, /if\(!live\) return "";/);
   assert.match(source, /if\(!st\.n\) return "";/);
   assert.match(source, /REPORT_CATALOGUE_COUNT=MARKERS\.length/);
   assert.doesNotMatch(source, /<option value="nocall">/);
   assert.doesNotMatch(source, /Not read: \$\{esc\([^}]*missing\.join/);
+});
+
+test("every member count uses the ready set without changing audit denominators", () => {
+  for (const pattern of [
+    /Markers ready <b>\$\{ready\?ready\.ratio:"—"\}<\/b>/,
+    /memberReady\(data\.read\.length\)\?\.ratio\|\|"—"\} markers ready/,
+    /memberReady\(called\.length\)\.ratio\} markers ready/,
+    /\$\{ready\.ratio\} markers ready/,
+    /memberReady\(s\.n\)\.ratio\} contributors ready/,
+    /memberReady\(r\.n\)\.ratio\} markers ready/,
+    /ready\?ready\.ratio\+" markers ready":"—"/,
+    /from \$\{memberReady\(d\.n\)\.ratio\} ready markers/,
+  ]) {
+    assert.match(source, pattern);
+  }
+
+  assert.match(source, /memberMode\?\(ready\?ready\.ratio:"—"\):`\$\{called\}\/\$\{total\}`/);
+  assert.match(source, /\["Approved calls",`\$\{markerCounts\.called\}\/\$\{markerCounts\.callable\}`/);
+  assert.match(source, /return \{band,n,tot,cov:tot\?n\/tot:0/);
+  assert.match(source, /function isMemberView\(\)\{return \(STATE\.person\.mode\|\|"member"\)==="member";\}/);
+  assert.match(source, /document\.documentElement\.classList\.toggle\("sam-member-mode",isMemberView\(\)\)/);
+  assert.match(source, /const auditCards=isMemberView\(\)\?"":`/);
+  assert.match(source, /\$\{member\?"":`[\s\S]*?Two — the statuses/);
+  assert.match(source, /if\(!live\.length\)return \{nodes,lines:\[\]\};/);
+  assert.match(source, /if\(!fig\.nodes\.some\(n=>\(n\.st\|\|stepFlow\(n\.refs\)\)\.n\)\)\{host\.innerHTML="";return;\}/);
+  assert.doesNotMatch(source, /nCalled\+" of "\+nCallable\+" markers"/);
+  assert.doesNotMatch(source, /Not enough of the cycle was read|Five results that are not on the leverage scale/i);
+  assert.match(
+    source,
+    /<select id="mCall"><option value="">All ready<\/option><option value="called">Ready<\/option><\/select>/,
+  );
 });
 
 test("matches the report-15 catalogue and Executive Fitness taxonomy", () => {
@@ -276,7 +321,7 @@ test("Executive Fitness cards open an accessible plain-language detail modal", (
   assert.match(source, /What this can look like/);
   assert.match(source, /Three useful next steps/);
   assert.match(source, /What shaped this result/);
-  assert.match(source, /Missing and no-call markers stay hidden/);
+  assert.match(source, /The completed, interpretable genes contributing here/);
   assert.match(source, /window\.SAM_ACTIVE_SUPPLEMENTS/);
   assert.match(source, /function goToSupplement\(id\)/);
   assert.match(source, /go\("supplements"\)/);
