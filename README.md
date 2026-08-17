@@ -34,9 +34,13 @@ ephemeral browser inputs only. Imported pathology rows require a recognised
 unit; missing or unsupported units are not guessed. A verified sex-at-birth
 value from Broker Day enables the matching sex-specific ranges; if it is
 missing, X-linked scoring and Pathology remain unavailable. Sample wearable
-nights are never mixed into an authenticated member report. Supplements remain
-locked in private reports: no product, dose or duration is released until an
-audited server-side pathology, medication and contraindication workflow exists.
+nights are never mixed into an authenticated member report. Supplement review
+is now server-authoritative: exact called markers from at least three genes must
+converge before a nutrient appears (apart from an exact HFE safety call). Every
+card separates the genetic reason, what would confirm a real need, a general
+adult reference amount, timing, duration, food context and safety checks.
+Genetics never establishes a deficiency or calculates a personal dose; iron is
+clinician-only, and adult amounts are withheld for a confirmed minor.
 
 The earlier `sam_report-12.html`, `sam_report-11.html`, `sam_report-7.html`,
 `sam_report-new.html`, and original `sam_report-3.html` remain archived design
@@ -116,8 +120,11 @@ does not claim or infer clinical consent.
 - Catalogue markers without a usable call remain in the full denominators and
   aggregate ledger, while their individual rows are hidden.
 - No raw file upload route exists.
-- Phase 1 lab values remain in the current report tab only. Supplement doses,
-  practitioner overrides, model endpoints, and wearable connections stay
+- Phase 1 lab values remain in the current report tab only. Browser intake and
+  pathology cannot unlock or alter a supplement item. Only the versioned server
+  plan can select a genetics-guided review candidate, and every displayed amount
+  is labelled as a general adult reference rather than a DNA-derived dose.
+  Practitioner overrides, model endpoints, and wearable connections stay
   disabled until their authenticated and audited server workflows exist.
 
 This report is educational and wellness-oriented. It does not diagnose,

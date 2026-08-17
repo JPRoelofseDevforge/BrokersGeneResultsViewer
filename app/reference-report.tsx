@@ -114,6 +114,8 @@ const DATABASE_ADAPTER = String.raw`
   var originalBuildDashboard = buildDashboard;
   var originalBuildNecessary = buildNecessary;
   var originalComputeDomains = computeDomains;
+  var originalBuildPrint = typeof buildPrint === "function" ? buildPrint : null;
+  var originalAnswer = typeof answer === "function" ? answer : null;
   var originalSuppState = typeof suppState === "function" ? suppState : null;
   var originalBuildRaw = buildRaw;
   var originalBuildTable = buildTable;
@@ -124,6 +126,7 @@ const DATABASE_ADAPTER = String.raw`
   var originalCommitOverride = typeof commitOverride === "function" ? commitOverride : null;
   var activeReportKey = null;
   var sourceOnlyMarkerCount = 0;
+  window.SAM_ACTIVE_SUPPLEMENTS = [];
 
   function safe(value) {
     return esc(String(value == null ? "" : value));
@@ -384,6 +387,8 @@ const DATABASE_ADAPTER = String.raw`
     var actions = serverRecommendations.actions || [];
     var measurements = serverRecommendations.measurements || [];
     var near = serverRecommendations.nearThreshold || [];
+    var supplementPlan = serverRecommendations.supplements || { items: [] };
+    var supplementItems = Array.isArray(supplementPlan.items) ? supplementPlan.items : [];
     var priorityCopy = serverPriorities.length
       ? '<p class="tiny muted" style="margin:12px 0 0">Primary systems: ' + safe(serverPriorities.map(function (item) { return item.domainName; }).join(", ")) + '.</p>'
       : '';
@@ -397,11 +402,13 @@ const DATABASE_ADAPTER = String.raw`
       '<div class="grid g2" style="margin-top:20px">' + recommendationCards(actions) + '</div>' +
       '<div class="sechead" style="margin-top:48px"><span class="eyebrow">Tier two — worth measuring</span><span class="rule"></span><span class="mono tiny muted">' + safe(measurements.length) + '</span></div>' +
       '<div class="grid g2" style="margin-top:20px">' + recommendationCards(measurements) + '</div>' +
-      '<div class="notice" style="margin-top:34px"><b>Supplements remain locked.</b> Genetics supplies context, not a diagnosis, measured deficiency or dose. The Supplements tab is an ephemeral food-and-measurement preview; iron and vitamin B12 remain clinician-gated.</div>' +
+      '<div class="notice sage" style="margin-top:34px"><b>' + safe(supplementItems.length) + ' genetics-guided supplement ' + (supplementItems.length === 1 ? 'review is' : 'reviews are') + ' ready.</b> These are server-selected candidates, not proof of deficiency or personal prescriptions. Open the Supplements tab to see what confirms a need, the general adult amount and timing, and every safety check.<div style="margin-top:12px"><button class="btn blood sm" id="samOpenSupplements" type="button">Open supplement details</button></div></div>' +
       (near.length ? '<details class="how" style="margin-top:28px"><summary>What nearly reached a threshold</summary><div class="howbody">' + near.map(function (item) {
         return '<div class="kv"><span><b>' + safe(item.title) + '</b><br><span class="tiny muted">' + safe(item.contributorCount) + ' contributors across ' + safe(item.domainCount) + ' systems</span></span><span class="pill">' + safe(item.reason) + '</span></div>';
       }).join("") + '</div></details>' : '') +
       priorityCopy;
+    var supplementButton = document.getElementById("samOpenSupplements");
+    if (supplementButton) supplementButton.addEventListener("click", function () { go("supplements"); });
   }
 
   buildNecessary = function () {
@@ -417,29 +424,132 @@ const DATABASE_ADAPTER = String.raw`
       if (!serverMode) return originalSuppState(item);
       return {
         st: "unknown",
-        why: "Supplement products and doses are locked until an audited server-side intake, pathology and contraindication workflow is connected."
+        why: "The private report uses only its server-authoritative supplement plan. Browser intake and pathology cannot add or remove an item."
       };
     };
   }
 
-  function renderDatabaseSupplementPolicy() {
+  function supplementDecisionLabel(decision) {
+    if (decision === "food-first") return "food first";
+    if (decision === "measure-first") return "measure first";
+    return "clinician only";
+  }
+
+  function supplementCard(item) {
+    var contributors = contributorLabel(item);
+    var checks = Array.isArray(item.checksBeforeStarting) ? item.checksBeforeStarting : [];
+    return '<article class="card stack" id="supplement-' + safe(item.id) + '" tabindex="-1" style="border-color:' + (item.decision === "clinician-only" ? 'var(--blood)' : 'var(--ink-14)') + '">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><span class="eyebrow">Genetics-guided candidate</span><h3 style="margin:8px 0 0">' + safe(item.name) + '</h3></div><span class="pill ' + (item.decision === "food-first" ? 's' : item.decision === "clinician-only" ? 'b' : '') + '">' + safe(supplementDecisionLabel(item.decision)) + '</span></div>' +
+      '<p class="small" style="margin:0"><b>Why your markers raised it:</b> ' + safe(item.plainReason) + '</p>' +
+      (contributors ? '<p class="tiny" style="margin:0;color:var(--blood)"><b>Called contributors:</b> ' + safe(contributors) + '</p>' : '') +
+      '<div class="grid g2" style="gap:12px">' +
+        '<div class="notice sage" style="margin:0"><b>What confirms a need</b><br>' + safe(item.whatConfirmsNeed) + '</div>' +
+        '<div class="notice" style="margin:0"><b>General adult amount</b><br>' + safe(item.referenceAmount) + '</div>' +
+      '</div>' +
+      '<div class="grid g2" style="gap:12px">' +
+        '<div class="card flat" style="padding:14px"><span class="eyebrow q">Timing</span><p class="small" style="margin:7px 0 0">' + safe(item.timing) + '</p></div>' +
+        '<div class="card flat" style="padding:14px"><span class="eyebrow q">Duration</span><p class="small" style="margin:7px 0 0">' + safe(item.duration) + '</p></div>' +
+      '</div>' +
+      '<details class="how" style="margin-top:0"><summary>Food first and safety checks</summary><div class="howbody"><p><b>Food first:</b> ' + safe(item.foodFirst) + '</p>' +
+        (checks.length ? '<p style="margin-bottom:6px"><b>Before you take it:</b></p><ul style="margin:0;padding-left:20px">' + checks.map(function (check) { return '<li>' + safe(check) + '</li>'; }).join('') + '</ul>' : '') +
+        '<p style="margin:12px 0 0"><b>Review rule:</b> ' + safe(item.review) + '</p></div></details>' +
+    '</article>';
+  }
+
+  function renderDatabaseSupplements() {
     var host = document.getElementById("supps");
     if (!host) return;
+    var plan = serverRecommendations && serverRecommendations.supplements;
+    var items = plan && Array.isArray(plan.items) ? plan.items : [];
+    window.SAM_ACTIVE_SUPPLEMENTS = items;
+    if (!items.length) {
+      host.innerHTML = '<div class="notice sage"><b>No genetics-guided supplement review is available.</b> ' + safe((plan && plan.framing) || 'No item reached the approved threshold. Missing and no-call rows add nothing.') + ' Keep ordinary food, sleep and movement foundations in place, and use measured clinical advice for any suspected deficiency.</div>';
+      return;
+    }
     host.innerHTML =
-      '<div class="notice sage"><b>Supplements are locked in Phase 1.</b> This private report does not name a product, dose or duration from genetics or self-reported intake. An audited server-side workflow must first combine verified pathology, medicines, kidney function, pregnancy context, contraindications and clinician governance.</div>' +
-      '<div class="grid g2" style="margin-top:20px">' +
-        '<div class="card stack"><span class="eyebrow q">Available now</span><h4 style="margin:0">Food-first context</h4><p class="small muted" style="margin:0">Use the report to discuss ordinary food patterns, sleep, movement and the short measurement list. Genetics can explain context; it cannot establish a deficiency.</p></div>' +
-        '<div class="card stack"><span class="eyebrow q">Required before release</span><h4 style="margin:0">Measured and reviewed</h4><p class="small muted" style="margin:0">A clinician or governed service must review current results and safety context before any supplement recommendation appears. Iron and vitamin B12 remain clinician-gated.</p></div>' +
-      '</div>';
+      '<div class="notice sage"><b>These are review priorities, not prescriptions.</b> ' + safe(plan.framing || 'Called markers decide what deserves a closer look; food intake, recognised measurements and safety context decide what is actually needed.') + ' Amounts below are general adult references, never a dose calculated from DNA.</div>' +
+      '<div class="sechead" style="margin-top:34px"><span class="eyebrow">Your marker-selected shortlist</span><span class="rule"></span><span class="mono tiny muted">' + safe(items.length) + ' items · rules ' + safe(plan.rulesVersion || serverRecommendations.rulesVersion) + '</span></div>' +
+      '<div class="stack" style="margin-top:20px">' + items.map(supplementCard).join('') + '</div>' +
+      '<div class="notice" style="margin-top:24px"><b>Important.</b> A genetic result cannot establish a deficiency. Do not start iron or a deficiency-treatment dose from this page. If you are pregnant, breastfeeding, under 18, have kidney or liver disease, use prescription medicines, or have a complex medical history, take this list to a qualified clinician or pharmacist before using a product.</div>';
   }
 
   buildSupps = function () {
     if (serverMode) {
-      renderDatabaseSupplementPolicy();
+      renderDatabaseSupplements();
       return;
     }
     originalBuildSupps();
   };
+
+  function serverSupplementPrintRows(items) {
+    if (!items.length) {
+      return '<p class="small">No supplement review reached the approved genetic convergence threshold.</p>';
+    }
+    return '<p class="small">These are genetics-guided review priorities, not confirmed deficiencies or personal prescriptions. Amounts are general adult references.</p>' +
+      '<table><thead><tr><th>Item</th><th>What confirms need</th><th>Amount and timing</th></tr></thead><tbody>' +
+      items.map(function (item) {
+        return '<tr><td><b>' + safe(item.name) + '</b><br><span class="tiny">' + safe(supplementDecisionLabel(item.decision)) + '</span></td>' +
+          '<td class="small">' + safe(item.whatConfirmsNeed) + '</td>' +
+          '<td class="small"><b>Reference:</b> ' + safe(item.referenceAmount) + '<br><b>Timing:</b> ' + safe(item.timing) + '<br><b>Review:</b> ' + safe(item.review) + '</td></tr>';
+      }).join('') + '</tbody></table>';
+  }
+
+  function injectServerSupplementPrint(html, mode) {
+    var plan = serverRecommendations && serverRecommendations.supplements;
+    var items = plan && Array.isArray(plan.items) ? plan.items : [];
+    var section = mode === "doc"
+      ? '<h3 style="font-size:15px;margin:20px 0 6px">3 · Genetics-guided supplement review</h3>' + serverSupplementPrintRows(items)
+      : '<h3 style="font-size:16px;margin:22px 0 6px">Genetics-guided supplement review</h3>' + serverSupplementPrintRows(items);
+    if (mode === "doc") {
+      return html.replace(
+        /<h3 style="font-size:15px;margin:20px 0 6px">3 · Supplements currently recommended<\/h3>[\s\S]*?(?=<h3 style="font-size:15px;margin:20px 0 6px">4 · Findings)/,
+        section,
+      );
+    }
+    return html.replace(
+      /<h3 style="font-size:16px;margin:22px 0 6px">Supplements with an established gap<\/h3>[\s\S]*?(?=<h3 style="font-size:16px;margin:22px 0 6px">Bloods to ask for<\/h3>)/,
+      section,
+    );
+  }
+
+  if (originalBuildPrint) {
+    buildPrint = function (mode) {
+      if (!serverMode) return originalBuildPrint(mode);
+      if (mode === "raw") return buildPrint("doc") + rawAppendix();
+      return injectServerSupplementPrint(originalBuildPrint(mode), mode);
+    };
+  }
+
+  function isSupplementQuestion(question) {
+    var text = String(question || "").toLowerCase();
+    if (/supplement|pill|capsule|dose|dosage|should i take/.test(text)) return true;
+    var nutrient = /omega[- ]?3|fish oil|epa|dha|vitamin d|\bd3\b|vitamin k2|\bk2\b|magnesium|choline|folate|folic acid|b[- ]?complex|vitamin b12|\bb12\b|cobalamin|iron|zinc|creatine|glycine|sulforaphane|\bdao\b/;
+    return nutrient.test(text);
+  }
+
+  if (originalAnswer) {
+    answer = function (question) {
+      if (!serverMode || !isSupplementQuestion(question)) {
+        return originalAnswer(question);
+      }
+      var plan = serverRecommendations && serverRecommendations.supplements;
+      var items = plan && Array.isArray(plan.items) ? plan.items : [];
+      if (!items.length) {
+        return {
+          t: "No supplement review reached the approved genetic convergence threshold in this report. Missing and no-call markers were not filled in. If you suspect a deficiency, use the measurement list or speak to a qualified clinician rather than guessing from DNA.",
+          src: "server supplement rules " + safe((plan && plan.rulesVersion) || serverRecommendations.rulesVersion)
+        };
+      }
+      return {
+        t: "Your called markers raised " + safe(items.length) + " genetics-guided review " + (items.length === 1 ? "item" : "items") + ":<br><br>" +
+          items.map(function (item) {
+            return "<b>" + safe(item.name) + "</b> — " + safe(supplementDecisionLabel(item.decision)) + ". " + safe(item.whatConfirmsNeed);
+          }).join("<br><br>") +
+          "<br><br>Open the Supplements tab for the general adult amount, timing, duration and safety checks. These are not proof of deficiency or doses calculated from DNA.",
+        src: "server supplement rules " + safe(plan.rulesVersion || serverRecommendations.rulesVersion)
+      };
+    };
+  }
 
   function addRoadmapNotice() {
     var host = document.getElementById("roadmap");
@@ -798,7 +908,13 @@ const DATABASE_ADAPTER = String.raw`
 
     var nextReportKey = String(
       payload.reportKey ||
-      [payload.profile.memberNumber, payload.receipt.processedAt, payload.receipt.rulesVersion].join(":")
+      [
+        payload.profile.memberNumber,
+        payload.receipt.processedAt,
+        payload.receipt.rulesVersion,
+        payload.recommendations && payload.recommendations.rulesVersion,
+        payload.recommendations && payload.recommendations.supplements && payload.recommendations.supplements.rulesVersion
+      ].join(":")
     );
     if (activeReportKey === nextReportKey) return;
 
@@ -810,6 +926,9 @@ const DATABASE_ADAPTER = String.raw`
     });
     serverPriorities = Array.isArray(payload.priorities) ? payload.priorities : [];
     serverRecommendations = payload.recommendations || null;
+    window.SAM_ACTIVE_SUPPLEMENTS = serverRecommendations && serverRecommendations.supplements && Array.isArray(serverRecommendations.supplements.items)
+      ? serverRecommendations.supplements.items
+      : [];
     serverMode = true;
     appendSourceOnlyMarkers(payload);
     REPORT_CATALOGUE_COUNT = Number(payload.receipt.catalogueMarkers) || MARKERS.length;
@@ -842,7 +961,7 @@ const DATABASE_ADAPTER = String.raw`
 
     render();
     renderReceipt(payload);
-    renderDatabaseSupplementPolicy();
+    renderDatabaseSupplements();
     addRoadmapNotice();
     renderDatabaseSexPolicy();
     configurePhaseOneIntegrations(payload);

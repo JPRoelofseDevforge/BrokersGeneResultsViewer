@@ -1088,7 +1088,9 @@ export function processGeneReport(
     domains,
     markers,
     priorities: buildPriorities(domains),
-    recommendations: buildRecommendationSynthesis(markers),
+    recommendations: buildRecommendationSynthesis(markers, {
+      adultSupplementReferencesAllowed: !confirmedMinor,
+    }),
     groups: GROUPS.map((group) => ({
       ...group,
       domainIds: domains

@@ -140,7 +140,8 @@ test("builds the Phase 1 report from repository records", async () => {
   assert.equal(report.priorities.length, 3);
   assert.ok(report.recommendations.actions.length > 0);
   assert.ok(report.recommendations.measurements.length > 0);
-  assert.equal(report.recommendations.supplementsLocked, true);
+  assert.equal(report.recommendations.supplementsLocked, false);
+  assert.ok(Array.isArray(report.recommendations.supplements.items));
   assert.ok(report.markers.some((marker) => marker.state === "not-called"));
 });
 

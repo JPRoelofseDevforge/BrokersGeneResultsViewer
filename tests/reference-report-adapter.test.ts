@@ -88,12 +88,47 @@ test("database domains and recommendations remain server authoritative", () => {
   assert.match(bridge, /serverRecommendations = payload\.recommendations/);
   assert.match(bridge, /function renderServerNecessary\(\)/);
   assert.match(bridge, /Server-authoritative recommendations/);
-  assert.match(bridge, /Supplements remain locked/);
-  assert.match(bridge, /Supplements are locked in Phase 1/);
+  assert.match(bridge, /function renderDatabaseSupplements\(\)/);
+  assert.match(bridge, /Your marker-selected shortlist/);
+  assert.match(bridge, /General adult amount/);
+  assert.match(bridge, /What confirms a need/);
+  assert.match(bridge, /window\.SAM_ACTIVE_SUPPLEMENTS/);
+  assert.match(bridge, /injectServerSupplementPrint/);
+  assert.match(bridge, /server supplement rules/);
   assert.match(bridge, /if \(!serverMode\) return originalSuppState\(item\)/);
-  assert.match(bridge, /if \(serverMode\) \{[\s\S]*?renderDatabaseSupplementPolicy\(\);[\s\S]*?return;[\s\S]*?\}\s*originalBuildSupps\(\)/);
+  assert.match(bridge, /if \(serverMode\) \{[\s\S]*?renderDatabaseSupplements\(\);[\s\S]*?return;[\s\S]*?\}\s*originalBuildSupps\(\)/);
+  assert.doesNotMatch(bridge, /renderDatabaseSupplementPolicy/);
   assert.match(bridge, /if \(!Number\.isFinite\(leverage\) \|\| leverage < 0 \|\| leverage > 3\)/);
   assert.doesNotMatch(bridge, /lev: result\.leverage[\s\S]*?entry \? entry\[0\]/);
+});
+
+test("natural supplement questions stay on the server-authoritative answer path", () => {
+  const matcher = bridge.match(
+    /function isSupplementQuestion\(question\) \{[\s\S]*?\n  \}/,
+  );
+  assert.ok(matcher, "supplement intent matcher should be present");
+  const isSupplementQuestion = new Function(
+    `${matcher[0]}; return isSupplementQuestion;`,
+  )() as (question: string) => boolean;
+
+  assert.equal(isSupplementQuestion("Do I need omega-3?"), true);
+  assert.equal(isSupplementQuestion("Can I use iron?"), true);
+  assert.equal(isSupplementQuestion("What about folate/B12/choline/D3?"), true);
+  assert.equal(isSupplementQuestion("Is omega-3 safe with warfarin?"), true);
+  assert.equal(
+    isSupplementQuestion("Does iron interact with my thyroid medicine?"),
+    true,
+  );
+  assert.equal(isSupplementQuestion("What does my HFE marker mean?"), false);
+  assert.match(bridge, /!serverMode \|\| !isSupplementQuestion\(question\)/);
+});
+
+test("recommendation-only changes invalidate the iframe report key", () => {
+  assert.match(bridge, /payload\.recommendations && payload\.recommendations\.rulesVersion/);
+  assert.match(
+    bridge,
+    /payload\.recommendations && payload\.recommendations\.supplements && payload\.recommendations\.supplements\.rulesVersion/,
+  );
 });
 
 test("database reports retain authoritative full catalogue counts", () => {

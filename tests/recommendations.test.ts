@@ -324,7 +324,7 @@ test("referral and source-only calls cannot enter recommendation synthesis", () 
   assert.equal(sourceOnly.actionOutcome, "insufficient-data");
 });
 
-test("rich whole-report synthesis is deterministic, capped, and keeps supplements locked", () => {
+test("rich whole-report synthesis is deterministic, capped, and keeps supplements server-authoritative", () => {
   const markers = [
     calledMarker("rs1801260", "GG"),
     calledMarker("rs1360780", "TT"),
@@ -366,6 +366,8 @@ test("rich whole-report synthesis is deterministic, capped, and keeps supplement
       (recommendation) => recommendation.kind === "food",
     ).length <= 2,
   );
-  assert.equal(forward.supplementsLocked, true);
+  assert.equal(forward.supplementsLocked, false);
+  assert.ok(Array.isArray(forward.supplements.items));
+  assert.match(forward.supplements.framing, /do not prove a deficiency/i);
   assert.equal(forward.actionOutcome, "ready");
 });

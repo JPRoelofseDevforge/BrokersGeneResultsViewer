@@ -604,24 +604,28 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
 
         <div className="supplement-lock">
           <div>
-            <span className="eyebrow">Tier three · Only if measured</span>
-            <h3>Genetics alone does not unlock a supplement.</h3>
+            <span className="eyebrow">Tier three · Genetics-guided review</span>
+            <h3>
+              {report.recommendations.supplements.items.length
+                ? `${report.recommendations.supplements.items.length} nutrients earned a closer look.`
+                : "No nutrient reached the approved review threshold."}
+            </h3>
             <p>
-              A result can justify measuring something. Only a measured need,
-              interpreted in context, can justify what happens next.
+              Genetics sets review priority; food intake, recognised
+              measurements and safety context decide whether anything is
+              actually needed. Amounts are general adult references, not doses
+              calculated from DNA.
             </p>
           </div>
-          <div className="locked-gates" aria-label="Locked supplement gates">
-            {[
-              "Vitamin D",
-              "B-vitamin support",
-              "Iron",
-              "Vitamin B12",
-            ].map((label) => (
-              <span key={label}>
-                <i aria-hidden="true">×</i>
-                {label}
-                <small>Locked</small>
+          <div
+            className="locked-gates"
+            aria-label="Genetics-guided supplement review"
+          >
+            {report.recommendations.supplements.items.map((item) => (
+              <span key={item.id}>
+                <i aria-hidden="true">•</i>
+                {item.name}
+                <small>{item.decision.replace("-", " ")}</small>
               </span>
             ))}
           </div>

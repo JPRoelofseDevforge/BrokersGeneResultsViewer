@@ -6,8 +6,9 @@ import type {
   SafetyRecommendation,
   WholeReportRecommendation,
 } from "./types";
+import { buildSupplementPlan } from "./supplements";
 
-export const RECOMMENDATION_RULES_VERSION = "2026.08.16";
+export const RECOMMENDATION_RULES_VERSION = "2026.08.17";
 
 interface RecommendationCriterion {
   variantId: string;
@@ -485,6 +486,7 @@ function buildSafety(
 
 export function buildRecommendationSynthesis(
   markers: ProcessedMarker[],
+  options: { adultSupplementReferencesAllowed?: boolean } = {},
 ): RecommendationSynthesis {
   const markersByVariant = new Map(
     markers.map((marker) => [marker.variantId.toLowerCase(), marker]),
@@ -548,7 +550,10 @@ export function buildRecommendationSynthesis(
     actions: actions.map(projectRecommendation),
     measurements: measurements.map(projectRecommendation),
     nearThreshold,
-    supplementsLocked: true,
+    supplementsLocked: options.adultSupplementReferencesAllowed === false,
+    supplements: buildSupplementPlan(markers, {
+      adultReferencesAllowed: options.adultSupplementReferencesAllowed,
+    }),
   };
 }
 

@@ -77,7 +77,13 @@ function report(markers: ProcessedMarker[]): GeneReport {
       actions: [],
       measurements: [],
       nearThreshold: [],
-      supplementsLocked: true,
+      supplementsLocked: false,
+      supplements: {
+        rulesVersion: "2026.07-s1",
+        outcome: "none",
+        framing: "Genetics sets review priority, not need.",
+        items: [],
+      },
     },
     groups: [],
   };
@@ -96,7 +102,8 @@ test("projects approved database calls into the reference report contract", () =
   assert.equal(payload.profile.sexAtBirth, "female");
   assert.deepEqual(payload.domains, []);
   assert.deepEqual(payload.priorities, []);
-  assert.equal(payload.recommendations.supplementsLocked, true);
+  assert.equal(payload.recommendations.supplementsLocked, false);
+  assert.equal(payload.recommendations.supplements.rulesVersion, "2026.07-s1");
   assert.equal(payload.recommendations.rulesVersion, "2026.07");
   assert.equal(payload.calls.rs4680, "G/A");
   assert.equal(payload.calls["COMT:rs4680"], "G/A");
@@ -105,7 +112,7 @@ test("projects approved database calls into the reference report contract", () =
   assert.equal(payload.receipt.sourceLabel, "Azure SQL gene results");
   assert.equal(
     payload.reportKey,
-    "IG8194:2026-07-31T09:00:00.000Z:2026.07",
+    "IG8194:2026-07-31T09:00:00.000Z:2026.07:2026.07:2026.07-s1",
   );
 });
 

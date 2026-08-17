@@ -81,6 +81,32 @@ nav.tabs{position:sticky;top:62px;z-index:55;background:var(--bone);border-botto
 .card.flat{background:transparent}
 .card.ink{background:var(--ink);color:var(--bone);border-color:transparent}
 .card.ink .muted{color:var(--bone-45)}
+.ef-card{cursor:pointer;position:relative;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.ef-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(21,24,27,.08);border-color:rgba(226,88,34,.42)}
+.ef-card:focus-visible{outline:3px solid var(--blood);outline-offset:3px}
+.ef-open{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--blood)}
+.ef-dialog{width:min(820px,calc(100vw - 32px));max-height:min(88vh,900px);padding:0;border:1px solid var(--ink-14);border-radius:18px;background:var(--bone);color:var(--ink);box-shadow:0 30px 90px rgba(21,24,27,.28);overflow:hidden}
+.ef-dialog::backdrop{background:rgba(21,24,27,.72);backdrop-filter:blur(3px)}
+.ef-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;padding:26px 28px 22px;border-bottom:1px solid var(--ink-14);background:#fff}
+.ef-modal-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ef-modal-close{flex:0 0 auto;width:40px;height:40px;border:1px solid var(--ink-14);border-radius:50%;background:transparent;color:var(--ink);font:24px/1 var(--body);cursor:pointer}
+.ef-modal-close:hover{background:var(--ink-07)}
+.ef-modal-close:focus-visible{outline:3px solid var(--blood);outline-offset:2px}
+.ef-modal-body{padding:26px 28px 30px;overflow-y:auto;max-height:calc(88vh - 108px)}
+.ef-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ef-modal-block{background:#fff;border:1px solid var(--ink-14);border-radius:12px;padding:18px}
+.ef-modal-block h3{font-size:18px;margin-bottom:9px}
+.ef-action-list{margin:8px 0 0;padding:0;list-style:none;counter-reset:efstep}
+.ef-action-list li{counter-increment:efstep;position:relative;padding:10px 0 10px 38px;border-bottom:1px solid var(--ink-07)}
+.ef-action-list li:last-child{border-bottom:0}
+.ef-action-list li::before{content:counter(efstep);position:absolute;left:0;top:10px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bone);font:10px var(--mono)}
+.ef-supp-match{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;padding:14px 0;border-top:1px solid var(--ink-07)}
+.ef-supp-match:first-of-type{border-top:0}
+.ef-supp-match .btn{flex:0 0 auto}
+.sam-focus-flash{animation:samFocusFlash 1.4s ease}
+@keyframes samFocusFlash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 5px rgba(226,88,34,.22)}}
+@media(max-width:680px){.ef-modal-grid{grid-template-columns:1fr}.ef-modal-head,.ef-modal-body{padding-left:20px;padding-right:20px}.ef-supp-match{flex-direction:column}.ef-dialog{width:calc(100vw - 18px);max-height:94vh}.ef-modal-body{max-height:calc(94vh - 100px)}}
+@media(prefers-reduced-motion:reduce){.ef-card,.sam-focus-flash{transition:none;animation:none}}
 .grid{display:grid;gap:16px}
 .grid>*{min-width:0}
 .g2{grid-template-columns:repeat(2,1fr)}
@@ -555,6 +581,19 @@ missing = if the anchor is absent, the domain reports "not evaluated"
     <h3 style="margin:4px 0 6px">Executive fitness, broken down.</h3>
     <p class="lead">Each one is built from its own primary markers, and several also draw on markers that live in Movement, Recovery, Sleep or Systems — those stay where they are rather than being moved here, because a gene doing two jobs should be reported in both places.</p>
     <div id="efcats" style="margin-top:22px"></div>
+    <dialog class="ef-dialog" id="efDetailDialog" aria-labelledby="efDetailTitle" aria-describedby="efDetailIntro">
+      <div class="ef-modal-head">
+        <div>
+          <span class="eyebrow">Your executive fitness detail</span>
+          <div class="ef-modal-title" style="margin-top:10px">
+            <h2 id="efDetailTitle">Executive fitness</h2>
+            <span id="efDetailBand"></span>
+          </div>
+        </div>
+        <button class="ef-modal-close" id="efDetailClose" type="button" aria-label="Close executive fitness details">×</button>
+      </div>
+      <div class="ef-modal-body" id="efDetailBody"></div>
+    </dialog>
 
     <div class="sechead" style="margin-top:52px"><span class="eyebrow">Marker detail</span><span class="rule"></span></div>
     <div id="dom-exec" class="stack" style="margin-top:22px"></div>
@@ -593,7 +632,7 @@ EF-9  arousal and stimulant response</div>
     <div id="dom-systems" class="stack" style="margin-top:22px"></div>
 
     <h3 style="margin-top:52px">Food first, always</h3>
-    <p class="lead">SAM will not recommend a supplement from a genotype. Four gates have to open first, in order — and your genes are not one of them.</p>
+    <p class="lead">Your called markers can put a nutrient on a review shortlist. They cannot prove that you need it or calculate your dose. Food intake, a recognised measurement and safety context decide what happens next.</p>
     <div class="grid g4" style="margin-top:18px" id="gates"></div>
     <div class="notice" style="margin-top:20px"><b>What this means in practice.</b> A methylation result of any kind does not earn you a B-vitamin protocol. It earns you a specific question to ask at your next blood draw. If that draw shows a real shortfall, and food cannot close it, and low intake is genuinely the cause, then there is a product conversation — with a retest date and a stopping rule attached to it. Iron and B12 stay clinician-gated regardless.</div>
 
@@ -710,8 +749,8 @@ caps: 3 behaviours + 2 foods, 5 measurements. Ranked, then cut.
 <section class="panel" id="p-supplements">
   <div class="wrap">
     <span class="eyebrow">17 — Supplements</span>
-    <h1 style="margin:18px 0 22px;max-width:20ch">Food your body needs that your food is not delivering.</h1>
-    <p class="lead" style="max-width:66ch">That is the whole definition, and everything on this page follows from it. If the food is arriving, nothing here is needed. Where it genuinely is not — because of what you eat, where you live, the season, or how your own enzymes run — a supplement closes a real gap. Which also means it has an end.</p>
+    <h1 style="margin:18px 0 22px;max-width:20ch">Nutrients your markers make worth checking.</h1>
+    <p class="lead" style="max-width:66ch">This page separates four things that are often blurred together: why your called markers raised a nutrient, what confirms a real need, the general adult amount and timing, and what must be checked before you take it. A genetics-guided candidate is not proof of deficiency and it is never a dose calculated from DNA.</p>
     <div id="supps" style="margin-top:34px"></div>
 
     <div class="sechead" style="margin-top:54px"><span class="eyebrow">Take it with you</span><span class="rule"></span></div>
@@ -877,7 +916,7 @@ REASON  an unauditable number cannot carry a clinical decision</div>
    Every clinical statement in this report lives here, versioned, and is
    retrieved at render time. Nothing is authored inside a model prompt.
    ===================================================================== */
-const REPORT_VERSION = "2026.08.17-r15.1";
+const REPORT_VERSION = "2026.08.17-r15.2";
 const KB_VERSION = "2026.08.16";
 const CATALOGUE_SEMANTICS_VERSION = "2026.08.16";
 
@@ -1585,7 +1624,18 @@ const EF_FOCUS=[
  "Long-term cognitive health, neuroprotection and cognitive-decline context; not a prediction.",
  "Caffeine and stimulant sensitivity, alertness and arousal regulation."
 ];
-EFCATS.forEach((c,i)=>c.f=EF_FOCUS[i]);
+const EF_DETAILS=[
+ {simple:"This is the set of systems you use to learn, hold information in mind, and turn a new idea into a usable skill. The result describes how much routine and recovery can help those systems work consistently.",daily:"It may show up in how quickly you get into deep work, how much you retain after a long day, and how strongly a poor night affects mental clarity.",not:"It is not an intelligence score and it does not set a ceiling on what you can learn.",actions:["Protect a regular sleep and wake window before a demanding learning week.","Use 25 to 45 minute focus blocks, then take a short movement break.","Use active recall: close the notes and explain the idea from memory."]},
+ {simple:"This category describes the biological background to staying with one task, filtering distractions, and pausing before acting. It is a tendency, not a diagnosis.",daily:"You may notice it most when work is repetitive, notifications are constant, or several urgent jobs compete at once.",not:"It cannot diagnose ADHD, rule it out, or replace an assessment based on your real history and daily functioning.",actions:["Choose one visible next task and hide the rest for a 25 minute block.","Turn off non-essential notifications and keep the phone out of reach during focus work.","If attention problems regularly affect work, study or relationships, discuss a formal assessment with a qualified professional."]},
+ {simple:"This is about how quickly your stress response switches on, how long it stays active, and how easily you settle after pressure.",daily:"It may show up as staying mentally 'on' after a difficult meeting, needing longer between intense work blocks, or losing clarity when several pressures stack together.",not:"It does not mean you are fragile. A responsive stress system can perform extremely well when recovery is built into the day.",actions:["After a high-pressure block, take two minutes of slow breathing with a longer exhale.","Avoid scheduling two maximal mental or physical efforts back to back when you can separate them.","Protect the next night's sleep instead of trying to recover with more caffeine."]},
+ {simple:"This category describes reward, drive, habit formation, and how easily a distant goal feels worth starting today.",daily:"It may show up in whether novelty gets you moving, whether routine becomes boring, and how useful visible progress is for keeping momentum.",not:"It is not a measure of ambition, discipline, character or future success.",actions:["Shrink the next step until it can be started in under two minutes.","Make progress visible with a short checklist or completed-work log.","Use predictable rewards after the work block, not as a distraction during it."]},
+ {simple:"This is the biological background to emotional steadiness and how sleep, stress and daily rhythms can influence mood regulation.",daily:"It may show up as a bigger emotional cost after poor sleep, a longer recovery after conflict, or clearer thinking after light and movement.",not:"It cannot diagnose depression, bipolar disorder or any other mental-health condition.",actions:["Get outdoor light early in the day and include regular aerobic movement.","Treat repeated short nights as a mood issue as well as a fatigue issue.","If low mood, agitation or distress persists, speak to a qualified mental-health professional rather than trying to solve it with a supplement."]},
+ {simple:"This category describes the balance between the brain's accelerator and brake—how easily arousal settles into calm.",daily:"It may show up as difficulty winding down, feeling overstimulated late in the day, or needing a clearer boundary between work and sleep.",not:"It is not an anxiety diagnosis and it does not say that a calming supplement is required.",actions:["Create a repeatable 30 minute wind-down with lower light and no work messages.","Move caffeine earlier and test the change for two full weeks.","Use a slow exhale or gentle walk to lower arousal before reaching for a product."]},
+ {simple:"This is about reading social cues, feeling the effect of social stress, and recovering after demanding interpersonal situations.",daily:"It may show up in how strongly conflict lingers, how much a supportive conversation helps, or how much quiet time you need after a people-heavy day.",not:"It does not label personality, empathy or relationship ability as good or bad.",actions:["Pause and confirm what you heard before replying in a tense conversation.","Name one boundary clearly instead of carrying the whole interaction afterwards.","Schedule a short recovery window after socially demanding work when possible."]},
+ {simple:"This category brings together markers related to long-term brain health and recovery. Its value is in the ordinary health habits that protect the brain over years.",daily:"It is less about how you feel today and more about maintaining sleep, blood pressure, aerobic fitness and safe recovery after a head impact.",not:"It does not predict dementia, cognitive decline or the outcome of a head injury.",actions:["Know your resting blood pressure and discuss an appropriate lipid check with a clinician.","Keep aerobic movement and regular sleep as long-term foundations.","After any head impact, follow symptoms and clinician-led return guidance rather than a genetic result."]},
+ {simple:"This is about how strongly caffeine and other stimulants affect alertness, and how long that effect can follow you into the evening.",daily:"It may show up as good short-term focus but a later sleep cost, especially when caffeine is taken after midday or during a stressful week.",not:"It does not tell you that caffeine is good or bad. Timing and your measured sleep response decide that.",actions:["Choose a caffeine cut-off and keep it for two weeks before judging it.","Track sleep onset and next-morning clarity, not only how alert you feel after the drink.","Use food, water, daylight and a short walk before adding another stimulant late in the day."]}
+];
+EFCATS.forEach((c,i)=>{c.f=EF_FOCUS[i];c.id="ef"+(i+1);c.detail=EF_DETAILS[i];});
 EFCATS[1].n="EF-2 · Attention, focus and ADHD liability";
 EFCATS[4].n="EF-5 · Mood and emotional regulation";
 EFCATS[5].n="EF-6 · Anxiety, calming and GABA tone";
@@ -2314,26 +2364,91 @@ function buildRefer(){
       </div>`;}).join("")}</div>`:""}
     <div class="notice" style="margin-top:20px"><b>What to do with this page.</b> Print it, or the clinician summary from the Supplements tab, and take it to your doctor. None of these results is an emergency, and none of them is a diagnosis — a genotype from a wellness array is a reason to have a test, not a substitute for one.</div>`;
 }
+let efLastTrigger=null;
+function efCategoryData(c){
+  const look=rs=>MARKERS.find(m=>m.rs===rs);
+  const prim=c.prim.map(look).filter(Boolean),shared=c.shared.map(look).filter(Boolean);
+  const all=[...prim,...shared];
+  const read=all.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
+  const readShared=shared.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
+  const bf=bandFromMarkers(all);
+  return {prim,shared,all,read,readShared,band:bf?bf.band:null};
+}
+function activeEFSupplements(categoryId){
+  const items=Array.isArray(window.SAM_ACTIVE_SUPPLEMENTS)?window.SAM_ACTIVE_SUPPLEMENTS:[];
+  return items.filter(item=>Array.isArray(item.executiveFitnessIds)&&item.executiveFitnessIds.includes(categoryId));
+}
+function closeEFDetail(restoreFocus=true){
+  const dialog=$("#efDetailDialog");
+  if(!restoreFocus)efLastTrigger=null;
+  if(dialog&&dialog.open)dialog.close();
+  else if(restoreFocus&&efLastTrigger){const trigger=efLastTrigger;efLastTrigger=null;setTimeout(()=>trigger.focus(),0);}
+}
+function goToSupplement(id){
+  closeEFDetail(false);
+  go("supplements");
+  setTimeout(()=>{
+    const card=document.getElementById("supplement-"+id);
+    if(!card)return;
+    card.scrollIntoView({behavior:"smooth",block:"center"});
+    card.focus({preventScroll:true});
+    card.classList.remove("sam-focus-flash");
+    requestAnimationFrame(()=>card.classList.add("sam-focus-flash"));
+    setTimeout(()=>card.classList.remove("sam-focus-flash"),1600);
+  },80);
+}
+function openEFDetail(index,trigger){
+  const c=EFCATS[index],dialog=$("#efDetailDialog"),body=$("#efDetailBody");
+  if(!c||!dialog||!body)return;
+  const data=efCategoryData(c),detail=c.detail||{},band=data.band;
+  const supplements=activeEFSupplements(c.id);
+  const genes=[...new Set(data.read.map(m=>m.g))];
+  efLastTrigger=trigger||document.activeElement;
+  $("#efDetailTitle").textContent=c.n;
+  $("#efDetailBand").innerHTML=band?levPill(band):'<span class="pill">not read</span>';
+  body.innerHTML=`
+    <p id="efDetailIntro" class="lead" style="margin:0 0 20px">${esc(detail.simple||c.f)}</p>
+    <div class="ef-modal-grid">
+      <section class="ef-modal-block"><span class="eyebrow q">What this can look like</span><h3 style="margin-top:9px">In an ordinary day</h3><p class="small" style="margin:0">${esc(detail.daily||"")}</p></section>
+      <section class="ef-modal-block"><span class="eyebrow q">Your result</span><h3 style="margin-top:9px">${band?esc(BANDS[band].n):"Not enough usable calls"}</h3><p class="small" style="margin:0">${band?esc(BANDS[band].say):"The category stays visible, but SAM will not guess a band from missing or no-call rows."}</p></section>
+    </div>
+    <section class="ef-modal-block" style="margin-top:14px"><span class="eyebrow q">Keep this in perspective</span><h3 style="margin-top:9px">What it does not mean</h3><p class="small" style="margin:0">${esc(detail.not||"")}</p></section>
+    <section class="ef-modal-block" style="margin-top:14px"><span class="eyebrow">Start here</span><h3 style="margin-top:9px">Three useful next steps</h3><ol class="ef-action-list">${(detail.actions||[]).map(action=>`<li class="small">${esc(action)}</li>`).join("")}</ol></section>
+    <section class="ef-modal-block" style="margin-top:14px"><span class="eyebrow q">What shaped this result</span><h3 style="margin-top:9px">${data.read.length} of ${data.all.length} markers read</h3>${genes.length?`<p class="small" style="margin:0">The called genes contributing here are <b>${esc(genes.join(", "))}</b>. Missing and no-call markers stay hidden; the full ${data.all.length}-marker count remains visible.</p>`:`<p class="small" style="margin:0">No called marker names are shown because none contributed a usable result. The full ${data.all.length}-marker count remains visible.</p>`}</section>
+    ${supplements.length?`<section class="ef-modal-block" style="margin-top:14px;border-color:rgba(226,88,34,.4)"><span class="eyebrow">Relevant supplement review</span><h3 style="margin-top:9px">Your called markers also raised ${supplements.length===1?"this nutrient":"these nutrients"} for review.</h3><p class="small muted">This is not proof of a deficiency. The Supplements section separates the genetic reason from what confirms a need, the general adult amount, timing and safety checks.</p>${supplements.map(item=>`<div class="ef-supp-match"><div><b>${esc(item.name)}</b><p class="tiny muted" style="margin:4px 0 0">${esc(item.plainReason)}</p></div><button class="btn blood sm" type="button" data-ef-supplement="${esc(item.id)}">View details</button></div>`).join("")}</section>`:""}
+  `;
+  body.scrollTop=0;
+  body.querySelectorAll("[data-ef-supplement]").forEach(button=>button.addEventListener("click",()=>goToSupplement(button.dataset.efSupplement)));
+  if(!dialog.dataset.ready){
+    dialog.dataset.ready="true";
+    $("#efDetailClose").addEventListener("click",()=>closeEFDetail());
+    dialog.addEventListener("click",event=>{if(event.target===dialog)closeEFDetail();});
+    dialog.addEventListener("cancel",event=>{event.preventDefault();closeEFDetail();});
+    dialog.addEventListener("close",()=>{if(efLastTrigger){const target=efLastTrigger;efLastTrigger=null;target.focus();}});
+  }
+  if(typeof dialog.showModal==="function"){if(!dialog.open)dialog.showModal();}
+  else dialog.setAttribute("open","");
+}
 function buildEF(){
   const el=$("#efcats"); if(!el) return;
-  const look=rs=>MARKERS.find(m=>m.rs===rs);
-  el.innerHTML=`<div class="grid g2">${EFCATS.map(c=>{
-    const prim=c.prim.map(look).filter(Boolean), sh=c.shared.map(look).filter(Boolean);
-    const all=[...prim,...sh];
-    const read=all.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
-    const readShared=sh.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
-    const bf=bandFromMarkers(all);
-    const band=bf?bf.band:null;
-    return `<div class="card stack">
+  el.innerHTML=`<div class="grid g2">${EFCATS.map((c,index)=>{
+    const data=efCategoryData(c),band=data.band;
+    return `<div class="card stack ef-card" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="efDetailDialog" data-ef-index="${index}" aria-label="Open plain-language details for ${esc(c.n)}">
       <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
         <h4 style="margin:0;font-family:var(--disp);font-size:18px">${esc(c.n)}</h4>
         ${band?levPill(band):`<span class="pill">not read</span>`}</div>
       <p class="small" style="margin:0;color:var(--ink)">${esc(c.f)}</p>
       ${c.n.startsWith("EF-2")?`<div class="notice" style="margin:0"><b>Tendency only.</b> This category cannot diagnose ADHD, rule it out or replace a clinical assessment.</div>`:""}
       ${band?`<p class="small" style="margin:0;color:var(--ink)">${esc(BANDS[band].say)}</p>`:""}
-      <p class="tiny" style="margin:0;color:var(--blood)">${read.length} of ${all.length} markers read${read.length?" — "+esc([...new Set(read.map(m=>m.g))].join(", ")):""}</p>
-      ${readShared.length?`<p class="tiny muted" style="margin:0">Also drawing on ${esc([...new Set(readShared.map(m=>m.g))].join(", "))}, which stay in their own sections rather than being moved here.</p>`:""}
-  </div>`;}).join("")}</div>`;
+      <p class="tiny" style="margin:0;color:var(--blood)">${data.read.length} of ${data.all.length} markers read${data.read.length?" — "+esc([...new Set(data.read.map(m=>m.g))].join(", ")):""}</p>
+      ${data.readShared.length?`<p class="tiny muted" style="margin:0">Also drawing on ${esc([...new Set(data.readShared.map(m=>m.g))].join(", "))}, which stay in their own sections rather than being moved here.</p>`:""}
+      <span class="ef-open">Open plain-language detail <span aria-hidden="true">→</span></span>
+    </div>`;}).join("")}</div>`;
+  el.querySelectorAll(".ef-card").forEach(card=>{
+    const open=()=>openEFDetail(+card.dataset.efIndex,card);
+    card.addEventListener("click",open);
+    card.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();open();}});
+  });
 }
 
 function buildMoveCats(){
@@ -2443,7 +2558,7 @@ function setFlip(v){STATE.flip.rs1050891=v;render();}
    ==================================================================== */
 const VALUES=[
  {v:"Food before formulation",her:"Cultural warmth and long-standing food practice, held to a modern evidence standard.",
-  sam:"Every recommendation in SAM names a food and a serving before it names anything else. The supplement layer is locked behind four gates and stays locked on a genotype alone.",where:"Systems tab — food first, always"},
+  sam:"Every supplement review in SAM names the food source, the evidence that would confirm a real gap, and the safety checks before it shows a general adult reference amount. Genotype sets review priority; it never proves need.",where:"Systems tab — food first, always"},
  {v:"Evidence without hype",her:"Clear, honest reporting — including of the parts that turn out to be weak.",
   sam:"Grades are carried per claim, not per gene, and the weak ones are shown rather than quietly dropped. Ambiguous strand calls are flagged, never guessed. Uncalled markers are excluded from scores instead of counted as average.",where:"Marker results tab — returned details only, with the complete panel count retained"},
  {v:"One thing at a time",her:"Complex research distilled into a single action you could take tonight.",
@@ -4047,7 +4162,7 @@ function buildPrint(mode){
         <td class="small">${esc(ST[x.st].l)}</td></tr>`).join(""):`<tr><td colspan="3" class="small">No supplement recommendation is open from the information supplied.</td></tr>`}</tbody></table>
     <h3 style="font-size:16px;margin:22px 0 6px">Bloods to ask for</h3>
     <p class="small">${meas.map(x=>esc(x.n.n)).join(" · ")}</p>
-    <p class="tiny muted" style="margin-top:20px">Only established gaps appear above; iron and B12 remain clinician-gated. Generated by SAM · knowledge base ${KB_VERSION} · report ${REPORT_VERSION}.</p>`;
+    <p class="tiny muted" style="margin-top:20px">Supplement entries are genetics-guided review priorities, not confirmed deficiencies or prescriptions. Iron and deficiency-treatment amounts remain clinician-gated. Generated by SAM · knowledge base ${KB_VERSION} · report ${REPORT_VERSION}.</p>`;
 }
 function doPrint(mode){
   $("#printDoc").innerHTML=buildPrint(mode);
@@ -4072,11 +4187,11 @@ function buildExport(){
   el.innerHTML=`<div class="grid g3">
     <div class="card stack"><span class="eyebrow q">For you</span>
       <h4 style="margin:0">Print the full report</h4>
-      <p class="small muted" style="margin:0">Your findings, what is necessary now, any established supplement gaps and the bloods to ask for — on paper, without the navigation.</p>
+      <p class="small muted" style="margin:0">Your findings, what is necessary now, genetics-guided supplement review priorities and the measurements to discuss — on paper, without the navigation.</p>
       <button class="btn sm" onclick="doPrint('full')">Print my report</button></div>
     <div class="card stack" style="border-color:var(--blood)"><span class="eyebrow">For your doctor</span>
       <h4 style="margin:0">One page, ninety seconds</h4>
-      <p class="small muted" style="margin:0">What we are asking them for and why, results already on file, anything currently recommended and on what basis — including any override, named and dated — and a plain statement of what this panel does not claim.</p>
+      <p class="small muted" style="margin:0">What deserves review and why, results already on file, the marker-selected nutrient shortlist and what must confirm a need — plus a plain statement of what this panel does not claim.</p>
       <button class="btn blood sm" onclick="doPrint('doc')">Print the clinician summary</button></div>
     <div class="card stack"><span class="eyebrow q">For the record</span>
       <h4 style="margin:0">Everything, raw calls included</h4>
@@ -4221,7 +4336,7 @@ they never count as an average result.</div>
   <div class="sechead" style="margin-top:50px"><span class="eyebrow">Five — what this report will not do</span><span class="rule"></span></div>
   <div class="grid g2" style="margin-top:18px">
     ${[["Diagnose anything","This is a wellness panel. It is not a diagnostic test and no result here is a diagnosis, however strong the wording sounds."],
-       ["Recommend a supplement from a genotype","Not at any score, not with any number of markers agreeing. Only a measured value crossing a stated trigger opens that tier — or a named practitioner taking responsibility for starting early."],
+       ["Call a supplement required from a genotype","Called markers can raise a review priority. They cannot prove deficiency, calculate a personal dose, or replace food, laboratory and safety context."],
        ["Predict your future","A genotype describes a tendency in a population. It does not tell you what will happen to one person, and anyone claiming otherwise is selling something."],
        ["Compare you to anyone else","Once your live data is connected, every comparison in SAM is you against your own baseline. That is the only comparison that survives the fact that people are different."]]
       .map(([n,t])=>`<div class="card stack"><h4 style="margin:0;font-family:var(--disp);font-size:18px">${esc(n)}</h4>

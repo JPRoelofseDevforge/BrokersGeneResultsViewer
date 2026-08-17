@@ -184,6 +184,36 @@ export interface NearThresholdRecommendation {
     | "outside-shortlist";
 }
 
+export type SupplementDecision =
+  | "food-first"
+  | "measure-first"
+  | "clinician-only";
+
+export interface SupplementRecommendation {
+  id: string;
+  name: string;
+  decision: SupplementDecision;
+  plainReason: string;
+  whatConfirmsNeed: string;
+  referenceAmount: string;
+  timing: string;
+  duration: string;
+  foodFirst: string;
+  checksBeforeStarting: string[];
+  review: string;
+  score: number;
+  domainIds: string[];
+  contributors: RecommendationContributor[];
+  executiveFitnessIds: string[];
+}
+
+export interface SupplementPlan {
+  rulesVersion: string;
+  outcome: "review-ready" | "none";
+  framing: string;
+  items: SupplementRecommendation[];
+}
+
 export interface RecommendationSynthesis {
   rulesVersion: string;
   actionOutcome: "ready" | "insufficient-data" | "no-convergence";
@@ -191,7 +221,8 @@ export interface RecommendationSynthesis {
   actions: WholeReportRecommendation[];
   measurements: WholeReportRecommendation[];
   nearThreshold: NearThresholdRecommendation[];
-  supplementsLocked: true;
+  supplementsLocked: boolean;
+  supplements: SupplementPlan;
 }
 
 export interface ProcessingReceipt {

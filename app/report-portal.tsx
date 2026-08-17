@@ -33,6 +33,8 @@ function isGeneReport(value: unknown): value is GeneReport {
     Array.isArray(value.recommendations.actions) &&
     Array.isArray(value.recommendations.measurements) &&
     Array.isArray(value.recommendations.nearThreshold) &&
+    isRecord(value.recommendations.supplements) &&
+    Array.isArray(value.recommendations.supplements.items) &&
     Array.isArray(value.groups)
   );
 }

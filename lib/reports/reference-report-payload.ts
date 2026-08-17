@@ -181,6 +181,8 @@ export function buildReferenceReportPayload(
       report.profile.memberNumber,
       report.receipt.processedAt,
       report.receipt.rulesVersion,
+      report.recommendations.rulesVersion,
+      report.recommendations.supplements.rulesVersion,
     ].join(":"),
     profile: {
       name: reportDisplayName(report.profile) ?? "Your report",

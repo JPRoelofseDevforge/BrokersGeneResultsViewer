@@ -61,7 +61,7 @@ test("uses report 15 with 21 matched and sequentially numbered panels", () => {
     assert.equal(Number(section[1]), index + 1, `wrong visible number for ${tab}`);
   });
 
-  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.1"/);
+  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.2"/);
   assert.match(source, /const KB_VERSION = "2026\.08\.16"/);
   assert.match(extractor, /sam_report-15\.html/);
 });
@@ -261,6 +261,38 @@ test("matches the report-15 catalogue and Executive Fitness taxonomy", () => {
   assert.deepEqual(
     engine.MARKERS.find((marker) => marker.rs === "rs429358+rs7412")?.d,
     ["rc_vitd"],
+  );
+});
+
+test("Executive Fitness cards open an accessible plain-language detail modal", () => {
+  assert.match(source, /<dialog class="ef-dialog" id="efDetailDialog"/);
+  assert.match(source, /aria-labelledby="efDetailTitle"/);
+  assert.match(source, /id="efDetailClose"[^>]+aria-label="Close executive fitness details"/);
+  assert.match(source, /class="card stack ef-card" role="button" tabindex="0"/);
+  assert.match(source, /aria-haspopup="dialog" aria-controls="efDetailDialog"/);
+  assert.match(source, /event\.key==="Enter"\|\|event\.key===" "/);
+  assert.match(source, /function openEFDetail\(index,trigger\)/);
+  assert.match(source, /function closeEFDetail\(restoreFocus=true\)/);
+  assert.match(source, /What this can look like/);
+  assert.match(source, /Three useful next steps/);
+  assert.match(source, /What shaped this result/);
+  assert.match(source, /Missing and no-call markers stay hidden/);
+  assert.match(source, /window\.SAM_ACTIVE_SUPPLEMENTS/);
+  assert.match(source, /function goToSupplement\(id\)/);
+  assert.match(source, /go\("supplements"\)/);
+  assert.match(source, /document\.getElementById\("supplement-"\+id\)/);
+  assert.match(bridge, /id="supplement-' \+ safe\(item\.id\)/);
+  assert.match(bridge, /tabindex="-1"/);
+  assert.doesNotMatch(source, /Only established gaps appear above/);
+  assert.doesNotMatch(source, /any established supplement gaps/);
+  assert.match(source, /genetics-guided supplement review priorities/);
+  assert.equal(
+    [...source.matchAll(/actions:\[(.*?)\]/g)].filter((match) =>
+      /Protect|Choose|After|Shrink|Get outdoor|Create|Pause|Know your|caffeine cut-off/i.test(
+        match[1],
+      ),
+    ).length,
+    9,
   );
 });
 
