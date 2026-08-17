@@ -222,7 +222,7 @@ const DATABASE_ADAPTER = String.raw`
 
     sourceOnlyMarkerCount = 0;
     (payload.unmappedMarkers || []).forEach(function (sourceMarker) {
-      if (!sourceMarker || (sourceMarker.state !== "unmapped" && sourceMarker.state !== "not-called")) return;
+      if (!sourceMarker || sourceMarker.state !== "unmapped") return;
       sourceOnlyMarkerCount += 1;
       if (existing[markerKey(sourceMarker.gene, sourceMarker.variantId)]) return;
 
@@ -812,6 +812,7 @@ const DATABASE_ADAPTER = String.raw`
     serverRecommendations = payload.recommendations || null;
     serverMode = true;
     appendSourceOnlyMarkers(payload);
+    REPORT_CATALOGUE_COUNT = Number(payload.receipt.catalogueMarkers) || MARKERS.length;
     STATE.calls = Object.assign({}, payload.calls || {});
     STATE.labs = {};
     STATE.demoDays = null;

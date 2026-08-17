@@ -27,7 +27,7 @@ export interface ReferenceUnmappedMarker {
   interpretation: string;
   assayNote: string | null;
   quality: number | null;
-  state: Extract<MarkerState, "unmapped" | "not-called">;
+  state: Extract<MarkerState, "unmapped">;
 }
 
 export interface ReferenceReportPayload {
@@ -82,9 +82,7 @@ function addReportedCall(
 ) {
   if (
     marker.state === "withheld" ||
-    (marker.state === "not-called" &&
-      !marker.id.startsWith("UNMAPPED:") &&
-      !marker.sourceOnly) ||
+    marker.state === "not-called" ||
     (!marker.rawGenotype && !marker.genotype)
   ) {
     return;
@@ -159,7 +157,7 @@ export function buildReferenceReportPayload(
 
     if (
       (marker.id.startsWith("UNMAPPED:") || marker.sourceOnly) &&
-      (marker.state === "unmapped" || marker.state === "not-called")
+      marker.state === "unmapped"
     ) {
       unmappedMarkers.push({
         key,

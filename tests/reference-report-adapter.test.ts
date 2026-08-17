@@ -63,7 +63,8 @@ test("unmapped database calls are appended as unscored source rows", () => {
   assert.match(bridge, /state: "unmapped"/);
   assert.match(bridge, /result\.state !== "called" \|\| !result\.genotype/);
   assert.match(bridge, /appendSourceOnlyMarkers\(payload\)/);
-  assert.match(
+  assert.match(bridge, /sourceMarker\.state !== "unmapped"/);
+  assert.doesNotMatch(
     bridge,
     /sourceMarker\.state !== "unmapped" && sourceMarker\.state !== "not-called"/,
   );
@@ -81,6 +82,7 @@ test("unmapped database calls are appended as unscored source rows", () => {
 
 test("database domains and recommendations remain server authoritative", () => {
   assert.match(bridge, /var originalComputeDomains = computeDomains/);
+  assert.match(bridge, /target\.tot = authoritative\.totalMarkers/);
   assert.match(bridge, /target\.band = authoritative\.band/);
   assert.match(bridge, /target\.score = authoritative\.bandScore/);
   assert.match(bridge, /serverRecommendations = payload\.recommendations/);
@@ -92,4 +94,15 @@ test("database domains and recommendations remain server authoritative", () => {
   assert.match(bridge, /if \(serverMode\) \{[\s\S]*?renderDatabaseSupplementPolicy\(\);[\s\S]*?return;[\s\S]*?\}\s*originalBuildSupps\(\)/);
   assert.match(bridge, /if \(!Number\.isFinite\(leverage\) \|\| leverage < 0 \|\| leverage > 3\)/);
   assert.doesNotMatch(bridge, /lev: result\.leverage[\s\S]*?entry \? entry\[0\]/);
+});
+
+test("database reports retain authoritative full catalogue counts", () => {
+  assert.match(
+    bridge,
+    /REPORT_CATALOGUE_COUNT = Number\(payload\.receipt\.catalogueMarkers\) \|\| MARKERS\.length/,
+  );
+  assert.match(
+    bridge,
+    /safe\(payload\.receipt\.calledMarkers\) \+ ' \/ ' \+ safe\(payload\.receipt\.callableMarkers\)/,
+  );
 });

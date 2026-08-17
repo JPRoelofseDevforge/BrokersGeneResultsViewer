@@ -294,11 +294,11 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
   const [markerState, setMarkerState] = useState<MarkerState | "all">("all");
   const [evidenceGrade, setEvidenceGrade] = useState("all");
   const [showAllMarkers, setShowAllMarkers] = useState(false);
-  const firstCalledMarker =
+  const firstVisibleMarker =
     report.markers.find((marker) => marker.state === "called") ??
-    report.markers[0];
+    report.markers.find((marker) => marker.state !== "not-called");
   const [selectedMarkerId, setSelectedMarkerId] = useState(
-    firstCalledMarker?.id,
+    firstVisibleMarker?.id,
   );
 
   const evaluatedDomains = report.domains.filter(
@@ -320,6 +320,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
     const query = markerQuery.trim().toLowerCase();
 
     return report.markers.filter((marker) => {
+      if (marker.state === "not-called") return false;
       const matchesQuery =
         !query ||
         marker.gene.toLowerCase().includes(query) ||
@@ -338,8 +339,10 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
     ? filteredMarkers
     : filteredMarkers.slice(0, 28);
   const selectedMarker =
-    report.markers.find((marker) => marker.id === selectedMarkerId) ??
-    firstCalledMarker;
+    report.markers.find(
+      (marker) =>
+        marker.id === selectedMarkerId && marker.state !== "not-called",
+    ) ?? firstVisibleMarker;
   const memberName = reportDisplayName(report.profile);
 
   return (
@@ -438,8 +441,11 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             <div>
               <i>03</i>
               <span>
-                <b>{report.receipt.calledMarkers} markers interpreted</b>
-                Missing calls excluded
+                <b>
+                  {report.receipt.calledMarkers} /{" "}
+                  {report.receipt.callableMarkers} markers interpreted
+                </b>
+                Missing calls hidden; full count retained
               </span>
               <em>Done</em>
             </div>
@@ -789,11 +795,12 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         <div className="section-heading">
           <div>
             <span className="eyebrow">Marker explorer</span>
-            <h2>Every call. Nothing hidden.</h2>
+            <h2>Every returned result.</h2>
           </div>
           <p>
-            Called, missing, unscored, unreadable, and withheld results remain
-            visible. Only supported calls enter a score.
+            Missing and no-call rows are hidden. Returned unscored, unreadable,
+            and withheld results remain visible, and the complete catalogue
+            count stays in the totals.
           </p>
         </div>
 
@@ -819,9 +826,8 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
                 setShowAllMarkers(false);
               }}
             >
-              <option value="all">All states</option>
+              <option value="all">All returned states</option>
               <option value="called">Called</option>
-              <option value="not-called">Not called</option>
               <option value="unmapped">Stored / unscored</option>
               <option value="unreadable">Needs review</option>
               <option value="withheld">Withheld</option>
@@ -845,7 +851,8 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             </select>
           </label>
           <span className="result-count">
-            <b>{filteredMarkers.length}</b> markers
+            <b>{filteredMarkers.length}</b> shown · {report.receipt.catalogueMarkers}{" "}
+            in the full catalogue
           </span>
         </div>
 
@@ -907,8 +914,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
 
             {!filteredMarkers.length ? (
               <div className="no-results">
-                No marker matches those filters. Nothing has been removed from
-                the report.
+                No returned marker matches those filters.
               </div>
             ) : null}
 

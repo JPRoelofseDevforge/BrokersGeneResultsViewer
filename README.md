@@ -14,7 +14,9 @@ paths. Marker call states still come from the server processor; the reference
 renderer cannot turn a withheld, unreadable, or missing call into a result.
 Its ledger is generated from those same live marker objects and separates a
 lab no-call, an unreadable source value, a policy-held result, and a stored
-source-only call that is not interpreted.
+source-only call that is not interpreted. Missing and no-call marker identities
+are hidden from member-facing detail views, exports, figures, and agent answers;
+the complete catalogue, callable, domain, and status counts remain visible.
 
 Report 15 adds a private, in-tab intake and action brief, nine Executive Fitness
 views, six cross-tagged Movement views, the revised
@@ -111,7 +113,8 @@ does not claim or infer clinical consent.
   recommendation.
 - Workbook-only variants remain visible as stored/unscored and never affect a
   domain score.
-- Catalogue markers without a usable call remain explicit.
+- Catalogue markers without a usable call remain in the full denominators and
+  aggregate ledger, while their individual rows are hidden.
 - No raw file upload route exists.
 - Phase 1 lab values remain in the current report tab only. Supplement doses,
   practitioner overrides, model endpoints, and wearable connections stay

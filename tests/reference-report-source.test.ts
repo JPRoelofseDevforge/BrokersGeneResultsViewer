@@ -61,7 +61,7 @@ test("uses report 15 with 21 matched and sequentially numbered panels", () => {
     assert.equal(Number(section[1]), index + 1, `wrong visible number for ${tab}`);
   });
 
-  assert.match(source, /const REPORT_VERSION = "2026\.08\.16-r15"/);
+  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.1"/);
   assert.match(source, /const KB_VERSION = "2026\.08\.16"/);
   assert.match(extractor, /sam_report-15\.html/);
 });
@@ -90,6 +90,84 @@ test("keeps result states and Phase 1 database boundaries explicit", () => {
   assert.match(bridge, /#manifest,/);
   assert.match(bridge, /querySelectorAll\("\.tab\[data-p\]"\)/);
   assert.match(bridge, /result\.state === "unmapped"/);
+});
+
+test("hides missing marker details while retaining full panel denominators and status counts", () => {
+  const rawIndex = inlineScripts.findIndex((script) =>
+    script.includes("function rawCSV()"),
+  );
+  assert.ok(rawIndex >= 0, "raw result script should be present");
+
+  const report = new Function(
+    "window",
+    `${inlineScripts.slice(0, rawIndex + 1).join("\n")}\nreturn {MARKERS,STATE,applyTaxonomy,computeDomains,markerResult,markerRow,rawCSV,memberMarkerVisible,reportMarkerCounts};`,
+  )({}) as {
+    MARKERS: Array<{
+      g: string;
+      rs: string;
+      d: string[];
+      _r?: { state: string };
+    }>;
+    STATE: {
+      calls: Record<string, string>;
+      person: Record<string, string>;
+    };
+    applyTaxonomy: () => void;
+    computeDomains: () => Record<string, { n: number; tot: number }>;
+    markerResult: (marker: unknown) => { state: string };
+    markerRow: (marker: unknown) => string;
+    rawCSV: () => string;
+    memberMarkerVisible: (marker: unknown, result: { state: string }) => boolean;
+    reportMarkerCounts: () => {
+      catalogue: number;
+      callable: number;
+      called: number;
+    };
+  };
+  report.applyTaxonomy();
+  const comt = report.MARKERS.find((marker) => marker.rs === "rs4680");
+  assert.ok(comt, "COMT marker should be present");
+
+  report.STATE.calls = {};
+  report.STATE.person = {};
+  const missing = report.markerResult(comt);
+  assert.equal(missing.state, "nocall");
+  assert.equal(report.memberMarkerVisible(comt, missing), false);
+  assert.equal(report.memberMarkerVisible(comt, { state: "unreadable" }), true);
+  assert.equal(report.memberMarkerVisible(comt, { state: "unmapped" }), true);
+  assert.equal(report.memberMarkerVisible(comt, { state: "withheld" }), true);
+  assert.equal(report.markerRow(comt), "");
+  assert.equal(report.rawCSV().split("\n").length, 1, "no-call rows stay out of CSV");
+  assert.deepEqual(report.reportMarkerCounts(), {
+    catalogue: 159,
+    callable: 159,
+    called: 0,
+  });
+
+  report.MARKERS.forEach((marker) => delete marker._r);
+  report.STATE.calls = { rs4680: "A/G" };
+  const domains = report.computeDomains();
+  assert.match(report.markerRow(comt), /COMT/);
+  assert.equal(report.rawCSV().split("\n").length, 2);
+  assert.ok(domains[comt.d[0]].tot > domains[comt.d[0]].n);
+  assert.equal(report.reportMarkerCounts().called, 1);
+
+  assert.match(source, /function memberMarkerVisible\(m,r\)\{return displayStatus\(m,r\)!=="nocall";\}/);
+  assert.match(source, /const visible=rows\.filter\(x=>memberMarkerVisible\(x\.m,x\.r\)\)/);
+  assert.match(source, /if\(!memberMarkerVisible\(x\.m,x\.r\)\) return false;/);
+  assert.match(source, /if\(!memberMarkerVisible\(m,r\)\) return;/);
+  assert.match(source, /MARKERS\.forEach\(m=>\{const r=m\._r\|\|markerResult\(m\);/);
+  assert.match(source, /\$\("#mCount"\)\.textContent=`\$\{filtered\.length\} results shown · \$\{visible\.length\} returned rows · \$\{markerCounts\.catalogue\} markers in the full catalogue`/);
+  assert.match(source, /\["Markers matched",`\$\{called\}\/\$\{total\}`/);
+  assert.match(source, /\$\{called\}\/\$\{total\} markers read · knowledge base/);
+  assert.match(source, /STATE\.loaded&&!memberMarkerVisible\(m,m\._r\|\|markerResult\(m\)\)\) return;/);
+  assert.match(source, /if\(!c\|\|!memberMarkerVisible\(c,r\)\)\{host\.innerHTML="";return;\}/);
+  assert.match(source, /m\.as&&memberMarkerVisible\(m,m\._r\|\|markerResult\(m\)\)/);
+  assert.match(source, /if\(!live\) return "";/);
+  assert.match(source, /if\(!st\.n\) return "";/);
+  assert.match(source, /REPORT_CATALOGUE_COUNT=MARKERS\.length/);
+  assert.doesNotMatch(source, /<option value="nocall">/);
+  assert.doesNotMatch(source, /Not read: \$\{esc\([^}]*missing\.join/);
 });
 
 test("matches the report-15 catalogue and Executive Fitness taxonomy", () => {

@@ -157,7 +157,7 @@ test("retains unmapped source calls with raw metadata and without scoring them",
   });
 });
 
-test("retains an uncatalogued source no-call as a visible raw row", () => {
+test("retains an uncatalogued source no-call for processing but omits it from display rows", () => {
   const sourceNoCall = marker({
     id: "UNMAPPED:rs-no-call",
     gene: "SOURCEGENE",
@@ -174,21 +174,10 @@ test("retains an uncatalogued source no-call as a visible raw row", () => {
   });
   const payload = buildReferenceReportPayload(report([sourceNoCall]));
 
-  assert.equal(payload.calls["rs-no-call"], "--");
-  assert.equal(payload.calls["SOURCEGENE:rs-no-call"], "--");
-  assert.equal(payload.unmappedMarkers.length, 1);
-  assert.deepEqual(payload.unmappedMarkers[0], {
-    key: "SOURCEGENE:rs-no-call",
-    gene: "SOURCEGENE",
-    variantId: "rs-no-call",
-    expectedAlleles: "unknown",
-    rawGenotype: "--",
-    genotype: null,
-    interpretation: "The source reported no call for this uncatalogued marker.",
-    assayNote: null,
-    quality: 99,
-    state: "not-called",
-  });
+  assert.equal(payload.calls["rs-no-call"], undefined);
+  assert.equal(payload.calls["SOURCEGENE:rs-no-call"], undefined);
+  assert.equal(payload.unmappedMarkers.length, 0);
+  assert.equal(payload.results["SOURCEGENE:rs-no-call"].state, "not-called");
   assert.equal(payload.ledger.nocall, 0);
 });
 
@@ -213,7 +202,7 @@ test("includes catalogued source-only inputs in stored and unscored metadata", (
   assert.equal(payload.unmappedMarkers[0].state, "unmapped");
 });
 
-test("keeps a catalogued source-only no-call visible in Raw", () => {
+test("keeps a catalogued source-only no-call counted but out of display rows", () => {
   const nat2NoCall = marker({
     id: "NAT2-rs1801280-160",
     gene: "NAT2",
@@ -226,10 +215,10 @@ test("keeps a catalogued source-only no-call visible in Raw", () => {
   });
   const payload = buildReferenceReportPayload(report([nat2NoCall]));
 
-  assert.equal(payload.calls.rs1801280, "--");
-  assert.equal(payload.calls["NAT2:rs1801280"], "--");
+  assert.equal(payload.calls.rs1801280, undefined);
+  assert.equal(payload.calls["NAT2:rs1801280"], undefined);
   assert.equal(payload.results["NAT2:rs1801280"].state, "not-called");
-  assert.equal(payload.unmappedMarkers[0]?.rawGenotype, "--");
+  assert.equal(payload.unmappedMarkers.length, 0);
 });
 
 test("does not expose calls for a withheld adult-only result", () => {

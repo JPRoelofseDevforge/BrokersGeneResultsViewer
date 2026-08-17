@@ -224,7 +224,7 @@ body.printing #printDoc{display:block;padding:26px;max-width:900px;margin:0 auto
   <button class="tab" role="tab" data-p="converge" aria-selected="false">All three layers</button>
   <button class="tab" role="tab" data-p="necessary" aria-selected="false">What's necessary</button>
   <button class="tab" role="tab" data-p="refer" aria-selected="false">Take to a clinician</button>
-  <button class="tab" role="tab" data-p="markers" aria-selected="false">Every marker</button>
+  <button class="tab" role="tab" data-p="markers" aria-selected="false">Marker results</button>
   <button class="tab" role="tab" data-p="pathology" aria-selected="false">Pathology</button>
   <button class="tab" role="tab" data-p="supplements" aria-selected="false">Supplements</button>
   <button class="tab" role="tab" data-p="roadmap" aria-selected="false">3 month road map</button>
@@ -679,13 +679,13 @@ caps: 3 behaviours + 2 foods, 5 measurements. Ranked, then cut.
 <!-- ============ MARKERS ============ -->
 <section class="panel" id="p-markers">
   <div class="wrap">
-    <span class="eyebrow">15 — Every marker</span>
-    <h1 style="margin:18px 0 20px;max-width:22ch">All of it. Including the parts that shape nothing.</h1>
-    <p class="lead">Every marker SAM asks the lab for is listed here — called or not, strong evidence or weak. Click a row to see what each of the three possible results would have meant, not only the one you carry.</p>
+    <span class="eyebrow">15 — Marker results</span>
+    <h1 style="margin:18px 0 20px;max-width:22ch">Every result that came back.</h1>
+    <p class="lead">Only markers with a returned result are listed here. Missing and no-call rows stay out of the detail list, while the complete panel count remains visible in the totals and status ledger. Click a row to see what each possible result would have meant, not only the one you carry.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 14px;align-items:end">
       <div class="field" style="flex:2;min-width:200px"><label for="mSearch">Search gene, rsID or trait</label><input type="text" id="mSearch" placeholder="e.g. COMT, rs4680, sleep"></div>
       <div class="field" style="flex:1;min-width:150px"><label for="mDom">System</label><select id="mDom"></select></div>
-      <div class="field" style="flex:1;min-width:130px"><label for="mCall">Result</label><select id="mCall"><option value="">All</option><option value="called">Called</option><option value="nocall">No call</option><option value="unreadable">Unreadable</option><option value="source-only">Stored, not interpreted</option><option value="withheld">Withheld</option></select></div>
+      <div class="field" style="flex:1;min-width:130px"><label for="mCall">Result</label><select id="mCall"><option value="">All returned</option><option value="called">Called</option><option value="unreadable">Unreadable</option><option value="source-only">Stored, not interpreted</option><option value="withheld">Withheld</option></select></div>
     </div>
     <div id="mCount" class="mono tiny muted" style="margin-bottom:10px"></div>
     <div style="overflow:auto;max-height:70vh;border:1px solid var(--ink-14);border-radius:var(--r);background:#fff">
@@ -735,7 +735,7 @@ caps: 3 behaviours + 2 foods, 5 measurements. Ranked, then cut.
   <div class="wrap">
     <span class="eyebrow">19 — Raw results</span>
     <h1 style="margin:18px 0 20px;max-width:20ch">The calls, with nothing said about them.</h1>
-    <p class="lead" style="max-width:66ch">Every marker SAM requested and exactly what came back. No meaning, no leverage score, no advice — the data your lab produced, laid out so you or your clinician can check it, copy it, or take it somewhere else entirely. It is your sequence, so it should be legible without going through SAM at all.</p>
+    <p class="lead" style="max-width:66ch">Every returned marker and exactly what came back. Missing and no-call rows are hidden here, but remain included in the complete panel and status counts above. No meaning, no leverage score, no advice — the data your lab produced, laid out so you or your clinician can check it, copy it, or take it somewhere else entirely.</p>
 
     <div class="grid g4" style="margin-top:30px" id="rawStats"></div>
 
@@ -747,7 +747,7 @@ caps: 3 behaviours + 2 foods, 5 measurements. Ranked, then cut.
           <option value="flat">One row per marker</option>
         </select></div>
       <div class="field" style="flex:1;min-width:150px"><label for="rawCall">Show</label>
-        <select id="rawCall"><option value="">Everything requested</option><option value="called">Calls returned</option><option value="nocall">No call from the lab</option><option value="unreadable">Unreadable call</option><option value="source-only">Stored, not interpreted</option><option value="withheld">Withheld by policy</option></select></div>
+        <select id="rawCall"><option value="">All returned rows</option><option value="called">Calls returned</option><option value="unreadable">Unreadable call</option><option value="source-only">Stored, not interpreted</option><option value="withheld">Withheld by policy</option></select></div>
       <button class="btn ghost sm" id="rawCsv">Copy as CSV</button>
       <button class="btn ghost sm" id="rawDl">Download .csv</button>
     </div>
@@ -763,7 +763,7 @@ caps: 3 behaviours + 2 foods, 5 measurements. Ranked, then cut.
       <div class="kv"><span><b>Reference SNP cluster ID</b></span><span class="small">The dbSNP rsID. Repeats, insertions/deletions and copy-number regions have no rsID and are named by their assay instead.</span></div>
       <div class="kv"><span><b>As reported in your file</b></span><span class="small">Untouched. Exactly the characters your lab wrote, including the strand they wrote them on.</span></div>
       <div class="kv"><span><b>Reference orientation</b></span><span class="small">The same call expressed on the forward strand, so it can be compared with published literature. Where these two columns differ, the marker was reported on the opposite strand and SAM flipped it — <span class="mono" style="color:var(--copper)">flip</span> marks those rows.</span></div>
-      <p style="margin-top:14px">The last column keeps the states separate. <span class="mono">no call from the lab</span> means nothing usable came back. <span class="mono">unreadable call</span> means a value came back but could not be mapped safely. <span class="mono">stored, not interpreted</span> means the source contains a marker outside this report's approved catalogue; its raw value is preserved and excluded from every score. <span class="mono">withheld</span> means SAM holds a result back by policy — the only case is ApoE under 18. Strand conversions and read-as-reported calls are labelled separately.</p>
+      <p style="margin-top:14px">The last column keeps returned states separate. <span class="mono">unreadable call</span> means a value came back but could not be mapped safely. <span class="mono">stored, not interpreted</span> means the source contains a marker outside this report's approved catalogue; its raw value is preserved and excluded from every score. <span class="mono">withheld</span> means SAM holds a result back by policy — the only case is ApoE under 18. Missing and no-call rows are hidden from this detail view, while their full count remains in the summary and ledger. Strand conversions and read-as-reported calls are labelled separately.</p>
       <p>This page is deliberately free of interpretation. Nothing here is scored, ranked or advised on. If you want to know what a result means, that is what the rest of the report is for — and you can always disagree with it while still having the data.</p>
     </div></details>
   </div>
@@ -877,7 +877,7 @@ REASON  an unauditable number cannot carry a clinical decision</div>
    Every clinical statement in this report lives here, versioned, and is
    retrieved at render time. Nothing is authored inside a model prompt.
    ===================================================================== */
-const REPORT_VERSION = "2026.08.16-r15";
+const REPORT_VERSION = "2026.08.17-r15.1";
 const KB_VERSION = "2026.08.16";
 const CATALOGUE_SEMANTICS_VERSION = "2026.08.16";
 
@@ -2113,9 +2113,11 @@ function buildSexPanel(){
   const applicable=SEXNOTES.filter(s=>!sex||s.sex===sex);
   const affected=[...new Set(SEXNOTES.map(s=>s.ref))]
     .map(ref=>MARKERS.find(m=>m.rs===ref||m.rs.indexOf(ref)>=0)).filter(Boolean);
+  const visibleXl=xl.filter(m=>memberMarkerVisible(m,m._r||markerResult(m)));
+  const visibleAffected=affected.filter(m=>memberMarkerVisible(m,m._r||markerResult(m)));
   if(!sex){
     el.innerHTML=`<div class="notice"><b>Sex not entered — ${affected.length} sex-dependent results remain unscored.</b>
-      Three of your markers sit on the X chromosome (${xl.map(m=>esc(m.g)).join(", ")}), where males carry one copy and females two. Another ${affected.length-xl.length} change in practical meaning rather than in dosage — choline demand, folate before conception, iron requirement, bone timing.
+      ${visibleXl.length?`${visibleXl.length} returned result${visibleXl.length===1?" sits":"s sit"} on the X chromosome (${visibleXl.map(m=>esc(m.g)).join(", ")}), where males carry one copy and females two.`:"No returned X-linked result is shown."} Another ${affected.length-xl.length} positions in the full catalogue change in practical meaning rather than in dosage — choline demand, folate before conception, iron requirement, bone timing.
       <br><br>SAM will not assume. X-linked calls remain unreadable and leverage-free until sex at birth is verified; add it on the first tab and these resolve.
       <button class="btn sm ghost" style="margin-left:10px" onclick="go('blueprint')">Add it</button></div>`;
     return;
@@ -2126,22 +2128,23 @@ function buildSexPanel(){
     <p class="lead">Two different things change with sex, and SAM keeps them apart. Dosage, where an X-linked gene is read as one copy or two. And meaning, where the same genotype implies something different.</p>
     <div class="grid g2" style="margin-top:18px">
       <div class="card stack"><span class="eyebrow q">Dosage — X-linked</span>
-        <h4 style="margin:0">${xl.map(m=>esc(m.g)).join(" · ")}</h4>
+        <h4 style="margin:0">${visibleXl.length?visibleXl.map(m=>esc(m.g)).join(" · "):"No returned X-linked calls"}</h4>
         <p class="small muted" style="margin:0">${sex==="m"
           ? "You carry one copy of each. SAM reads these as hemizygous and flags any file that reports two different alleles, because that is usually a mapping artefact rather than a real result."
           : "You carry two copies, with one randomly silenced in each cell. That mosaic makes a single X-linked genotype a weaker predictor in women than in men — most of the published work is in men, and SAM says so rather than transferring it silently."}</p></div>
       <div class="card stack"><span class="eyebrow q">Meaning</span>
-        <h4 style="margin:0">${affected.filter(m=>!m.xl).map(m=>esc(m.g)).join(" · ")}</h4>
+        <h4 style="margin:0">${visibleAffected.filter(m=>!m.xl).map(m=>esc(m.g)).join(" · ")||"No returned sex-context calls"}</h4>
         <p class="small muted" style="margin:0">Same genotype, different practical reading. Each one appears as an extra line on its own marker card rather than being summarised away here.</p></div>
     </div>
     <div style="margin-top:16px">${applicable.map(s=>{
       const m=MARKERS.find(x=>x.rs===s.ref||x.rs.indexOf(s.ref)>=0); if(!m) return "";
       const r=m._r||markerResult(m);
+      if(!memberMarkerVisible(m,r)) return "";
       return `<div class="card" style="margin-bottom:10px;${r.state==="ok"?"":"opacity:.6"}">
         <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
           <b style="font-family:var(--disp);font-size:16px">${esc(m.g)}</b>
           <span class="mono tiny muted">${esc(m.rs)}</span>
-          ${r.state==="ok"?`<span class="gt">${esc(r.gt.length===2?r.gt[0]+"/"+r.gt[1]:r.gt)}</span>`:`<span class="pill">not read</span>`}</div>
+          ${r.state==="ok"?`<span class="gt">${esc(r.gt.length===2?r.gt[0]+"/"+r.gt[1]:r.gt)}</span>`:`<span class="pill">${esc(displayStatusLabel(displayStatus(m,r)))}</span>`}</div>
         <p class="small" style="margin:8px 0 0;color:var(--ink)">${esc(s.t)}</p></div>`;}).join("")}</div>`;
 }
 </script>
@@ -2150,6 +2153,16 @@ function buildSexPanel(){
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function levPill(b){const B=BANDS[b];return `<span class="lev ${B.c}"><i></i>${B.n}</span>`;}
+function memberMarkerVisible(m,r){return displayStatus(m,r)!=="nocall";}
+let REPORT_CATALOGUE_COUNT=0;
+function reportMarkerCounts(){
+  const callable=MARKERS.filter(m=>!m.rawOnly&&!m.sourceOnly&&m.gt&&Object.keys(m.gt).length);
+  return {
+    catalogue:REPORT_CATALOGUE_COUNT||MARKERS.length,
+    callable:callable.length,
+    called:callable.filter(m=>(m._r||markerResult(m)).state==="ok").length
+  };
+}
 
 /* ===================== file parsing ===================== */
 const RSX=/^rs\d+$/i, GTX=/^([ACGTID-]{1,2}|[ACGT]\/[ACGT]|[ACGT]\|[ACGT])$/i;
@@ -2229,8 +2242,7 @@ const DEMO_EXTRA={rs1801260:"A/G",rs934945:"G/G",rs2287161:"C/G",rs11605924:"A/C
 function render(){
   if(!STATE.loaded) return;
   const D=computeDomains();
-  const called=MARKERS.filter(m=>m._r&&m._r.state==="ok").length;
-  const total=MARKERS.filter(m=>!m.rawOnly&&!m.sourceOnly&&m.gt&&Object.keys(m.gt).length).length;
+  const markerCounts=reportMarkerCounts(),called=markerCounts.called,total=markerCounts.callable;
   $("#stMarkers").innerHTML=`Markers read <b>${called}/${total}</b>`;
   const conf=Math.round(called/total*100);
   $("#stConf").innerHTML=`Confidence <b>${conf>=70?"High":conf>=40?"Moderate":"Building"}</b>`;
@@ -2251,7 +2263,7 @@ function render(){
   const flips=MARKERS.filter(m=>m._r&&m._r.flip).length, ambs=MARKERS.filter(m=>m._r&&m._r.amb).length;
   $("#topStats").innerHTML=[
     ["Systems read",Object.values(D).filter(d=>d.band).length+" of "+Object.keys(DOMAINS).length,"Each one scored only on how much your choices move it."],
-    ["Markers matched",called,`Out of ${total} SAM asks the lab for. Uncalled markers are excluded, never counted as average.`],
+    ["Markers matched",`${called}/${total}`,`Full panel count retained. Uncalled markers are excluded, never counted as average.`],
     ["Strand corrections",flips,"Calls reported on the opposite DNA strand, flipped to the reference orientation automatically."],
     ["Read as reported",ambs,"Homozygous A/T and C/G calls, read in the orientation your laboratory reported. The convention is set out on the How to read this tab."]
   ].map(([a,b,c])=>`<div class="card"><span class="eyebrow q">${a}</span><div class="scoreN" style="margin:10px 0 6px">${b}</div><p class="tiny muted" style="margin:0">${c}</p></div>`).join("");
@@ -2274,6 +2286,7 @@ function render(){
 function buildRefer(){
   const el=$("#refer"); if(!el) return;
   const rows=MARKERS.filter(m=>m.refer).map(m=>({m,r:m._r||markerResult(m)}));
+  const visible=rows.filter(x=>memberMarkerVisible(x.m,x.r));
   const called=rows.filter(x=>x.r.state==="ok");
   const carrying=called.filter(x=>{const g=x.r.gt;return !/^([ACGT])\1$/.test(g)||x.r.lev===0&&/^(AA|GG|TT|CC)$/.test(g)&&x.r.txt.indexOf("No ")!==0;})
     .filter(x=>x.r.txt.indexOf("No ")!==0&&x.r.txt.indexOf("Not a carrier")!==0&&x.r.txt.indexOf("Nothing further")<0);
@@ -2281,18 +2294,23 @@ function buildRefer(){
     <div class="card ink stack" style="margin-bottom:20px">
       <span class="eyebrow">Why these are separate</span>
       <h3 style="color:var(--bone);margin:0">Five results that are not on the leverage scale, on purpose.</h3>
-      <p class="small" style="color:var(--bone-70);margin:0">Everything else in this report is scored on how much your daily choices move it. These five are not that kind of result. They are reported factually, in full, and the correct next step for each is a conversation with a clinician rather than a change to your week. Nothing here is hidden and nothing here is softened — but calling any of it "your biggest lever" would be dishonest, so SAM does not.</p>
+      <p class="small" style="color:var(--bone-70);margin:0">Everything else in this report is scored on how much your daily choices move it. These five are not that kind of result. Returned rows are reported factually, in full, and the correct next step for each is a conversation with a clinician rather than a change to your week. Missing and no-call rows stay out of the detail list, but remain in the complete count.</p>
+      <span class="mono tiny" style="color:var(--bone-45)">${visible.length} shown · ${rows.length} in the full referral count</span>
     </div>
-    ${rows.length?`<div class="grid g2">${rows.map(x=>{
+    ${visible.length?`<div class="grid g2">${visible.map(x=>{
       const ok=x.r.state==="ok";
+      const status=displayStatus(x.m,x.r);
       return `<div class="card stack" style="${ok?"":"opacity:.6"}">
         <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
           <h4 style="margin:0;font-family:var(--disp);font-size:19px">${esc(x.m.g)}</h4>
           <span class="mono tiny muted">${esc(x.m.rs)}</span>
-          ${ok?`<span class="gt">${esc(x.r.gt.length===2?x.r.gt[0]+"/"+x.r.gt[1]:x.r.gt)}</span>`:`<span class="pill">not read</span>`}
+          ${ok?`<span class="gt">${esc(x.r.gt.length===2?x.r.gt[0]+"/"+x.r.gt[1]:x.r.gt)}</span>`:`<span class="pill">${esc(displayStatusLabel(status))}</span>`}
           <span class="grade">GRADE ${esc(x.m.gr)}</span></div>
         <p class="small muted" style="margin:0">${esc(x.m.w)}</p>
-        ${ok?`<p class="small" style="margin:0;color:var(--ink)">${esc(x.r.txt)}</p>`:`<p class="small muted" style="margin:0">Not in your file. Excluded rather than assumed.</p>`}
+        ${ok?`<p class="small" style="margin:0;color:var(--ink)">${esc(x.r.txt)}</p>`
+          :status==="unreadable"?`<p class="small muted" style="margin:0">A value was returned but could not be mapped safely. It remains visible and unscored.</p>`
+          :status==="source-only"?`<p class="small muted" style="margin:0">The returned value is stored without an approved interpretation or score.</p>`
+          :`<p class="small muted" style="margin:0">This returned result is withheld by policy.</p>`}
       </div>`;}).join("")}</div>`:""}
     <div class="notice" style="margin-top:20px"><b>What to do with this page.</b> Print it, or the clinician summary from the Supplements tab, and take it to your doctor. None of these results is an emergency, and none of them is a diagnosis — a genotype from a wellness array is a reason to have a test, not a substitute for one.</div>`;
 }
@@ -2303,6 +2321,7 @@ function buildEF(){
     const prim=c.prim.map(look).filter(Boolean), sh=c.shared.map(look).filter(Boolean);
     const all=[...prim,...sh];
     const read=all.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
+    const readShared=sh.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
     const bf=bandFromMarkers(all);
     const band=bf?bf.band:null;
     return `<div class="card stack">
@@ -2313,7 +2332,7 @@ function buildEF(){
       ${c.n.startsWith("EF-2")?`<div class="notice" style="margin:0"><b>Tendency only.</b> This category cannot diagnose ADHD, rule it out or replace a clinical assessment.</div>`:""}
       ${band?`<p class="small" style="margin:0;color:var(--ink)">${esc(BANDS[band].say)}</p>`:""}
       <p class="tiny" style="margin:0;color:var(--blood)">${read.length} of ${all.length} markers read${read.length?" — "+esc([...new Set(read.map(m=>m.g))].join(", ")):""}</p>
-      ${sh.length?`<p class="tiny muted" style="margin:0">Also drawing on ${esc([...new Set(sh.map(m=>m.g))].join(", "))}, which stay in their own sections rather than being moved here.</p>`:""}
+      ${readShared.length?`<p class="tiny muted" style="margin:0">Also drawing on ${esc([...new Set(readShared.map(m=>m.g))].join(", "))}, which stay in their own sections rather than being moved here.</p>`:""}
   </div>`;}).join("")}</div>`;
 }
 
@@ -2325,6 +2344,7 @@ function buildMoveCats(){
     const all=[...new Set([...prim,...shared])];
     const scored=all.filter(m=>!m.refer&&!m.rawOnly&&!m.sourceOnly);
     const called=all.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
+    const calledShared=shared.filter(m=>{const r=m._r||markerResult(m);return r.state==="ok";});
     const facts=called.filter(m=>m.refer);
     const bf=bandFromMarkers(scored),band=bf?bf.band:null;
     return `<div class="card stack">
@@ -2334,7 +2354,7 @@ function buildMoveCats(){
       <p class="small" style="margin:0;color:var(--ink)">${esc(c.f)}</p>
       ${band?`<p class="small" style="margin:0;color:var(--ink)">${esc(BANDS[band].say)}</p>`:""}
       <p class="tiny" style="margin:0;color:var(--blood)">${called.length} of ${all.length} rows returned${called.length?" — "+esc([...new Set(called.map(m=>m.g))].join(", ")):""}</p>
-      ${shared.length?`<p class="tiny muted" style="margin:0">Cross-tagged from Systems: ${esc([...new Set(shared.map(m=>m.g))].join(", "))}. Their primary placement stays in Systems; they are counted again here only to shape this secondary Movement view.</p>`:""}
+      ${calledShared.length?`<p class="tiny muted" style="margin:0">Cross-tagged from Systems: ${esc([...new Set(calledShared.map(m=>m.g))].join(", "))}. Their primary placement stays in Systems; they are counted again here only to shape this secondary Movement view.</p>`:""}
       ${facts.length?`<p class="tiny muted" style="margin:0"><b>Factual, unscored:</b> ${esc(facts.map(m=>m.g+" "+m.rs).join(", "))}. These clinician-referral results do not enter a leverage band.</p>`:""}
     </div>`;}).join("")}</div>`;
 }
@@ -2352,7 +2372,7 @@ function domCard(k,d){
 
 function domSection(k,d){
   const B=d.band?BANDS[d.band]:null;
-  const ms=d.markers.map(m=>markerRow(m)).join("");
+  const ms=d.markers.map(m=>markerRow(m)).filter(Boolean).join("");
   return `<details class="how" id="d-${k}" style="background:#fff">
     <summary style="padding:18px 20px">
       <span style="flex:1;display:flex;align-items:center;gap:14px;flex-wrap:wrap;text-transform:none;letter-spacing:0">
@@ -2365,12 +2385,13 @@ function domSection(k,d){
       <p style="color:var(--ink);font-size:15px">${DOMAINS[k].blurb}</p>
       ${B?`<div class="notice ${d.band<=2?"sage":""}" style="margin:14px 0 18px"><b>${B.n}.</b> ${B.say}</div>`:""}
       ${d.top.length?`<p class="small"><b>Doing the most work here:</b> ${d.top.map(m=>esc(m.g)).join(", ")}.</p>`:""}
-      <div style="margin-top:14px">${ms}</div>
+      <div style="margin-top:14px">${ms||`<p class="small muted">No returned marker details to show. The full ${d.tot}-marker denominator remains in the heading.</p>`}</div>
     </div></details>`;
 }
 
 function markerRow(m){
   const r=m._r||markerResult(m);
+  if(!memberMarkerVisible(m,r)) return "";
   let head="",body="";
   if(r.state==="ok"){
     head=`<span class="gt">${esc(r.gt.length===2?r.gt[0]+"/"+r.gt[1]:r.gt)}</span>${m.nm&&m.nm[r.gt]?` <span class="pill nm">${esc(m.nm[r.gt])}</span>`:""} ${levPill(r.lev===1?1:r.lev===2?3:5)}`;
@@ -2424,7 +2445,7 @@ const VALUES=[
  {v:"Food before formulation",her:"Cultural warmth and long-standing food practice, held to a modern evidence standard.",
   sam:"Every recommendation in SAM names a food and a serving before it names anything else. The supplement layer is locked behind four gates and stays locked on a genotype alone.",where:"Systems tab — food first, always"},
  {v:"Evidence without hype",her:"Clear, honest reporting — including of the parts that turn out to be weak.",
-  sam:"Grades are carried per claim, not per gene, and the weak ones are shown rather than quietly dropped. Ambiguous strand calls are flagged, never guessed. Uncalled markers are excluded from scores instead of counted as average.",where:"Every marker tab — 116 markers, including the ones that shape nothing"},
+  sam:"Grades are carried per claim, not per gene, and the weak ones are shown rather than quietly dropped. Ambiguous strand calls are flagged, never guessed. Uncalled markers are excluded from scores instead of counted as average.",where:"Marker results tab — returned details only, with the complete panel count retained"},
  {v:"One thing at a time",her:"Complex research distilled into a single action you could take tonight.",
   sam:"One lever per system, written as a sentence you could act on tonight. The author's dial shows the whole idea in a single control.",where:"The science tab — the author's dial"},
  {v:"Pleasure as a compass",her:"If it does not feel good, it will not last — so enjoyment is treated as a design requirement, not a reward.",
@@ -2824,6 +2845,7 @@ function rawCSV(){
   MARKERS.forEach(m=>{
     if(seen.has(m.g+m.rs))return; seen.add(m.g+m.rs);
     const x=rawRow(m);
+    if(!memberMarkerVisible(m,x.r)) return;
     const nmv=(m.nm&&x.r.state==="ok"&&m.nm[x.r.gt])||"";
     lines.push([m.g,m.rs,x.rawFile,x.ref,nmv,x.status,x.r.flip?"yes":"no",x.r.amb?"yes":"no",
       (m.d||[]).map(d=>DOMAINS[d].n).join("; ")].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(","));
@@ -2841,30 +2863,32 @@ function buildRaw(){
   const uniq=[];const seen=new Set();
   MARKERS.forEach(m=>{if(!seen.has(m.g+m.rs)){seen.add(m.g+m.rs);uniq.push(m);}});
   const rows=uniq.map(rawRow);
-  const called=rows.filter(x=>x.status==="called").length;
   const nocall=rows.filter(x=>x.status==="nocall").length;
   const unreadable=rows.filter(x=>x.status==="unreadable").length;
   const sourceOnly=rows.filter(x=>x.status==="source-only").length;
   const flips=rows.filter(x=>x.r.flip).length;
   const ambs=rows.filter(x=>x.r.amb).length;
   const held=rows.filter(x=>x.r.state==="withheld").length;
+  const returned=rows.filter(x=>memberMarkerVisible(x.m,x.r));
+  const markerCounts=reportMarkerCounts();
   $("#rawStats").innerHTML=[
-    ["Catalogue and source rows",uniq.length,"Approved catalogue markers plus source-only calls retained for audit."],
-    ["Calls returned",called,`${(called/uniq.length*100).toFixed(0)}% of the panel. Call rate is a property of the assay, not of you.`],
-    ["Not interpreted",nocall+unreadable+sourceOnly+(held?` (+${held} held)`:""),`${nocall} no-call · ${unreadable} unreadable · ${sourceOnly} source-only. All are excluded from scores.`],
-    ["Strand corrections",flips,`${ambs} call${ambs===1?"":"s"} were retained with an orientation note.`]
+    ["Full catalogue",markerCounts.catalogue,"The complete approved marker catalogue; hidden rows never shrink this count."],
+    ["Approved calls",`${markerCounts.called}/${markerCounts.callable}`,`${(markerCounts.called/Math.max(1,markerCounts.callable)*100).toFixed(0)}% call rate. A property of the assay, not of you.`],
+    ["Returned rows",`${returned.length}/${rows.length}`,`${nocall} no-call row${nocall===1?"":"s"} hidden · ${unreadable} unreadable · ${sourceOnly} source-only${held?` · ${held} held`:""}.`],
+    ["Strand corrections",`${flips}/${Math.max(1,markerCounts.called)}`,`${ambs} call${ambs===1?"":"s"} were retained with an orientation note.`]
   ].map(([a,b,c])=>`<div class="card"><span class="eyebrow q">${a}</span><div class="scoreN" style="margin:10px 0 6px">${b}</div><p class="tiny muted" style="margin:0">${c}</p></div>`).join("");
 
   const draw=()=>{
     const q=($("#rawSearch").value||"").toLowerCase();
     const view=$("#rawView").value, cs=$("#rawCall").value;
     const keep=x=>{
+      if(!memberMarkerVisible(x.m,x.r)) return false;
       if(cs&&x.status!==cs) return false;
       if(q&&!((x.m.g+" "+x.m.rs).toLowerCase().includes(q))) return false;
       return true;};
     if(view==="flat"){
       const f=rows.filter(keep);
-      host.innerHTML=`<div class="sechead"><span class="eyebrow">All markers · one row each</span><span class="rule"></span><span class="mono tiny muted">${f.length} rows</span></div>`
+      host.innerHTML=`<div class="sechead"><span class="eyebrow">Returned markers · one row each</span><span class="rule"></span><span class="mono tiny muted">${f.length} shown · ${returned.length} returned · ${markerCounts.catalogue} in full catalogue</span></div>`
         +(f.length?rawTable(f):`<p class="muted">Nothing matches that filter.</p>`);
       return;
     }
@@ -2874,14 +2898,17 @@ function buildRaw(){
       const doms=Object.entries(DOMAINS).filter(([k,d])=>d.grp===g);
       let section="";
       doms.forEach(([k,d])=>{
-        const f=uniq.filter(m=>(m.d||[]).includes(k)).map(rawRow).filter(keep);
+        const full=uniq.filter(m=>(m.d||[]).includes(k)).map(rawRow);
+        const returnedInDomain=full.filter(x=>memberMarkerVisible(x.m,x.r));
+        const f=full.filter(keep);
         if(!f.length) return;
-        section+=`<div class="sechead" style="margin-top:22px"><span class="eyebrow q">${esc(d.n)}</span><span class="rule"></span><span class="mono tiny muted">${f.length} marker${f.length===1?"":"s"}</span></div>${rawTable(f)}`;
+        section+=`<div class="sechead" style="margin-top:22px"><span class="eyebrow q">${esc(d.n)}</span><span class="rule"></span><span class="mono tiny muted">${f.length} shown · ${returnedInDomain.length}/${full.length} returned</span></div>${rawTable(f)}`;
       });
       if(section) html+=`<h3 style="margin:38px 0 4px">${label}</h3>${section}`;
     });
-    const sourceRows=rows.filter(x=>x.status==="source-only").filter(keep);
-    if(sourceRows.length) html+=`<h3 style="margin:38px 0 4px">Source-only</h3><div class="sechead" style="margin-top:22px"><span class="eyebrow q">Stored, not interpreted</span><span class="rule"></span><span class="mono tiny muted">${sourceRows.length} marker${sourceRows.length===1?"":"s"}</span></div>${rawTable(sourceRows)}`;
+    const fullSourceRows=rows.filter(x=>x.m.sourceOnly||x.m.rawOnly||x.status==="source-only");
+    const sourceRows=fullSourceRows.filter(keep);
+    if(sourceRows.length) html+=`<h3 style="margin:38px 0 4px">Source-only</h3><div class="sechead" style="margin-top:22px"><span class="eyebrow q">Stored, not interpreted</span><span class="rule"></span><span class="mono tiny muted">${sourceRows.length}/${fullSourceRows.length} returned</span></div>${rawTable(sourceRows)}`;
     host.innerHTML=html||`<p class="muted">Nothing matches that filter.</p>`;
   };
   $("#rawSearch").oninput=draw;$("#rawView").onchange=draw;$("#rawCall").onchange=draw;draw();
@@ -3017,7 +3044,6 @@ function buildPathways(){
           :`<p class="small" style="margin:0;color:var(--ink)">None of the contributing markers were read, so SAM reports this as unevaluated rather than clear.</p>`}
         <div class="levbar" style="margin:4px 0">${[1,2,3,4,5].map(i=>`<span style="flex:1;background:${s.band&&i<=s.band?"var(--blood)":"transparent"};opacity:${s.band&&i<=s.band?(0.35+i*0.13):1}"></span>`).join("")}</div>
         <p class="tiny" style="margin:0;color:var(--blood)">${s.n} of ${s.tot} contributors read${s.called.length?" — "+esc(s.called.join(", ")):""}</p>
-        ${s.missing.length?`<p class="tiny muted" style="margin:0">Not read: ${esc(s.missing.join(", "))}</p>`:""}
       </div>`).join("")}</div></div>`;}).join("");
 }
 </script>
@@ -3097,7 +3123,6 @@ function buildSleepSystems(){
         :`<p class="small" style="margin:0;color:var(--ink)">None of the contributing markers were read, so this reports as unevaluated rather than clear.</p>`}
       <div class="levbar" style="margin:2px 0">${[1,2,3,4,5].map(i=>`<span style="flex:1;background:${r.band&&i<=r.band?"var(--blood)":"transparent"};opacity:${r.band&&i<=r.band?(0.35+i*0.13):1}"></span>`).join("")}</div>
       <p class="tiny" style="margin:0;color:var(--blood)">${r.n} of ${r.tot} read${r.called.length?" — "+esc(r.called.join(", ")):""}</p>
-      ${r.missing.length?`<p class="tiny muted" style="margin:0">Not read: ${esc(r.missing.join(", "))}</p>`:""}
     </div>`).join("")+`</div>`;
 }
 </script>
@@ -3124,6 +3149,7 @@ function gtText(st){return st.parts.filter(p=>p.r).map(p=>p.r.gt.length===2?p.r.
 
 function chip(n){
   const st=n.st,w=n.w||118,h=n.h||58,live=st.n>0,f=st.flow;
+  if(!live) return "";
   const gt=gtText(st);
   return `<g class="fignode" data-n="${n.id}" style="cursor:pointer">
     <rect x="${n.x}" y="${n.y}" width="${w}" height="${h}" rx="12" fill="#fff" stroke="${live?FLOWCOL[f]:"#DED8CB"}" stroke-width="${live?2:1.2}"/>
@@ -3302,6 +3328,7 @@ function histVerdict(){
 function figDetail(nid,nodes){
   const n=nodes.find(x=>x.id===nid); if(!n) return "";
   const st=n.st||stepFlow(n.refs);
+  if(!st.n) return "";
   const known=st.parts.filter(p=>p.r);
   return `<div class="card stack" style="margin-top:16px;border-color:${st.n?FLOWCOL[st.flow]:"var(--ink-14)"};border-width:1.5px">
     <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
@@ -3332,9 +3359,9 @@ function buildFigs(){
   const mh=$("#methVerdict");
   if(mh){const mv=STATE.loaded?methVerdict():null;
     mh.innerHTML=!mv?"":`<div class="grid g4" style="margin-bottom:20px">
-      ${mv.nodes.map(([n,s])=>`<div class="card" style="border-color:${s.n?FLOWCOL[s.flow]:"var(--ink-14)"}">
+      ${mv.nodes.filter(([,s])=>s.n).map(([n,s])=>`<div class="card" style="border-color:${FLOWCOL[s.flow]}">
         <span class="eyebrow q">${esc(n)}</span>
-        <div class="scoreN" style="margin:8px 0 4px;font-size:24px;color:${s.n?FLOWCOL[s.flow]:"var(--ink-45)"}">${s.n?flowWord(s.flow):"not read"}</div>
+        <div class="scoreN" style="margin:8px 0 4px;font-size:24px;color:${FLOWCOL[s.flow]}">${flowWord(s.flow)}</div>
         <div style="display:flex;gap:3px">${[0,1,2].map(i=>`<span style="flex:1;height:4px;border-radius:2px;background:${i<s.flow?FLOWCOL[s.flow]:"rgba(21,24,27,.12)"}"></span>`).join("")}</div></div>`).join("")}</div>
       <div class="card ink stack" style="margin-bottom:22px"><span class="eyebrow">Where you fit in this cycle</span>
         ${mv.lines.map(l=>`<p class="small" style="color:var(--bone-70)">${esc(l)}</p>`).join("")}</div>`;}
@@ -3343,10 +3370,10 @@ function buildFigs(){
   const hh=$("#histVerdict");
   if(hh){const hv=STATE.loaded?histVerdict():null;
     hh.innerHTML=!hv?"":`<div class="grid g4" style="margin-bottom:20px">
-      ${[["Gut gate — food",hv.dao],["Tissue gate — brain",hv.hnmt],["Alcohol load",hv.ald],["Methyl budget behind it",hv.meth]].map(([n,s])=>
-        `<div class="card" style="border-color:${s.n?FLOWCOL[s.flow]:"var(--ink-14)"}">
+      ${[["Gut gate — food",hv.dao],["Tissue gate — brain",hv.hnmt],["Alcohol load",hv.ald],["Methyl budget behind it",hv.meth]].filter(([,s])=>s.n).map(([n,s])=>
+        `<div class="card" style="border-color:${FLOWCOL[s.flow]}">
           <span class="eyebrow q">${esc(n)}</span>
-          <div class="scoreN" style="margin:8px 0 4px;font-size:24px;color:${s.n?FLOWCOL[s.flow]:"var(--ink-45)"}">${s.n?flowWord(s.flow):"not read"}</div>
+          <div class="scoreN" style="margin:8px 0 4px;font-size:24px;color:${FLOWCOL[s.flow]}">${flowWord(s.flow)}</div>
           <div style="display:flex;gap:3px">${[0,1,2].map(i=>`<span style="flex:1;height:4px;border-radius:2px;background:${i<s.flow?FLOWCOL[s.flow]:"rgba(21,24,27,.12)"}"></span>`).join("")}</div></div>`).join("")}</div>
       ${hv.sig.length?`<div class="card ink stack" style="margin-bottom:22px"><span class="eyebrow">The night this predicts</span>
         <p class="small" style="color:var(--bone-45)">A hypothesis to test against your own nights — not a description of them.</p>
@@ -3960,12 +3987,12 @@ function buildPrint(mode){
   const meas=NEEDS.filter(n=>n.kind==="measure").map(n=>({n,...needScore(n)}))
     .filter(x=>x.s>=2&&x.rel.length>=2).sort((a,b)=>b.s-a.s).slice(0,5);
   const find=topFindings(mode==="doc"?5:8);
-  const called=MARKERS.filter(m=>m._r&&m._r.state==="ok").length;
+  const markerCounts=reportMarkerCounts(),called=markerCounts.called,total=markerCounts.callable;
   const head=`<div class="pHead">
       <div><span class="mark" style="font-size:26px">sam<span class="dot"></span></span></div>
       <div style="text-align:right" class="tiny">
         ${esc(P.name||"—")} · ${P.age?esc(P.age)+" years":""} ${P.sex==="f"?"· female":P.sex==="m"?"· male":""}<br>
-        ${called} markers read · knowledge base ${KB_VERSION}<br>report ${REPORT_VERSION} · ${new Date().toDateString()}</div></div>`;
+        ${called}/${total} markers read · knowledge base ${KB_VERSION}<br>report ${REPORT_VERSION} · ${new Date().toDateString()}</div></div>`;
 
   if(mode==="doc"){
     return `${head}
@@ -4008,7 +4035,7 @@ function buildPrint(mode){
   if(mode==="raw") return buildPrint("doc")+rawAppendix();
   return `${head}
     <h1 style="font-size:30px;margin:14px 0 6px">${esc(P.name||"Your")} report</h1>
-    <p class="small muted">${called} markers read · ${Object.values(STATE.dom||{}).filter(d=>d.band).length} systems scored</p>
+    <p class="small muted">${called}/${total} markers read · ${Object.values(STATE.dom||{}).filter(d=>d.band).length} systems scored</p>
     <h3 style="font-size:16px;margin:22px 0 6px">Where your effort pays the most</h3>
     <table><thead><tr><th>System</th><th>Reading</th><th>Genes doing the work</th></tr></thead><tbody>
       ${find.map(f=>`<tr><td>${esc(f.n)}</td><td>${esc(BANDS[f.band].n)}</td><td class="tiny">${esc(f.top.join(", ")||"—")}</td></tr>`).join("")}</tbody></table>
@@ -4031,11 +4058,12 @@ function rawAppendix(){
   const seen=new Set(),rows=[];
   MARKERS.forEach(m=>{if(seen.has(m.g+m.rs))return;seen.add(m.g+m.rs);
     const x=rawRow(m),r=x.r,status=displayStatus(m,r);
+    if(!memberMarkerVisible(m,r)) return;
     rows.push(`<tr><td>${esc(m.g)}</td><td class="tiny">${esc(m.rs)}</td>
       <td>${r.state==="ok"?esc(fmtGT(r.gt)):status==="source-only"?esc(x.rawFile):"—"}</td>
       <td class="tiny">${esc(displayStatusLabel(status))}${r.flip?" · strand corrected":r.amb?" · read as reported":""}</td></tr>`);});
   return `<h3 style="font-size:15px;margin:22px 0 6px">Appendix · raw calls</h3>
-    <p class="tiny muted">Every marker requested, and what came back. No interpretation.</p>
+    <p class="tiny muted">Every returned marker. Missing and no-call rows remain included in the full report counts. No interpretation.</p>
     <table style="font-size:9pt"><thead><tr><th>Gene</th><th>rsID</th><th>Result</th><th>Note</th></tr></thead>
     <tbody>${rows.join("")}</tbody></table>`;
 }
@@ -4052,7 +4080,7 @@ function buildExport(){
       <button class="btn blood sm" onclick="doPrint('doc')">Print the clinician summary</button></div>
     <div class="card stack"><span class="eyebrow q">For the record</span>
       <h4 style="margin:0">Everything, raw calls included</h4>
-      <p class="small muted" style="margin:0">The clinician page with every marker requested appended — gene, rsID, result, and whether the strand was corrected. No interpretation in the appendix at all.</p>
+      <p class="small muted" style="margin:0">The clinician page with every returned marker appended — gene, rsID, result, and whether the strand was corrected. Missing and no-call rows stay out of the appendix but remain in the full counts.</p>
       <button class="btn ghost sm" onclick="doPrint('raw')">Print with raw results</button></div></div>
     <p class="tiny muted" style="margin-top:12px">Both open your browser's print dialogue. Choose "Save as PDF" there if you would rather email it.</p>`;
 }
@@ -4183,7 +4211,7 @@ they never count as an average result.</div>
        ["Then","What's necessary","The conclusion. What to do now, what to measure, and what stays locked until a number says otherwise."],
        ["If you act","3 month road map","Twelve weeks, in order, with one thing at a time. Month one measures — it changes almost nothing on purpose."],
        ["To check us","Raw results","Your calls with no interpretation at all. Print it, take it elsewhere, disagree with us."],
-       ["For depth","Every marker · Pathway outputs","All 158 markers with what each possible result would have meant, and 33 biochemical readouts with their coverage."],
+       ["For depth","Marker results · Pathway outputs","Returned marker details with the complete catalogue counts retained, and 33 biochemical readouts with their coverage."],
        ["With a clinician","Supplements → print","One page: what we are asking them for and why, what is recommended and on what basis."]]
       .map(([w,n,t])=>`<div class="card stack"><span class="eyebrow q">${esc(w)}</span>
         <h4 style="margin:0;font-family:var(--disp);font-size:18px">${esc(n)}</h4>
@@ -5112,15 +5140,20 @@ function buildChain(){
 
 /* ===================== pressure curve ===================== */
 function buildYerkes(){
-  const c=MARKERS.find(m=>m.rs==="rs4680"), r=c&&c._r;
-  let shift=0,label="Balanced — you hold focus across a wide range of pressure.",gt="not read";
-  if(r&&r.state==="ok"){gt=r.gt[0]+"/"+r.gt[1];
-    if(r.gt==="AA"){shift=-1;label="Met/Met — your peak sits at lower pressure. Prepare hard, then protect calm before it counts.";}
-    else if(r.gt==="GG"){shift=1;label="Val/Val — your peak sits at higher pressure. Manufacture urgency; quiet work is where you drift.";}
-    else label="Val/Met — a wide, forgiving peak. You think well in calm rooms and loud ones.";}
+  const host=$("#yerkes"),c=MARKERS.find(m=>m.rs==="rs4680"),r=c&&(c._r||markerResult(c));
+  if(!host) return;
+  if(!c||!memberMarkerVisible(c,r)){host.innerHTML="";return;}
+  if(r.state!=="ok"){
+    host.innerHTML=`<div class="notice"><b>Pressure curve unavailable.</b> A COMT value was returned, but it could not be interpreted safely, so SAM does not draw a personal marker position.</div>`;
+    return;
+  }
+  let shift=0,label="Balanced — you hold focus across a wide range of pressure.",gt=r.gt[0]+"/"+r.gt[1];
+  if(r.gt==="AA"){shift=-1;label="Met/Met — your peak sits at lower pressure. Prepare hard, then protect calm before it counts.";}
+  else if(r.gt==="GG"){shift=1;label="Val/Val — your peak sits at higher pressure. Manufacture urgency; quiet work is where you drift.";}
+  else label="Val/Met — a wide, forgiving peak. You think well in calm rooms and loud ones.";
   const cx=300+shift*130;
   const pts=[];for(let x=40;x<=560;x+=8){const y=210-150*Math.exp(-Math.pow((x-cx)/150,2));pts.push(`${x},${y.toFixed(1)}`);}
-  $("#yerkes").innerHTML=`<svg viewBox="0 0 600 250" style="width:100%;height:auto" role="img" aria-label="Your performance against pressure">
+  host.innerHTML=`<svg viewBox="0 0 600 250" style="width:100%;height:auto" role="img" aria-label="Your performance against pressure">
     <line x1="40" y1="215" x2="565" y2="215" stroke="var(--ink-14)"/><line x1="40" y1="20" x2="40" y2="215" stroke="var(--ink-14)"/>
     <polyline points="${pts.join(" ")}" fill="none" stroke="var(--blood)" stroke-width="2.5"/>
     <line x1="${cx}" y1="55" x2="${cx}" y2="215" stroke="var(--ink)" stroke-dasharray="3 4"/>
@@ -5139,13 +5172,18 @@ function buildTable(){
   if(!dsel.options.length) dsel.innerHTML=`<option value="">All systems</option>`+Object.entries(DOMAINS).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join("");
   const draw=()=>{
     const q=$("#mSearch").value.toLowerCase(),dk=$("#mDom").value,cs=$("#mCall").value;
-    const rows=MARKERS.filter(m=>{
+    const visible=MARKERS.filter(m=>{
+      const r=m._r||markerResult(m);
+      return memberMarkerVisible(m,r);
+    });
+    const filtered=visible.filter(m=>{
       const r=m._r||markerResult(m);
       const status=displayStatus(m,r);
       if(dk&&!(m.d||[]).includes(dk)) return false;
       if(cs&&status!==cs) return false;
       if(q&&!(m.g+" "+m.rs+" "+m.w+" "+(m.d||[]).map(k=>DOMAINS[k].n).join(" ")).toLowerCase().includes(q)) return false;
-      return true;}).map(m=>{
+      return true;});
+    const rows=filtered.map(m=>{
       const r=m._r||markerResult(m);
       const status=displayStatus(m,r);
       const res=r.state==="ok"?`<span class="gt">${esc(fmtGT(r.gt))}</span>`:status==="source-only"?`<span class="gt">${esc(r.gt||rawCallFor(m)||"—")}</span> <span class="pill">source-only</span>`:`<span class="pill">${esc(displayStatusLabel(status))}</span>`;
@@ -5154,10 +5192,11 @@ function buildTable(){
         <td class="small">${esc(m.w)}<br><span class="tiny muted">${(m.d||[]).map(k=>DOMAINS[k].n).join(" · ")}</span></td>
         <td>${res}</td><td class="small">${mean}</td><td><span class="grade">${m.gr}</span></td></tr>`;}).join("");
     $("#mBody").innerHTML=rows||`<tr><td colspan="6" class="muted" style="padding:26px">Nothing matches that filter.</td></tr>`;
-    $("#mCount").textContent=`${$("#mBody").children.length} markers shown of ${MARKERS.length} in the panel`;
+    const markerCounts=reportMarkerCounts();
+    $("#mCount").textContent=`${filtered.length} results shown · ${visible.length} returned rows · ${markerCounts.catalogue} markers in the full catalogue`;
   };
   $("#mSearch").oninput=draw;$("#mDom").onchange=draw;$("#mCall").onchange=draw;draw();
-  $("#assayNotes").innerHTML=MARKERS.filter(m=>m.as).map(m=>`<p><b>${esc(m.g)} · ${esc(m.rs)}</b><br>${esc(m.as)}</p>`).join("")+
+  $("#assayNotes").innerHTML=MARKERS.filter(m=>m.as&&memberMarkerVisible(m,m._r||markerResult(m))).map(m=>`<p><b>${esc(m.g)} · ${esc(m.rs)}</b><br>${esc(m.as)}</p>`).join("")+
    `<p class="tiny muted">Named-variant convention: SAM prints both the raw genotype and the name the literature uses, because they often disagree on strand. <span class="mono">rs1801131</span> is a clear example — the forward-strand alleles are T and G, while every paper calls it A1298C. SAM shows you both so a clinician can check the join.</p>`;
 }
 
@@ -5238,6 +5277,7 @@ function retrieve(q){
   const Q=q.toLowerCase();
   const hits=[];
   MARKERS.forEach(m=>{
+    if(STATE.loaded&&!memberMarkerVisible(m,m._r||markerResult(m))) return;
     let s=0;
     if(new RegExp("\\b"+m.g.toLowerCase().replace(/[^a-z0-9]/g,"[^a-z0-9]?")+"\\b").test(Q)) s+=6;
     if(Q.includes(m.rs.toLowerCase())) s+=6;
@@ -5253,7 +5293,7 @@ function retrieve(q){
     ["iron|ferritin|anaem","rs1800562"],["inflamm|sore|doms","rs1800629"],["focus|concentrat|memory","rs4680"],
     ["stress|cortisol|pressure","rs1360780"],["injur|tendon|ligament","rs12722"],["bone|vitamin d","rs2282679"],
     ["methyl|folate|mthfr|b12","rs1801133"],["light|morning|clock|jet","rs1801260"],["motivat|drive|reward","rs1800497"]];
-  kw.forEach(([re,rs])=>{if(new RegExp(re).test(Q)){const m=MARKERS.find(x=>x.rs===rs);if(!m)return;const ex=hits.find(h=>h.m===m);if(ex)ex.s=Math.max(ex.s,9);else hits.push({s:9,m});}});
+  kw.forEach(([re,rs])=>{if(new RegExp(re).test(Q)){const m=MARKERS.find(x=>x.rs===rs);if(!m||STATE.loaded&&!memberMarkerVisible(m,m._r||markerResult(m)))return;const ex=hits.find(h=>h.m===m);if(ex)ex.s=Math.max(ex.s,9);else hits.push({s:9,m});}});
   return hits.sort((a,b)=>b.s-a.s).slice(0,3);
 }
 function answer(q){
@@ -5490,6 +5530,7 @@ $("#chips").innerHTML=["Why is my caffeine cut-off so early?","What is my bigges
 $$("#chips .chip").forEach(c=>c.onclick=()=>ask(c.textContent));
 
 applyTaxonomy();
+REPORT_CATALOGUE_COUNT=MARKERS.length;
 helix();buildStatics();buildManifest();buildLedger();buildDashboard();buildValues();buildEpiPlate();buildNecessary();buildRaw();
 say("s","Hey, I am SAM. I don't track you — I understand you.<br><br>Load your file on the first tab and I can answer about your own results. Without one, I will answer about the rules themselves and tell you that is what I am doing.","knowledge object: greeting v"+KB_VERSION);
 </script>
