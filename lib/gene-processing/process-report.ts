@@ -1090,6 +1090,7 @@ export function processGeneReport(
     priorities: buildPriorities(domains),
     recommendations: buildRecommendationSynthesis(markers, {
       adultSupplementReferencesAllowed: !confirmedMinor,
+      profileAge,
     }),
     groups: GROUPS.map((group) => ({
       ...group,

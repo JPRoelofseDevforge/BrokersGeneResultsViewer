@@ -194,12 +194,20 @@ export interface SupplementRecommendation {
   name: string;
   decision: SupplementDecision;
   plainReason: string;
+  /** Compatibility copy for older renderers; wording must not make this a gate. */
   whatConfirmsNeed: string;
+  whatRefinesDecision: string;
   referenceAmount: string;
   timing: string;
   duration: string;
   foodFirst: string;
   checksBeforeStarting: string[];
+  interactionWarnings: string[];
+  practitionerApprovalRequired: true;
+  practitionerChecklist: string[];
+  clinicalContextChecklist: string[];
+  ageStrengthened: boolean;
+  ageContext: string | null;
   review: string;
   score: number;
   domainIds: string[];
@@ -211,6 +219,8 @@ export interface SupplementPlan {
   rulesVersion: string;
   outcome: "review-ready" | "none";
   framing: string;
+  practitionerChecklist: string[];
+  clinicalContextChecklist: string[];
   items: SupplementRecommendation[];
 }
 

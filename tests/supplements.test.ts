@@ -4,6 +4,8 @@ import test from "node:test";
 import { markerCatalogue } from "../lib/gene-processing/catalogue";
 import {
   buildSupplementPlan,
+  CLINICAL_CONTEXT_CHECKLIST,
+  PRACTITIONER_APPROVAL_CHECKLIST,
   supplementRuleReferences,
 } from "../lib/gene-processing/supplements";
 import type { ProcessedMarker } from "../lib/gene-processing/types";
@@ -131,7 +133,8 @@ test("safe adult references are explicit and never presented as gene-calculated 
   assert.ok(choline);
   assert.match(choline.referenceAmount, /425 mg/);
   assert.match(choline.referenceAmount, /550 mg/);
-  assert.match(plan.framing, /do not prove a deficiency/i);
+  assert.match(plan.framing, /does not prove a deficiency/i);
+  assert.match(plan.framing, /before a food gap, laboratory abnormality or symptom/i);
 });
 
 test("one-carbon and B12 cards require cross-gene convergence and reject MTHFR hype", () => {
@@ -147,11 +150,95 @@ test("one-carbon and B12 cards require cross-gene convergence and reject MTHFR h
   const b12 = plan.items.find((item) => item.id === "vitamin-b12");
 
   assert.ok(folate);
-  assert.match(folate.whatConfirmsNeed, /MTHFR variants alone do not prove/i);
+  assert.match(folate.whatConfirmsNeed, /MTHFR variants alone do not require/i);
   assert.match(folate.referenceAmount, /400 micrograms DFE/);
   assert.match(folate.checksBeforeStarting.join(" "), /not a reason to avoid folic acid/i);
   assert.ok(b12);
   assert.match(b12.timing, /No evidence.*methylcobalamin.*cyanocobalamin/i);
+});
+
+test("every genetics-guided candidate carries the practitioner approval workflow", () => {
+  assert.deepEqual([...PRACTITIONER_APPROVAL_CHECKLIST], [
+    "Practitioner approved",
+    "Medication interaction checked",
+    "Interaction with current supplements checked",
+    "Interaction with other clinician or doctor recommendations checked",
+    "Contraindications reviewed",
+    "Dose and form confirmed",
+  ]);
+  assert.deepEqual([...CLINICAL_CONTEXT_CHECKLIST], [
+    "Chronic medication",
+    "Prescription medication",
+    "Existing supplementation",
+    "Medical conditions",
+    "Pregnancy or breastfeeding where relevant",
+    "Renal impairment where relevant",
+    "Hepatic impairment where relevant",
+    "Recommendations already made by another healthcare professional",
+  ]);
+  const plan = buildSupplementPlan(
+    [
+      calledMarker("rs2282679", "CC"),
+      calledMarker("rs2228570", "AA"),
+      calledMarker("rs10741657", "GG"),
+      calledMarker("rs1800629", "AA"),
+      calledMarker("rs1800795", "GG"),
+      calledMarker("rs1205", "CC"),
+      calledMarker("rs7946", "TT"),
+      calledMarker("rs2236225", "AA"),
+      calledMarker("rs7700970", "TT"),
+      calledMarker("rs1801133", "AA"),
+      calledMarker("rs1805087", "GG"),
+      calledMarker("rs1801394", "GG"),
+      calledMarker("rs1801222", "GG"),
+      calledMarker("rs526934", "GG"),
+      calledMarker("rs601338", "AA"),
+      calledMarker("rs1800562", "AG"),
+    ],
+    { profileAge: 72 },
+  );
+
+  assert.ok(plan.items.length >= 6);
+  assert.deepEqual(plan.practitionerChecklist, [
+    ...PRACTITIONER_APPROVAL_CHECKLIST,
+  ]);
+  assert.deepEqual(plan.clinicalContextChecklist, [
+    ...CLINICAL_CONTEXT_CHECKLIST,
+  ]);
+  for (const item of plan.items) {
+    assert.equal(item.practitionerApprovalRequired, true);
+    assert.deepEqual(item.practitionerChecklist, [
+      ...PRACTITIONER_APPROVAL_CHECKLIST,
+    ]);
+    assert.deepEqual(item.clinicalContextChecklist, [
+      ...CLINICAL_CONTEXT_CHECKLIST,
+    ]);
+    assert.ok(item.interactionWarnings.length > 0, item.id);
+    assert.ok(item.whatRefinesDecision.length > 0, item.id);
+    assert.ok(item.referenceAmount.length > 0, item.id);
+    assert.ok(item.timing.length > 0, item.id);
+  }
+});
+
+test("age strengthens selected genetic reviews but never creates one by itself", () => {
+  const vitaminDMarkers = [
+    calledMarker("rs2282679", "CC"),
+    calledMarker("rs2228570", "AA"),
+    calledMarker("rs10741657", "GG"),
+  ];
+  const age70 = buildSupplementPlan(vitaminDMarkers, { profileAge: 70 });
+  const age71 = buildSupplementPlan(vitaminDMarkers, { profileAge: 71 });
+  const noGeneticBasis = buildSupplementPlan([], { profileAge: 85 });
+
+  assert.equal(
+    age70.items.find((item) => item.id === "vitamin-d")?.ageStrengthened,
+    false,
+  );
+  const olderVitaminD = age71.items.find((item) => item.id === "vitamin-d");
+  assert.equal(olderVitaminD?.ageStrengthened, true);
+  assert.match(olderVitaminD?.ageContext ?? "", /age 71|800 IU/i);
+  assert.equal(noGeneticBasis.outcome, "none");
+  assert.deepEqual(noGeneticBasis.items, []);
 });
 
 test("an exact HFE safety call surfaces iron as clinician-only with no self-start dose", () => {

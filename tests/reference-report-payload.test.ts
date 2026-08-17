@@ -82,6 +82,8 @@ function report(markers: ProcessedMarker[]): GeneReport {
         rulesVersion: "2026.07-s1",
         outcome: "none",
         framing: "Genetics sets review priority, not need.",
+        practitionerChecklist: [],
+        clinicalContextChecklist: [],
         items: [],
       },
     },

@@ -368,6 +368,6 @@ test("rich whole-report synthesis is deterministic, capped, and keeps supplement
   );
   assert.equal(forward.supplementsLocked, false);
   assert.ok(Array.isArray(forward.supplements.items));
-  assert.match(forward.supplements.framing, /do not prove a deficiency/i);
+  assert.match(forward.supplements.framing, /does not prove a deficiency/i);
   assert.equal(forward.actionOutcome, "ready");
 });

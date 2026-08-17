@@ -61,7 +61,7 @@ test("uses report 15 with 21 matched and sequentially numbered panels", () => {
     assert.equal(Number(section[1]), index + 1, `wrong visible number for ${tab}`);
   });
 
-  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.4"/);
+  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.5"/);
   assert.match(source, /const KB_VERSION = "2026\.08\.16"/);
   assert.match(extractor, /sam_report-15\.html/);
 });
@@ -149,8 +149,12 @@ test("member views show only ready marker details while audit totals stay author
     ratio: "134/134",
     percent: 100,
   });
-  assert.equal(report.markerRow(comt), "");
-  assert.equal(report.rawCSV().split("\n").length, 1, "no-call rows stay out of CSV");
+    assert.equal(report.markerRow(comt), "");
+    assert.equal(report.rawCSV().split("\n").length, 1, "no-call rows stay out of CSV");
+    assert.equal(
+      report.rawCSV().split("\n")[0],
+      "gene,rsid,reported_in_file,reference_orientation,named_variant",
+    );
   assert.deepEqual(report.reportMarkerCounts(), {
     catalogue: 159,
     callable: 159,
@@ -209,11 +213,14 @@ test("every member count uses the ready set without changing audit denominators"
   assert.match(source, /if\(!fig\.nodes\.some\(n=>\(n\.st\|\|stepFlow\(n\.refs\)\)\.n\)\)\{host\.innerHTML="";return;\}/);
   assert.doesNotMatch(source, /nCalled\+" of "\+nCallable\+" markers"/);
   assert.doesNotMatch(source, /Not enough of the cycle was read|Five results that are not on the leverage scale/i);
-  assert.match(
-    source,
-    /<select id="mCall"><option value="">All ready<\/option><option value="called">Ready<\/option><\/select>/,
-  );
-});
+    assert.match(
+      source,
+      /<select id="mCall"><option value="">All ready<\/option><option value="called">Ready<\/option><\/select>/,
+    );
+    assert.match(source, /Four columns, and each means exactly one thing/);
+    assert.doesNotMatch(source, /<th[^>]*>Notes<\/th>|<th>Note<\/th>/);
+    assert.doesNotMatch(source, /x\.flags\.map/);
+  });
 
 test("matches the report-15 catalogue and Executive Fitness taxonomy", () => {
   assert.equal(catalogue.version, "2026.08.16");

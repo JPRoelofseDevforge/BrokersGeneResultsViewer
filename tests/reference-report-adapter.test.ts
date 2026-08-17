@@ -95,9 +95,16 @@ test("database domains and recommendations remain server authoritative", () => {
   assert.match(bridge, /function renderServerNecessary\(\)/);
   assert.match(bridge, /Server-authoritative recommendations/);
   assert.match(bridge, /function renderDatabaseSupplements\(\)/);
-  assert.match(bridge, /Your marker-selected shortlist/);
-  assert.match(bridge, /General adult amount/);
-  assert.match(bridge, /What confirms a need/);
+  assert.match(bridge, /Supplement Recommendations — Practitioner Review Checklist/);
+  assert.match(bridge, /General adult reference — not your prescribed dose/);
+  assert.match(bridge, /What can refine the decision/);
+  assert.match(bridge, /Practitioner approval required/);
+  assert.match(bridge, /Important interactions or contraindications/);
+  assert.match(bridge, /item\.practitionerChecklist/);
+  assert.match(bridge, /item\.clinicalContextChecklist/);
+  assert.match(bridge, /item\.interactionWarnings/);
+  assert.match(bridge, /item\.ageContext/);
+  assert.doesNotMatch(bridge, />What confirms a need</);
   assert.match(bridge, /window\.SAM_ACTIVE_SUPPLEMENTS/);
   assert.match(bridge, /injectServerSupplementPrint/);
   assert.match(bridge, /server supplement rules/);
@@ -127,6 +134,8 @@ test("natural supplement questions stay on the server-authoritative answer path"
   );
   assert.equal(isSupplementQuestion("What does my HFE marker mean?"), false);
   assert.match(bridge, /!serverMode \|\| !isSupplementQuestion\(question\)/);
+  assert.match(bridge, /whatRefinesDecision \|\| item\.whatConfirmsNeed/);
+  assert.match(bridge, /full Practitioner Review Checklist/);
 });
 
 test("recommendation-only changes invalidate the iframe report key", () => {

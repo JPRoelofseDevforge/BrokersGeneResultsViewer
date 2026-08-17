@@ -486,7 +486,10 @@ function buildSafety(
 
 export function buildRecommendationSynthesis(
   markers: ProcessedMarker[],
-  options: { adultSupplementReferencesAllowed?: boolean } = {},
+  options: {
+    adultSupplementReferencesAllowed?: boolean;
+    profileAge?: number | null;
+  } = {},
 ): RecommendationSynthesis {
   const markersByVariant = new Map(
     markers.map((marker) => [marker.variantId.toLowerCase(), marker]),
@@ -553,6 +556,7 @@ export function buildRecommendationSynthesis(
     supplementsLocked: options.adultSupplementReferencesAllowed === false,
     supplements: buildSupplementPlan(markers, {
       adultReferencesAllowed: options.adultSupplementReferencesAllowed,
+      profileAge: options.profileAge,
     }),
   };
 }

@@ -145,6 +145,51 @@ test("builds the Phase 1 report from repository records", async () => {
   assert.ok(report.markers.some((marker) => marker.state === "not-called"));
 });
 
+test("passes a non-identifying older-adult context into genetic supplement review", () => {
+  const olderProfile: GeneProfile = {
+    ...profile,
+    dateOfBirth: "1950-01-01",
+  };
+  const report = processGeneReport(
+    olderProfile,
+    [
+      {
+        profileId: olderProfile.id,
+        gene: "GC",
+        variantId: "rs2282679",
+        genotype: "CC",
+        quality: 0.99,
+      },
+      {
+        profileId: olderProfile.id,
+        gene: "VDR",
+        variantId: "rs2228570",
+        genotype: "AA",
+        quality: 0.99,
+      },
+      {
+        profileId: olderProfile.id,
+        gene: "CYP2R1",
+        variantId: "rs10741657",
+        genotype: "GG",
+        quality: 0.99,
+      },
+    ],
+    markerCatalogue,
+    { asOf: "2026-08-17T10:00:00.000Z" },
+  );
+  const vitaminD = report.recommendations.supplements.items.find(
+    (item) => item.id === "vitamin-d",
+  );
+
+  assert.equal(vitaminD?.ageStrengthened, true);
+  assert.match(vitaminD?.ageContext ?? "", /800 IU/i);
+  assert.doesNotMatch(
+    JSON.stringify(report.profile),
+    /dateOfBirth|1950|76 years|age/i,
+  );
+});
+
 test("keeps Phase 1 token lookup behind a second explicit test gate", async () => {
   const previousEmail = process.env.PHASE_ONE_PROFILE_EMAIL;
   const previousTokenTest = process.env.PHASE_ONE_TOKEN_TEST;

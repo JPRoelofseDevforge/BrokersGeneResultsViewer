@@ -799,12 +799,12 @@ caps: 3 behaviours + 2 foods, 5 measurements. Ranked, then cut.
     <div id="manifest" style="margin:34px 0"></div>
 
     <details class="how"><summary>How to read this page</summary><div class="howbody">
-      <p>Five columns, and each means exactly one thing.</p>
+      <p>Four columns, and each means exactly one thing.</p>
       <div class="kv"><span><b>Gene symbol</b></span><span class="small">HGNC symbol for the gene the marker sits in. Where a variant is commonly named after a different gene, SAM prints the gene it is actually in — Taq1A is labelled ANKK1, not DRD2.</span></div>
       <div class="kv"><span><b>Reference SNP cluster ID</b></span><span class="small">The dbSNP rsID. Repeats, insertions/deletions and copy-number regions have no rsID and are named by their assay instead.</span></div>
       <div class="kv"><span><b>As reported in your file</b></span><span class="small">Untouched. Exactly the characters your lab wrote, including the strand they wrote them on.</span></div>
       <div class="kv"><span><b>Reference orientation</b></span><span class="small">The same call expressed on the forward strand, so it can be compared with published literature. Where these two columns differ, the marker was reported on the opposite strand and SAM flipped it — <span class="mono" style="color:var(--copper)">flip</span> marks those rows.</span></div>
-      <p style="margin-top:14px">The last column keeps returned states separate. <span class="mono">unreadable call</span> means a value came back but could not be mapped safely. <span class="mono">stored, not interpreted</span> means the source contains a marker outside this report's approved catalogue; its raw value is preserved and excluded from every score. <span class="mono">withheld</span> means SAM holds a result back by policy — the only case is ApoE under 18. Missing and no-call rows are hidden from this detail view, while their full count remains in the summary and ledger. Strand conversions and read-as-reported calls are labelled separately.</p>
+      <p style="margin-top:14px">Only returned rows are listed. Missing and no-call rows stay hidden from this detail view, while their full count remains in the summary and ledger. Processing status and strand metadata remain in the protected audit record rather than appearing as note entries in this raw-call table.</p>
       <p>This page is deliberately free of interpretation. Nothing here is scored, ranked or advised on. If you want to know what a result means, that is what the rest of the report is for — and you can always disagree with it while still having the data.</p>
     </div></details>
   </div>
@@ -918,7 +918,7 @@ REASON  an unauditable number cannot carry a clinical decision</div>
    Every clinical statement in this report lives here, versioned, and is
    retrieved at render time. Nothing is authored inside a model prompt.
    ===================================================================== */
-const REPORT_VERSION = "2026.08.17-r15.4";
+const REPORT_VERSION = "2026.08.17-r15.5";
 const KB_VERSION = "2026.08.16";
 const CATALOGUE_SEMANTICS_VERSION = "2026.08.16";
 
@@ -2945,14 +2945,9 @@ function rawRow(m){
   const stored=rawCallFor(m);
   const rawFile=stored!==""?stored:(r.state==="unmapped"&&r.gt?r.gt:
                 m.rs==="rs429358+rs7412"?[STATE.calls["rs429358"],STATE.calls["rs7412"]].filter(Boolean).join(" + "):"");
-  let ref="—",flags=[];
-  if(r.state==="ok"){ ref=fmtGT(r.gt); if(r.flip)flags.push(["strand converted","var(--copper)"]);
-    if(r.amb)flags.push(["read as reported","var(--ink-45)"]); }
-  else if(r.state==="withheld") flags.push(["withheld","var(--ink-45)"]);
-  else if(r.state==="unreadable"){ ref=fmtGT(r.gt); flags.push(["no usable call","var(--ink-45)"]); }
-  else if(r.state==="unmapped") flags.push(["source-only · stored, not interpreted","var(--copper)"]);
-  else flags.push(["no call","var(--ink-45)"]);
-  return {m,r,status:displayStatus(m,r),rawFile:rawFile||"—",ref,flags};
+  let ref="—";
+  if(r.state==="ok"||r.state==="unreadable") ref=fmtGT(r.gt);
+  return {m,r,status:displayStatus(m,r),rawFile:rawFile||"—",ref};
 }
 
 function rawTable(rows){
@@ -2961,27 +2956,24 @@ function rawTable(rows){
     <th style="min-width:110px">Gene symbol</th>
     <th style="min-width:150px">Reference SNP cluster ID</th>
     <th style="min-width:150px">As reported in your file</th>
-    <th style="min-width:150px">Reference orientation</th>
-    <th style="min-width:120px">Notes</th></tr></thead><tbody>
+    <th style="min-width:150px">Reference orientation</th></tr></thead><tbody>
   ${rows.map(x=>`<tr class="mrow">
     <td><b>${esc(x.m.g)}</b></td>
     <td class="mono tiny">${esc(x.m.rs)}</td>
     <td><span class="gt">${esc(x.rawFile)}</span></td>
     <td><span class="gt">${esc(x.ref)}</span>${x.m.nm&&x.r.state==="ok"&&x.m.nm[x.r.gt]?` <span class="pill nm">${esc(x.m.nm[x.r.gt])}</span>`:""}</td>
-    <td>${x.flags.map(f=>`<span class="mono tiny" style="color:${f[1]}">${f[0]}</span>`).join(" · ")||`<span class="mono tiny quiet">—</span>`}</td>
   </tr>`).join("")}
   </tbody></table></div>`;
 }
 
 function rawCSV(){
-  const seen=new Set(),lines=[["gene","rsid","reported_in_file","reference_orientation","named_variant","status","strand_flipped","ambiguous","systems"].join(",")];
+  const seen=new Set(),lines=[["gene","rsid","reported_in_file","reference_orientation","named_variant"].join(",")];
   MARKERS.forEach(m=>{
     if(seen.has(m.g+m.rs))return; seen.add(m.g+m.rs);
     const x=rawRow(m);
     if(!memberMarkerVisible(m,x.r)) return;
     const nmv=(m.nm&&x.r.state==="ok"&&m.nm[x.r.gt])||"";
-    lines.push([m.g,m.rs,x.rawFile,x.ref,nmv,x.status,x.r.flip?"yes":"no",x.r.amb?"yes":"no",
-      (m.d||[]).map(d=>DOMAINS[d].n).join("; ")].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(","));
+    lines.push([m.g,m.rs,x.rawFile,x.ref,nmv].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(","));
   });
   return lines.join("\n");
 }
@@ -4194,11 +4186,10 @@ function rawAppendix(){
     const x=rawRow(m),r=x.r,status=displayStatus(m,r);
     if(!memberMarkerVisible(m,r)) return;
     rows.push(`<tr><td>${esc(m.g)}</td><td class="tiny">${esc(m.rs)}</td>
-      <td>${r.state==="ok"?esc(fmtGT(r.gt)):status==="source-only"?esc(x.rawFile):"—"}</td>
-      <td class="tiny">${esc(displayStatusLabel(status))}${r.flip?" · strand corrected":r.amb?" · read as reported":""}</td></tr>`);});
+      <td>${r.state==="ok"?esc(fmtGT(r.gt)):status==="source-only"?esc(x.rawFile):"—"}</td></tr>`);});
   return `<h3 style="font-size:15px;margin:22px 0 6px">Appendix · raw calls</h3>
     <p class="tiny muted">Every returned marker. Missing and no-call rows remain included in the full report counts. No interpretation.</p>
-    <table style="font-size:9pt"><thead><tr><th>Gene</th><th>rsID</th><th>Result</th><th>Note</th></tr></thead>
+    <table style="font-size:9pt"><thead><tr><th>Gene</th><th>rsID</th><th>Result</th></tr></thead>
     <tbody>${rows.join("")}</tbody></table>`;
 }
 function buildExport(){

@@ -618,10 +618,11 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
                 : "No nutrient reached the approved review threshold."}
             </h3>
             <p>
-              Genetics sets review priority; food intake, recognised
-              measurements and safety context decide whether anything is
-              actually needed. Amounts are general adult references, not doses
-              calculated from DNA.
+              Cross-gene convergence can raise a practitioner review before a
+              food gap, laboratory abnormality, or symptom is documented. Each
+              candidate still requires interaction, contraindication, dose,
+              form, and practitioner approval checks. Amounts are general adult
+              references, not doses calculated from DNA.
             </p>
           </div>
           <div
@@ -633,6 +634,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
                 <i aria-hidden="true">•</i>
                 {item.name}
                 <small>{item.decision.replace("-", " ")}</small>
+                <small>practitioner approval required</small>
               </span>
             ))}
           </div>
