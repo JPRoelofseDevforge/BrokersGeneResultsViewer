@@ -8,6 +8,7 @@ import type {
   GeneReport,
   MarkerState,
   ProcessedMarker,
+  SupplementRecommendation,
   WholeReportRecommendation,
 } from "@/lib/gene-processing/types";
 import {
@@ -40,9 +41,7 @@ const NEAR_THRESHOLD_LABELS: Record<
 > = {
   "below-threshold": "The combined score stayed below the threshold.",
   "too-few-markers": "Too few independent markers supported it.",
-  "too-few-genes": "The support came from too few distinct genes.",
-  "too-few-systems": "The support did not cross enough body systems.",
-  "outside-shortlist": "It qualified, but fell outside the deliberately short list.",
+  "display-cap": "It qualified, but ranked below this section's display cap.",
 };
 
 function percentage(value: number) {
@@ -296,6 +295,222 @@ function RecommendationCard({
   );
 }
 
+function supplementAgeConsiderations(item: SupplementRecommendation) {
+  return item.ageConsiderations;
+}
+
+function supplementMeasurementStatus(
+  status: SupplementRecommendation["measurementGuidance"]["status"],
+) {
+  if (status === "required-before-implementation") {
+    return "Required before implementation";
+  }
+  if (status === "clinically-indicated") {
+    return "Only when clinically indicated, not routinely from DNA alone";
+  }
+  return "Not routinely needed";
+}
+
+function SupplementReviewCard({
+  item,
+  report,
+  tier,
+}: {
+  item: SupplementRecommendation;
+  report: GeneReport;
+  tier: "Primary" | "Additional";
+}) {
+  const domains = item.domainIds
+    .map(
+      (domainId) =>
+        report.domains.find((domain) => domain.id === domainId)?.name ??
+        domainId,
+    )
+    .join(" · ");
+  const contributors = item.contributors
+    .map((contributor) => `${contributor.gene} ${contributor.variantId}`)
+    .join(" · ");
+  const clinicianGated = item.decision === "clinician-only";
+
+  return (
+    <article
+      className="necessary-card supplement-review-card"
+      data-supplement-tier={tier.toLowerCase()}
+    >
+      <div className="necessary-card-top">
+        <span className="necessary-kind">{tier} consideration</span>
+        <span className="unlock-pill">{item.considerationLabel}</span>
+      </div>
+
+      <span className="eyebrow">Supplement / nutrient</span>
+      <h3>{item.name}</h3>
+      <p>
+        <b>Reason for practitioner review:</b> {item.plainReason}
+      </p>
+      <p className="necessary-note">
+        <b>Review route:</b> {item.decision.replaceAll("-", " ")} ·{" "}
+        {item.eligibilityBasis.replaceAll("-", " ")}
+      </p>
+
+      <div className="necessary-copy">
+        <div>
+          <span>Supporting genetic markers / pathway</span>
+          <p>{item.supportingPathway}</p>
+          <small>{contributors || "Called-marker convergence"}</small>
+        </div>
+        <div>
+          <span>Relevant SAM systems / domains</span>
+          <p>{domains || "Cross-system review"}</p>
+          <small>
+            Rank {item.ranking.rank} · genetic rationale{" "}
+            {item.ranking.geneticRationaleScore} · clinical relevance{" "}
+            {item.ranking.clinicalRelevance}/5 · safety priority{" "}
+            {item.ranking.safetyPriority}/5 · actionability{" "}
+            {item.ranking.actionability}/5
+          </small>
+        </div>
+      </div>
+
+      {clinicianGated ? (
+        <p className="necessary-note">
+          <b>Clinician-gated — do not initiate independently.</b> Genetics may
+          trigger investigation and practitioner consideration, but it does
+          not determine the dose, form, route, or whether this item should be
+          started.
+        </p>
+      ) : null}
+
+      <div className="necessary-copy">
+        <div>
+          <span>Form context — if approved</span>
+          <p>{item.preferredForm}</p>
+          <small>
+            <b>Why this form:</b> {item.formRationale}
+          </small>
+        </div>
+        <div>
+          <span>Timing context — if approved</span>
+          <p>{item.timing}</p>
+          <small>
+            <b>Why this timing:</b> {item.timingRationale}
+          </small>
+        </div>
+      </div>
+
+      <div className="necessary-copy">
+        <div>
+          <span>Age considerations</span>
+          <p>{supplementAgeConsiderations(item)}</p>
+        </div>
+        <div>
+          <span>Population nutrition context — not a prescribed dose</span>
+          <p>{item.referenceAmount}</p>
+        </div>
+      </div>
+
+      <div className="necessary-copy">
+        <div>
+          <span>Food-first context</span>
+          <p>{item.foodFirst}</p>
+        </div>
+        <div>
+          <span>Review interval — if approved</span>
+          <p>{item.duration}</p>
+        </div>
+      </div>
+
+      <div className="necessary-copy">
+        <div>
+          <span>What can refine the decision</span>
+          <p>{item.whatRefinesDecision}</p>
+        </div>
+        <div>
+          <span>Checks before implementation</span>
+          <ul>
+            {item.checksBeforeStarting.map((check) => (
+              <li key={check}>{check}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="necessary-copy">
+        <div>
+          <span>Medication interaction check</span>
+          <p>{item.medicationInteractionCheck}</p>
+        </div>
+        <div>
+          <span>Current supplement interaction check</span>
+          <p>{item.currentSupplementInteractionCheck}</p>
+        </div>
+      </div>
+
+      <div className="necessary-copy">
+        <div>
+          <span>Contraindications / safety cautions</span>
+          <ul>
+            {item.contraindications.map((caution) => (
+              <li key={caution}>{caution}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <span>Important interactions</span>
+          <ul>
+            {item.interactionWarnings.map((warning) => (
+              <li key={warning}>{warning}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="necessary-copy">
+        <div>
+          <span>Baseline and follow-up measurement</span>
+          <p>
+            <b>Status:</b>{" "}
+            {supplementMeasurementStatus(item.measurementGuidance.status)}
+          </p>
+          <p>
+            <b>Baseline:</b> {item.measurementGuidance.baseline}
+          </p>
+          <p>
+            <b>Follow-up:</b> {item.measurementGuidance.followUp}
+          </p>
+        </div>
+        <div>
+          <span>Practitioner approval required</span>
+          <p>
+            <b>{item.practitionerApprovalRequired ? "Yes." : "No."}</b>{" "}
+            Implementation waits until every applicable check is reviewed and
+            practitioner approval is recorded.
+          </p>
+          <ul>
+            {item.practitionerChecklist.map((check) => (
+              <li key={check}>☐ {check}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="necessary-copy">
+        <div>
+          <span>Clinical context the practitioner must consider</span>
+          <ul>
+            {item.clinicalContextChecklist.map((check) => (
+              <li key={check}>☐ {check}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <span>Follow-up review</span>
+          <p>{item.review}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export function ReportDashboard({ report }: { report: GeneReport }) {
   const firstReadyGroup =
     report.groups.find((group) =>
@@ -357,6 +572,9 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         marker.id === selectedMarkerId && marker.state === "called",
     ) ?? firstVisibleMarker;
   const memberName = reportDisplayName(report.profile);
+  const supplementPlan = report.recommendations.supplements;
+  const primarySupplements = supplementPlan.primaryItems;
+  const additionalSupplements = supplementPlan.additionalItems;
 
   return (
     <main>
@@ -503,7 +721,7 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         <div>
           <span>Whole-report actions</span>
           <strong>{report.recommendations.actions.length}</strong>
-          <small>Only cross-system convergence qualifies</small>
+          <small>Qualified by score and distinct called markers</small>
         </div>
         <div>
           <span>Report status</span>
@@ -613,11 +831,15 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
           <div>
             <span className="eyebrow">Tier three · Genetics-guided review</span>
             <h3>
-              {report.recommendations.supplements.items.length
-                ? `${report.recommendations.supplements.items.length} nutrients earned a closer look.`
+              {supplementPlan.items.length
+                ? `${supplementPlan.items.length} nutrients earned a closer look.`
                 : "No nutrient reached the approved review threshold."}
             </h3>
             <p>
+              <b>
+                Do not start any supplement from this report without recorded
+                practitioner approval.
+              </b>{" "}
               Cross-gene convergence can raise a practitioner review before a
               food gap, laboratory abnormality, or symptom is documented. Each
               candidate still requires interaction, contraindication, dose,
@@ -629,26 +851,78 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
             className="locked-gates"
             aria-label="Genetics-guided supplement review"
           >
-            {report.recommendations.supplements.items.map((item) => (
+            {primarySupplements.map((item) => (
               <span key={item.id}>
                 <i aria-hidden="true">•</i>
                 {item.name}
-                <small>{item.decision.replace("-", " ")}</small>
-                <small>practitioner approval required</small>
+                <small>Primary · {item.considerationLabel}</small>
+              </span>
+            ))}
+            {additionalSupplements.map((item) => (
+              <span key={item.id}>
+                <i aria-hidden="true">•</i>
+                {item.name}
+                <small>Additional Supplement Consideration · {item.considerationLabel}</small>
               </span>
             ))}
           </div>
         </div>
 
+        {primarySupplements.length ? (
+          <div className="necessary-tier supplement-review-tier">
+            <div className="tier-heading">
+              <span>Primary Supplement Considerations</span>
+              <p>
+                Ranked by genetic rationale, clinical relevance, safety
+                priority, and actionability. Every item remains a practitioner
+                review—not a prescription.
+              </p>
+            </div>
+            <div className="necessary-grid">
+              {primarySupplements.map((item) => (
+                <SupplementReviewCard
+                  item={item}
+                  report={report}
+                  tier="Primary"
+                  key={item.id}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {additionalSupplements.length ? (
+          <div className="necessary-tier supplement-review-tier">
+            <div className="tier-heading">
+              <span>Additional Supplement Considerations</span>
+              <p>
+                These items also qualified. They are separated only because
+                they ranked below the primary display limit; none has been
+                omitted.
+              </p>
+            </div>
+            <div className="necessary-grid">
+              {additionalSupplements.map((item) => (
+                <SupplementReviewCard
+                  item={item}
+                  report={report}
+                  tier="Additional"
+                  key={item.id}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {report.recommendations.nearThreshold.length ? (
           <details className="near-threshold">
             <summary>
-              What nearly made the list
+              Practitioner audit — supported candidates not displayed
               <span>{report.recommendations.nearThreshold.length}</span>
             </summary>
             <p className="tier-intro">
-              These ideas were considered, then cut because the evidence did
-              not clear every rule.
+              Every genetically supported candidate excluded by a threshold or
+              display cap remains listed here with its score and reason.
             </p>
             <div>
               {report.recommendations.nearThreshold.map((item) => (
@@ -659,10 +933,19 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
                   </div>
                   <p>{NEAR_THRESHOLD_LABELS[item.reason]}</p>
                   <small>
+                    Score {item.score} ·{" "}
                     {item.contributorCount}{" "}
                     {item.contributorCount === 1 ? "marker" : "markers"} ·{" "}
                     {item.domainCount}{" "}
                     {item.domainCount === 1 ? "system" : "systems"}
+                  </small>
+                  <small>
+                    {item.contributors
+                      .map(
+                        (contributor) =>
+                          `${contributor.gene} ${contributor.variantId}`,
+                      )
+                      .join(" · ")}
                   </small>
                 </article>
               ))}
@@ -673,11 +956,13 @@ export function ReportDashboard({ report }: { report: GeneReport }) {
         <details className="synthesis-method">
           <summary>How this short list was made</summary>
           <p>
-            SAM uses only called, interpretable results. A tier-one action needs
-            independent support from at least three markers, three genes, and
-            two systems. Only completed, interpretable results contribute. A
-            tier-two measurement needs two called markers from two genes. Ties
-            are resolved consistently, and the list is capped on purpose.
+            SAM uses only called, interpretable results. Each matching marker
+            contributes (leverage minus one) multiplied by the rule weight. A
+            tier-one behaviour or food needs score 3 and three distinct markers.
+            A tier-two measurement needs score 2 and two distinct markers.
+            Systems are reported for context, and the 3 behaviour, 2 food and 5
+            measurement display caps never remove an item from the practitioner
+            audit.
           </p>
           <small>
             Recommendation rules {report.recommendations.rulesVersion}

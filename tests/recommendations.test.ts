@@ -73,10 +73,18 @@ function recommendationIds(
 
 test("every recommendation rule reference resolves to a unique supported catalogue interpretation", () => {
   const references = recommendationRuleReferences();
+  const ruleVariants = new Set<string>();
 
   assert.ok(references.length > 0);
 
   for (const reference of references) {
+    const ruleVariant = `${reference.ruleId}:${reference.variantId.toLowerCase()}`;
+    assert.equal(
+      ruleVariants.has(ruleVariant),
+      false,
+      `${ruleVariant} must be distinct within its rule`,
+    );
+    ruleVariants.add(ruleVariant);
     const matches = markerCatalogue.markers.filter(
       (marker) =>
         marker.variantId.toLowerCase() === reference.variantId.toLowerCase(),
@@ -100,14 +108,33 @@ test("every recommendation rule reference resolves to a unique supported catalog
         true,
         `${reference.ruleId}/${reference.variantId} references unsupported genotype ${genotype}`,
       );
+      assert.ok(
+        marker.interpretations[genotype]?.[0] >= 2,
+        `${reference.ruleId}/${reference.variantId}/${genotype} must be a positive-leverage trigger`,
+      );
     }
   }
 });
 
-test("actions require enough independent markers and cross-system convergence", () => {
+test("recommendation score is the exact weighted leverage-minus-one sum", () => {
+  const synthesis = buildRecommendationSynthesis([
+    calledMarker("rs1801260", "GG", { leverage: 1 }),
+    calledMarker("rs1360780", "TT", { leverage: 2 }),
+    calledMarker("rs1006737", "AA", { leverage: 3 }),
+  ]);
+  const wakeTime = synthesis.actions.find(
+    (recommendation) => recommendation.id === "fixed-wake-time",
+  );
+
+  assert.ok(wakeTime);
+  assert.equal(wakeTime.score, 4); // (1-1)*2 + (2-1)*2 + (3-1)*1
+  assert.equal(wakeTime.contributors.length, 3);
+});
+
+test("behaviour and food rules require score three and three called markers, without hidden gene or system gates", () => {
   const twoHighScoringMarkers = [
-    calledMarker("rs1801260", "GG"),
-    calledMarker("rs1360780", "TT"),
+    calledMarker("rs1801260", "GG", { leverage: 3 }),
+    calledMarker("rs1360780", "TT", { leverage: 3 }),
   ];
   const belowMarkerMinimum = buildRecommendationSynthesis(
     twoHighScoringMarkers,
@@ -117,7 +144,7 @@ test("actions require enough independent markers and cross-system convergence", 
   );
 
   assert.ok(nearWakeTime);
-  assert.ok(nearWakeTime.score > 3);
+  assert.equal(nearWakeTime.score, 8);
   assert.equal(nearWakeTime.reason, "too-few-markers");
   assert.equal(
     belowMarkerMinimum.actions.some(
@@ -127,40 +154,48 @@ test("actions require enough independent markers and cross-system convergence", 
   );
   assert.equal(belowMarkerMinimum.actionOutcome, "insufficient-data");
 
-  const convergedMarkers = [
-    ...twoHighScoringMarkers,
-    calledMarker("rs1006737", "AA"),
+  const exactBoundary = [
+    calledMarker("rs1801260", "GG", {
+      leverage: 2,
+      gene: "SAME",
+      domainIds: ["same-system"],
+      domainNames: ["Same system"],
+    }),
+    calledMarker("rs1360780", "TT", {
+      leverage: 1,
+      gene: "SAME",
+      domainIds: ["same-system"],
+      domainNames: ["Same system"],
+    }),
+    calledMarker("rs1006737", "AA", {
+      leverage: 2,
+      gene: "SAME",
+      domainIds: ["same-system"],
+      domainNames: ["Same system"],
+    }),
   ];
-  const converged = buildRecommendationSynthesis(convergedMarkers);
+  const converged = buildRecommendationSynthesis(exactBoundary);
   const wakeTime = converged.actions.find(
     (recommendation) => recommendation.id === "fixed-wake-time",
   );
 
   assert.ok(wakeTime);
+  assert.equal(wakeTime.score, 3);
   assert.equal(wakeTime.contributors.length, 3);
-  assert.ok(wakeTime.domainIds.length >= 2);
+  assert.deepEqual(wakeTime.domainIds, ["same-system"]);
   assert.equal(converged.actionOutcome, "ready");
 
-  const oneSystemOnly = convergedMarkers.map((marker) => ({
-    ...marker,
-    domainIds: ["single-system"],
-    domainNames: ["Single system"],
-  }));
-  const noCrossSystemConvergence =
-    buildRecommendationSynthesis(oneSystemOnly);
-  const nearSingleSystem = noCrossSystemConvergence.nearThreshold.find(
+  const belowScore = buildRecommendationSynthesis([
+    calledMarker("rs1801260", "GG", { leverage: 2 }),
+    calledMarker("rs1360780", "TT", { leverage: 1 }),
+    calledMarker("rs1006737", "AA", { leverage: 1 }),
+  ]);
+  const belowScoreAudit = belowScore.nearThreshold.find(
     (recommendation) => recommendation.id === "fixed-wake-time",
   );
-
-  assert.equal(
-    noCrossSystemConvergence.actions.some(
-      (recommendation) => recommendation.id === "fixed-wake-time",
-    ),
-    false,
-  );
-  assert.ok(nearSingleSystem);
-  assert.equal(nearSingleSystem.reason, "too-few-systems");
-  assert.equal(noCrossSystemConvergence.actionOutcome, "no-convergence");
+  assert.ok(belowScoreAudit);
+  assert.equal(belowScoreAudit.score, 2);
+  assert.equal(belowScoreAudit.reason, "below-threshold");
 });
 
 test("one-carbon foods can converge across independent enzymes in one pathway", () => {
@@ -211,10 +246,10 @@ test("non-called marker states never contribute to recommendation scores", () =>
   }
 });
 
-test("measurements need two called markers from two genes", () => {
+test("measurements require score two and two called markers, without a distinct-gene gate", () => {
   const markers = [
-    calledMarker("rs699", "GG"),
-    calledMarker("rs4341", "CC"),
+    calledMarker("rs699", "GG", { leverage: 2, gene: "SAME" }),
+    calledMarker("rs4341", "CC", { leverage: 1, gene: "SAME" }),
   ];
   const synthesis = buildRecommendationSynthesis(markers);
   const bloodPressure = synthesis.measurements.find(
@@ -224,10 +259,10 @@ test("measurements need two called markers from two genes", () => {
   assert.ok(bloodPressure);
   assert.equal(bloodPressure.kind, "measurement");
   assert.deepEqual(bloodPressure.contributors, [
-    { gene: "AGT", variantId: "rs699" },
-    { gene: "ACE", variantId: "rs4341" },
+    { gene: "SAME", variantId: "rs699" },
+    { gene: "SAME", variantId: "rs4341" },
   ]);
-  assert.ok(bloodPressure.score >= 2);
+  assert.equal(bloodPressure.score, 2);
 
   const oneCalledMarker = buildRecommendationSynthesis([
     markers[0],
@@ -246,6 +281,17 @@ test("measurements need two called markers from two genes", () => {
   assert.ok(nearBloodPressure);
   assert.equal(nearBloodPressure.contributorCount, 1);
   assert.equal(nearBloodPressure.reason, "too-few-markers");
+
+  const belowScore = buildRecommendationSynthesis([
+    calledMarker("rs699", "GG", { leverage: 1 }),
+    calledMarker("rs4341", "CC", { leverage: 2 }),
+  ]);
+  const belowScoreAudit = belowScore.nearThreshold.find(
+    (recommendation) => recommendation.id === "measure-blood-pressure",
+  );
+  assert.ok(belowScoreAudit);
+  assert.equal(belowScoreAudit.score, 1);
+  assert.equal(belowScoreAudit.reason, "below-threshold");
 });
 
 test("safety notices require the exact called HFE or APOE result", () => {
@@ -324,48 +370,66 @@ test("referral and source-only calls cannot enter recommendation synthesis", () 
   assert.equal(sourceOnly.actionOutcome, "insufficient-data");
 });
 
-test("rich whole-report synthesis is deterministic, capped, and keeps supplements server-authoritative", () => {
-  const markers = [
+test("only genetically supported exclusions are audited", () => {
+  assert.deepEqual(buildRecommendationSynthesis([]).nearThreshold, []);
+  const oneCall = buildRecommendationSynthesis([
     calledMarker("rs1801260", "GG"),
-    calledMarker("rs1360780", "TT"),
-    calledMarker("rs1006737", "AA"),
-    calledMarker("rs1800629", "AG"),
-    calledMarker("rs1800795", "GG"),
-    calledMarker("rs1205", "CC"),
-    calledMarker("rs12722", "TT"),
-    calledMarker("rs143383", "TT"),
-    calledMarker("rs1800012", "GG"),
-    calledMarker("rs1695", "GG"),
-    calledMarker("rs2266637", "NULL"),
-    calledMarker("rs4147567", "GG"),
-    calledMarker("rs1799983", "TT"),
-    calledMarker("rs699", "GG"),
-    calledMarker("rs4341", "CC"),
-  ];
+  ]);
+  assert.deepEqual(
+    oneCall.nearThreshold.map((item) => item.id).sort(),
+    ["fixed-wake-time", "morning-light"],
+  );
+});
+
+test("ranking caps are exact and every supported item cut by a cap remains in the practitioner audit", () => {
+  const references = recommendationRuleReferences();
+  const genotypeByVariant = new Map<string, string>();
+  for (const reference of references) {
+    if (!genotypeByVariant.has(reference.variantId)) {
+      const genotype = reference.genotypes[0];
+      assert.ok(genotype);
+      genotypeByVariant.set(reference.variantId, genotype);
+    }
+  }
+  const markers = [...genotypeByVariant].map(([variantId, genotype]) =>
+    calledMarker(variantId, genotype),
+  );
 
   const forward = buildRecommendationSynthesis(markers);
   const reversed = buildRecommendationSynthesis([...markers].reverse());
 
   assert.deepEqual(reversed, forward);
-  assert.deepEqual(
-    forward.actions.map((recommendation) => recommendation.id),
-    [
-      "fixed-wake-time",
-      "sulphur-rich-vegetables",
-    ],
-  );
-  assert.ok(forward.actions.length <= 5);
-  assert.ok(forward.measurements.length <= 5);
-  assert.ok(
+  assert.equal(
     forward.actions.filter(
       (recommendation) => recommendation.kind === "behaviour",
-    ).length <= 3,
+    ).length,
+    3,
   );
-  assert.ok(
+  assert.equal(
     forward.actions.filter(
       (recommendation) => recommendation.kind === "food",
-    ).length <= 2,
+    ).length,
+    2,
   );
+  assert.equal(forward.measurements.length, 5);
+  assert.equal(forward.nearThreshold.length, 6);
+  assert.ok(
+    forward.nearThreshold.every((item) => item.reason === "display-cap"),
+  );
+
+  const allRuleIds = new Set(references.map((reference) => reference.ruleId));
+  const selectedIds = new Set(
+    [...forward.actions, ...forward.measurements].map((item) => item.id),
+  );
+  const auditIds = new Set(forward.nearThreshold.map((item) => item.id));
+  assert.equal(selectedIds.size + auditIds.size, allRuleIds.size);
+  assert.deepEqual(new Set([...selectedIds, ...auditIds]), allRuleIds);
+  assert.ok([...auditIds].every((id) => !selectedIds.has(id)));
+  for (const item of forward.nearThreshold) {
+    assert.ok(item.score > 0);
+    assert.ok(item.contributors.length > 0);
+    assert.equal(item.contributors.length, item.contributorCount);
+  }
   assert.equal(forward.supplementsLocked, false);
   assert.ok(Array.isArray(forward.supplements.items));
   assert.match(forward.supplements.framing, /does not prove a deficiency/i);

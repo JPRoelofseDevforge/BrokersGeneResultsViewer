@@ -372,6 +372,38 @@ const DATABASE_ADAPTER = String.raw`
     }).join(", ");
   }
 
+  function recommendationExclusionLabel(reason) {
+    if (reason === "too-few-markers") return "Too few distinct called markers";
+    if (reason === "below-threshold") return "Score below the eligibility threshold";
+    if (reason === "display-cap") return "Eligible, but below this section's display cap";
+    return "Not selected by the approved rule";
+  }
+
+  function supplementPlanItems(plan) {
+    if (!plan) return [];
+    if (Array.isArray(plan.items)) return plan.items;
+    return (Array.isArray(plan.primaryItems) ? plan.primaryItems : []).concat(
+      Array.isArray(plan.additionalItems) ? plan.additionalItems : []
+    );
+  }
+
+  function supplementPrimaryItems(plan) {
+    if (plan && Array.isArray(plan.primaryItems)) return plan.primaryItems;
+    return supplementPlanItems(plan).slice(0, Number(plan && plan.primaryLimit) || 5);
+  }
+
+  function supplementAdditionalItems(plan) {
+    if (plan && Array.isArray(plan.additionalItems)) return plan.additionalItems;
+    return supplementPlanItems(plan).slice(Number(plan && plan.primaryLimit) || 5);
+  }
+
+  function supplementDomainLabel(item) {
+    return (item.domainIds || []).map(function (domainId) {
+      var domain = serverDomains[domainId];
+      return domain && domain.name ? domain.name : domainId;
+    }).join(", ");
+  }
+
   function recommendationCards(items) {
     if (!items || !items.length) {
       return '<div class="card"><h4>Nothing reached the approved threshold.</h4><p class="small muted" style="margin:8px 0 0">The server did not find enough independent, called markers to justify an item in this tier.</p></div>';
@@ -396,7 +428,7 @@ const DATABASE_ADAPTER = String.raw`
     var measurements = serverRecommendations.measurements || [];
     var near = serverRecommendations.nearThreshold || [];
     var supplementPlan = serverRecommendations.supplements || { items: [] };
-    var supplementItems = Array.isArray(supplementPlan.items) ? supplementPlan.items : [];
+    var supplementItems = supplementPlanItems(supplementPlan);
     var priorityCopy = serverPriorities.length
       ? '<p class="tiny muted" style="margin:12px 0 0">Primary systems: ' + safe(serverPriorities.map(function (item) { return item.domainName; }).join(", ")) + '.</p>'
       : '';
@@ -410,9 +442,10 @@ const DATABASE_ADAPTER = String.raw`
       '<div class="grid g2" style="margin-top:20px">' + recommendationCards(actions) + '</div>' +
       '<div class="sechead" style="margin-top:48px"><span class="eyebrow">Tier two — worth measuring</span><span class="rule"></span><span class="mono tiny muted">' + safe(measurements.length) + '</span></div>' +
       '<div class="grid g2" style="margin-top:20px">' + recommendationCards(measurements) + '</div>' +
-      '<div class="notice sage" style="margin-top:34px"><b>' + safe(supplementItems.length) + ' genetics-guided supplement ' + (supplementItems.length === 1 ? 'review is' : 'reviews are') + ' ready.</b> These are server-selected practitioner-review candidates, not proof of deficiency or personal prescriptions. Open the Supplements tab for the rationale, age context, general adult reference, timing, interaction warnings and approval checklist.<div style="margin-top:12px"><button class="btn blood sm" id="samOpenSupplements" type="button">Open supplement details</button></div></div>' +
-      (near.length ? '<details class="how" style="margin-top:28px"><summary>What nearly reached a threshold</summary><div class="howbody">' + near.map(function (item) {
-        return '<div class="kv"><span><b>' + safe(item.title) + '</b><br><span class="tiny muted">' + safe(item.contributorCount) + ' contributors across ' + safe(item.domainCount) + ' systems</span></span><span class="pill">' + safe(item.reason) + '</span></div>';
+      '<div class="notice sage" style="margin-top:34px"><b>Do not start any supplement from this report without recorded practitioner approval.</b> ' + safe(supplementItems.length) + ' genetics-guided supplement ' + (supplementItems.length === 1 ? 'review is' : 'reviews are') + ' ready. These are server-selected practitioner-review candidates, not proof of deficiency or personal prescriptions. Open the Supplements tab for the rationale, age context, general adult reference, timing context, interaction warnings and approval checklist.<div style="margin-top:12px"><button class="btn blood sm" id="samOpenSupplements" type="button">Open supplement details</button></div></div>' +
+      (near.length ? '<details class="how" style="margin-top:28px"><summary>Practitioner audit — supported candidates not displayed (' + safe(near.length) + ')</summary><div class="howbody"><p class="small muted" style="margin-top:0">Every genetically supported behaviour, food or measurement excluded by a threshold or display cap remains here for review.</p>' + near.map(function (item) {
+        var auditContributors = contributorLabel(item);
+        return '<div class="kv"><span><b>' + safe(item.title) + '</b><br><span class="tiny muted">Score ' + safe(item.score) + ' · ' + safe(item.contributorCount) + ' called markers across ' + safe(item.domainCount) + ' SAM systems' + (auditContributors ? '<br>' + safe(auditContributors) : '') + '</span></span><span class="pill">' + safe(recommendationExclusionLabel(item.reason)) + '</span></div>';
       }).join("") + '</div></details>' : '') +
       priorityCopy;
     var supplementButton = document.getElementById("samOpenSupplements");
@@ -443,6 +476,17 @@ const DATABASE_ADAPTER = String.raw`
     return "clinician-only review";
   }
 
+  function supplementAgeConsiderations(item) {
+    return item.ageConsiderations || item.ageContext || "No age-based escalation was applied to this practitioner review. Genetics remains the reason it is being considered.";
+  }
+
+  function supplementMeasurementStatusLabel(guidance) {
+    if (guidance && guidance.status === "required-before-implementation") return "Required before implementation";
+    if (guidance && guidance.status === "clinically-indicated") return "Only when clinically indicated, not routinely from DNA alone";
+    if (guidance && guidance.status === "not-routinely-needed") return "Not routinely needed";
+    return guidance && guidance.advisable ? "Only when clinically indicated, not routinely from DNA alone" : "Not routinely needed";
+  }
+
   function supplementChecklistHtml(item) {
     var checklist = Array.isArray(item.practitionerChecklist) ? item.practitionerChecklist : [];
     return '<div class="card flat" style="padding:16px;border-color:var(--blood)"><span class="eyebrow">Practitioner Review Checklist</span>' +
@@ -463,28 +507,58 @@ const DATABASE_ADAPTER = String.raw`
   function supplementWarningsHtml(item) {
     var warnings = Array.isArray(item.interactionWarnings) ? item.interactionWarnings : [];
     if (!warnings.length) return '';
-    return '<div class="notice" style="margin:0;border-color:var(--blood)"><b>Important interactions or contraindications</b><ul style="margin:9px 0 0;padding-left:20px">' +
+    return '<div class="notice" style="margin:0;border-color:var(--blood)"><b>Important interaction warnings</b><ul style="margin:9px 0 0;padding-left:20px">' +
       warnings.map(function (warning) { return '<li>' + safe(warning) + '</li>'; }).join('') +
       '</ul></div>';
   }
 
+  function supplementContraindicationsHtml(item) {
+    var cautions = Array.isArray(item.contraindications) ? item.contraindications : [];
+    if (!cautions.length) return '';
+    return '<div class="notice" style="margin:0;border-color:var(--blood)"><b>Contraindications and safety cautions</b><ul style="margin:9px 0 0;padding-left:20px">' +
+      cautions.map(function (caution) { return '<li>' + safe(caution) + '</li>'; }).join('') +
+      '</ul></div>';
+  }
+
+  function supplementMeasurementHtml(item) {
+    var guidance = item.measurementGuidance || {};
+    return '<div class="card flat" style="padding:16px"><span class="eyebrow">Baseline and follow-up measurement</span>' +
+      '<p class="small" style="margin:8px 0 6px"><b>Measurement status:</b> ' + safe(supplementMeasurementStatusLabel(guidance)) + '</p>' +
+      '<p class="small" style="margin:0 0 6px"><b>Baseline:</b> ' + safe(guidance.baseline || item.whatRefinesDecision || item.whatConfirmsNeed) + '</p>' +
+      '<p class="small" style="margin:0"><b>Follow-up:</b> ' + safe(guidance.followUp || item.review) + '</p></div>';
+  }
+
   function supplementCard(item) {
     var contributors = contributorLabel(item);
+    var domains = supplementDomainLabel(item);
     var checks = Array.isArray(item.checksBeforeStarting) ? item.checksBeforeStarting : [];
+    var ranking = item.ranking || {};
+    var clinicianGate = item.decision === "clinician-only"
+      ? '<div class="notice" style="margin:0;border-color:var(--blood)"><b>Clinician-gated — do not initiate independently.</b> Genetics may trigger investigation and practitioner consideration, but it does not determine the dose, form, route or whether this item should be started.</div>'
+      : '';
     return '<article class="card stack" id="supplement-' + safe(item.id) + '" tabindex="-1" style="border-color:' + (item.decision === "clinician-only" ? 'var(--blood)' : 'var(--ink-14)') + '">' +
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><span class="eyebrow">Supplement recommendation</span><h3 style="margin:8px 0 0">' + safe(item.name) + '</h3></div><div style="display:flex;gap:7px;flex-wrap:wrap"><span class="pill b">Practitioner approval required</span><span class="pill ' + (item.decision === "food-first" ? 's' : item.decision === "clinician-only" ? 'b' : '') + '">' + safe(supplementDecisionLabel(item.decision)) + '</span></div></div>' +
-      '<p class="small" style="margin:0"><b>Why your markers raised it:</b> ' + safe(item.plainReason) + '</p>' +
-      (contributors ? '<p class="tiny" style="margin:0;color:var(--blood)"><b>Called contributors:</b> ' + safe(contributors) + '</p>' : '') +
-      (item.ageContext ? '<div class="notice sage" style="margin:0"><b>Why age strengthens this review</b><br>' + safe(item.ageContext) + '</div>' : '') +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><span class="eyebrow">Supplement / nutrient</span><h3 style="margin:8px 0 0">' + safe(item.name) + '</h3></div><div style="display:flex;gap:7px;flex-wrap:wrap"><span class="pill b">' + safe(item.considerationLabel || 'CONSIDER / PRACTITIONER REVIEW') + '</span><span class="pill ' + (item.decision === "food-first" ? 's' : item.decision === "clinician-only" ? 'b' : '') + '">' + safe(supplementDecisionLabel(item.decision)) + '</span></div></div>' +
+      '<p class="small" style="margin:0"><b>Reason for practitioner review:</b> ' + safe(item.plainReason) + '</p>' +
+      '<div class="card flat" style="padding:14px"><p class="small" style="margin:0 0 6px"><b>Supporting genetic markers / pathway:</b> ' + safe(item.supportingPathway || 'Called-marker convergence') + '</p>' +
+        (contributors ? '<p class="tiny" style="margin:0 0 6px;color:var(--blood)"><b>Called markers:</b> ' + safe(contributors) + '</p>' : '') +
+        '<p class="tiny" style="margin:0"><b>Relevant SAM systems / domains:</b> ' + safe(domains || 'Cross-system review') + '</p>' +
+        '<p class="tiny muted" style="margin:6px 0 0"><b>Ranking:</b> genetic rationale ' + safe(item.score) + (ranking.rank ? ' · rank ' + safe(ranking.rank) : '') + (ranking.clinicalRelevance ? ' · clinical relevance ' + safe(ranking.clinicalRelevance) + '/5' : '') + (ranking.safetyPriority ? ' · safety priority ' + safe(ranking.safetyPriority) + '/5' : '') + (ranking.actionability ? ' · actionability ' + safe(ranking.actionability) + '/5' : '') + ' · basis ' + safe(item.eligibilityBasis || 'genetic-convergence') + '</p></div>' +
+      clinicianGate +
+      '<div class="notice sage" style="margin:0"><b>Age considerations</b><br>' + safe(supplementAgeConsiderations(item)) + '</div>' +
       '<div class="grid g2" style="gap:12px">' +
         '<div class="notice sage" style="margin:0"><b>What can refine the decision</b><br>' + safe(item.whatRefinesDecision || item.whatConfirmsNeed) + '</div>' +
-        '<div class="notice" style="margin:0"><b>General adult reference — not your prescribed dose</b><br>' + safe(item.referenceAmount) + '</div>' +
+        '<div class="notice" style="margin:0"><b>Population nutrition context — not your prescribed dose</b><br>' + safe(item.referenceAmount) + '</div>' +
       '</div>' +
       '<div class="grid g2" style="gap:12px">' +
-        '<div class="card flat" style="padding:14px"><span class="eyebrow q">Timing</span><p class="small" style="margin:7px 0 0">' + safe(item.timing) + '</p></div>' +
-        '<div class="card flat" style="padding:14px"><span class="eyebrow q">Duration</span><p class="small" style="margin:7px 0 0">' + safe(item.duration) + '</p></div>' +
+        '<div class="card flat" style="padding:14px"><span class="eyebrow q">Form context — if approved</span><p class="small" style="margin:7px 0 0">' + safe(item.preferredForm || 'No genotype-selected form.') + '</p><p class="tiny muted" style="margin:7px 0 0"><b>Why:</b> ' + safe(item.formRationale || 'Form is selected from clinical context, not DNA alone.') + '</p></div>' +
+        '<div class="card flat" style="padding:14px"><span class="eyebrow q">Timing context — if approved</span><p class="small" style="margin:7px 0 0">' + safe(item.timing) + '</p><p class="tiny muted" style="margin:7px 0 0"><b>Why:</b> ' + safe(item.timingRationale || 'No genotype-selected time of day.') + '</p></div>' +
       '</div>' +
+      '<div class="card flat" style="padding:14px"><span class="eyebrow q">Review interval — if approved</span><p class="small" style="margin:7px 0 0">' + safe(item.duration) + '</p></div>' +
+      '<div class="grid g2" style="gap:12px"><div class="card flat" style="padding:14px"><span class="eyebrow">Medication interaction check</span><p class="small" style="margin:7px 0 0">' + safe(item.medicationInteractionCheck || 'Practitioner or pharmacist review required.') + '</p></div>' +
+        '<div class="card flat" style="padding:14px"><span class="eyebrow">Current supplement interaction check</span><p class="small" style="margin:7px 0 0">' + safe(item.currentSupplementInteractionCheck || 'Review total intake from every current product.') + '</p></div></div>' +
       supplementWarningsHtml(item) +
+      supplementContraindicationsHtml(item) +
+      supplementMeasurementHtml(item) +
       '<details class="how" style="margin-top:0"><summary>Food context and additional safety checks</summary><div class="howbody"><p><b>Food context:</b> ' + safe(item.foodFirst) + '</p>' +
         (checks.length ? '<p style="margin-bottom:6px"><b>Before implementation:</b></p><ul style="margin:0;padding-left:20px">' + checks.map(function (check) { return '<li>' + safe(check) + '</li>'; }).join('') + '</ul>' : '') +
         '<p style="margin:12px 0 0"><b>Review rule:</b> ' + safe(item.review) + '</p></div></details>' +
@@ -497,17 +571,21 @@ const DATABASE_ADAPTER = String.raw`
     var host = document.getElementById("supps");
     if (!host) return;
     var plan = serverRecommendations && serverRecommendations.supplements;
-    var items = plan && Array.isArray(plan.items) ? plan.items : [];
+    var items = supplementPlanItems(plan);
+    var primaryItems = supplementPrimaryItems(plan);
+    var additionalItems = supplementAdditionalItems(plan);
     window.SAM_ACTIVE_SUPPLEMENTS = items;
     if (!items.length) {
       host.innerHTML = '<div class="notice sage"><b>No genetics-guided supplement review is available.</b> ' + safe((plan && plan.framing) || 'No item reached the approved threshold. Only completed, interpretable markers can contribute.') + ' Keep ordinary food, sleep and movement foundations in place, and use measured clinical advice for any suspected deficiency.</div>';
       return;
     }
     host.innerHTML =
-      '<div class="notice sage"><b>Genetics can raise a practitioner review before a food gap, abnormal laboratory result or symptom is documented.</b> ' + safe(plan.framing || 'Called markers decide what deserves a closer look.') + ' These are not automatic prescriptions. Amounts below are general adult references, never a dose calculated from DNA.</div>' +
-      '<div class="sechead" style="margin-top:34px"><span class="eyebrow">Supplement Recommendations — Practitioner Review Checklist</span><span class="rule"></span><span class="mono tiny muted">' + safe(items.length) + ' items · rules ' + safe(plan.rulesVersion || serverRecommendations.rulesVersion) + '</span></div>' +
-      '<div class="stack" style="margin-top:20px">' + items.map(supplementCard).join('') + '</div>' +
-      '<div class="notice" style="margin-top:24px"><b>Important.</b> A genetic result cannot establish a deficiency. Do not start iron or a deficiency-treatment dose from this page. If you are pregnant, breastfeeding, under 18, have kidney or liver disease, use prescription medicines, or have a complex medical history, take this list to a qualified clinician or pharmacist before using a product.</div>';
+      '<div class="notice sage"><b>Do not start any supplement from this report without recorded practitioner approval.</b> Genetics can raise a practitioner review before a food gap, abnormal laboratory result or symptom is documented. ' + safe(plan.framing || 'Called markers decide what deserves a closer look.') + ' These are not automatic prescriptions. Amounts below are general adult references, never a dose calculated from DNA.</div>' +
+      '<div class="sechead" style="margin-top:34px"><span class="eyebrow">Primary Supplement Considerations</span><span class="rule"></span><span class="mono tiny muted">' + safe(primaryItems.length) + ' primary · rules ' + safe(plan.rulesVersion || serverRecommendations.rulesVersion) + '</span></div>' +
+      '<p class="small muted" style="margin:10px 0 0">Ranked by genetic rationale, clinical relevance, safety priority and actionability. Every item remains subject to practitioner review.</p>' +
+      '<div class="stack" style="margin-top:20px">' + primaryItems.map(supplementCard).join('') + '</div>' +
+      (additionalItems.length ? '<div class="sechead" style="margin-top:46px"><span class="eyebrow">Additional Supplement Considerations</span><span class="rule"></span><span class="mono tiny muted">' + safe(additionalItems.length) + ' additional</span></div><p class="small muted" style="margin:10px 0 0">These recommendations are also eligible. They are shown separately only because they ranked below the primary clinician-report display limit; none has been silently removed.</p><div class="stack" style="margin-top:20px">' + additionalItems.map(supplementCard).join('') + '</div>' : '') +
+      '<div class="notice" style="margin-top:24px"><b>Do not start any supplement from this report without recorded practitioner approval.</b> A genetic result cannot establish a deficiency. Iron, vitamin B12 and combined folate/B12 reviews are clinician-gated and must not be initiated independently. If you are pregnant, breastfeeding, under 18, have kidney or liver disease, use prescription medicines, or have a complex medical history, take this list to a qualified clinician or pharmacist before using a product.</div>';
   }
 
   buildSupps = function () {
@@ -518,34 +596,60 @@ const DATABASE_ADAPTER = String.raw`
     originalBuildSupps();
   };
 
-  function serverSupplementPrintRows(items) {
+  function serverSupplementPrintRows(items, startIndex) {
     if (!items.length) {
       return '<p class="small">No supplement review reached the approved genetic convergence threshold.</p>';
     }
-    return '<p class="small"><b>Practitioner approval is required before implementation.</b> Genetics and age can raise a review item without a documented food gap, laboratory abnormality or symptom. These entries are not prescriptions and the amounts are general adult references.</p>' +
+    return '<p class="small"><b>Do not start any supplement from this report without recorded practitioner approval.</b> Genetics and age can raise a review item without a documented food gap, laboratory abnormality or symptom. These entries are not prescriptions and the amounts are general adult references.</p>' +
       items.map(function (item, index) {
         var warnings = Array.isArray(item.interactionWarnings) ? item.interactionWarnings : [];
+        var contraindications = Array.isArray(item.contraindications) ? item.contraindications : [];
+        var checks = Array.isArray(item.checksBeforeStarting) ? item.checksBeforeStarting : [];
         var contexts = Array.isArray(item.clinicalContextChecklist) ? item.clinicalContextChecklist : [];
         var checklist = Array.isArray(item.practitionerChecklist) ? item.practitionerChecklist : [];
+        var guidance = item.measurementGuidance || {};
+        var contributors = contributorLabel(item);
+        var domains = supplementDomainLabel(item);
         return '<div style="border:1px solid #b9b3a8;border-radius:10px;padding:14px;margin:12px 0;page-break-inside:avoid">' +
-          '<h4 style="font-size:14px;margin:0 0 8px">' + safe(index + 1) + ' · ' + safe(item.name) + ' — Practitioner approval required</h4>' +
-          '<p class="small"><b>Genetic rationale:</b> ' + safe(item.plainReason) + '</p>' +
-          (item.ageContext ? '<p class="small"><b>Age context:</b> ' + safe(item.ageContext) + '</p>' : '') +
+          '<h4 style="font-size:14px;margin:0 0 8px">' + safe((startIndex || 0) + index + 1) + ' · ' + safe(item.name) + ' — ' + safe(item.considerationLabel || 'CONSIDER / PRACTITIONER REVIEW') + '</h4>' +
+          (item.decision === "clinician-only" ? '<p class="small" style="border-left:3px solid #b64b2a;padding-left:9px"><b>Clinician-gated — do not initiate independently.</b> Genetics does not determine dose, form, route or start.</p>' : '') +
+          '<p class="small"><b>Reason for practitioner review:</b> ' + safe(item.plainReason) + '<br><b>Supporting pathway:</b> ' + safe(item.supportingPathway) + '<br><b>Called markers:</b> ' + safe(contributors) + '<br><b>SAM systems / domains:</b> ' + safe(domains) + '<br><b>Ranking:</b> genetic rationale ' + safe(item.score) + ' · clinical relevance ' + safe((item.ranking || {}).clinicalRelevance) + '/5 · safety priority ' + safe((item.ranking || {}).safetyPriority) + '/5 · actionability ' + safe((item.ranking || {}).actionability) + '/5</p>' +
+          '<p class="small"><b>Age considerations:</b> ' + safe(supplementAgeConsiderations(item)) + '</p>' +
           '<p class="small"><b>What can refine the decision:</b> ' + safe(item.whatRefinesDecision || item.whatConfirmsNeed) + '</p>' +
-          '<p class="small"><b>General adult reference — not a prescribed dose:</b> ' + safe(item.referenceAmount) + '<br><b>Timing:</b> ' + safe(item.timing) + '<br><b>Duration and review:</b> ' + safe(item.duration) + ' ' + safe(item.review) + '</p>' +
-          (warnings.length ? '<p class="small" style="border-left:3px solid #b64b2a;padding-left:9px"><b>Important interactions or contraindications:</b><br>' + warnings.map(safe).join('<br>') + '</p>' : '') +
+          '<p class="small"><b>Population nutrition context — not a prescribed dose:</b> ' + safe(item.referenceAmount) + '<br><b>Form context — if approved:</b> ' + safe(item.preferredForm) + '<br><b>Why this form:</b> ' + safe(item.formRationale) + '<br><b>Timing context — if approved:</b> ' + safe(item.timing) + '<br><b>Why this timing:</b> ' + safe(item.timingRationale) + '<br><b>Review interval — if approved:</b> ' + safe(item.duration) + ' ' + safe(item.review) + '</p>' +
+          '<p class="small"><b>Food context:</b> ' + safe(item.foodFirst) + '</p>' +
+          '<p class="small"><b>Medication interaction check:</b> ' + safe(item.medicationInteractionCheck) + '<br><b>Current supplement interaction check:</b> ' + safe(item.currentSupplementInteractionCheck) + '</p>' +
+          (warnings.length ? '<p class="small" style="border-left:3px solid #b64b2a;padding-left:9px"><b>Important interaction warnings:</b><br>' + warnings.map(safe).join('<br>') + '</p>' : '') +
+          (contraindications.length ? '<p class="small"><b>Contraindications / safety cautions:</b><br>' + contraindications.map(safe).join('<br>') + '</p>' : '') +
+          '<p class="small"><b>Measurement status:</b> ' + safe(supplementMeasurementStatusLabel(guidance)) + '<br><b>Baseline:</b> ' + safe(guidance.baseline || item.whatRefinesDecision || item.whatConfirmsNeed) + '<br><b>Follow-up:</b> ' + safe(guidance.followUp || item.review) + '</p>' +
+          (checks.length ? '<p class="small"><b>Before implementation:</b><br>' + checks.map(safe).join('<br>') + '</p>' : '') +
           (contexts.length ? '<p class="tiny"><b>Clinical context to consider:</b> ' + contexts.map(safe).join(' · ') + '</p>' : '') +
           '<p class="small"><b>Practitioner Review Checklist</b><br>' + checklist.map(function (check) { return '&#9744; ' + safe(check); }).join('<br>') + '</p>' +
         '</div>';
       }).join('');
   }
 
+  function serverRecommendationAuditPrintRows() {
+    var audit = serverRecommendations && Array.isArray(serverRecommendations.nearThreshold)
+      ? serverRecommendations.nearThreshold
+      : [];
+    if (!audit.length) return '';
+    return '<h4 style="font-size:14px;margin:20px 0 8px">Behaviour, food and measurement ranking audit</h4><p class="small">Every genetically supported candidate not selected for the primary lists is retained below with its score and exclusion reason.</p>' +
+      audit.map(function (item) {
+        return '<p class="small" style="border-top:1px solid #d8d2c7;padding-top:8px"><b>' + safe(item.title) + '</b> · score ' + safe(item.score) + ' · ' + safe(recommendationExclusionLabel(item.reason)) + '<br><span class="tiny">' + safe(contributorLabel(item)) + '</span></p>';
+      }).join('');
+  }
+
   function injectServerSupplementPrint(html, mode) {
     var plan = serverRecommendations && serverRecommendations.supplements;
-    var items = plan && Array.isArray(plan.items) ? plan.items : [];
+    var primaryItems = supplementPrimaryItems(plan);
+    var additionalItems = supplementAdditionalItems(plan);
+    var supplementSections = '<h4 style="font-size:14px;margin:12px 0 6px">Primary Supplement Considerations</h4>' + serverSupplementPrintRows(primaryItems, 0) +
+      (additionalItems.length ? '<h4 style="font-size:14px;margin:20px 0 6px">Additional Supplement Considerations</h4><p class="small">These eligible recommendations ranked below the primary display limit and remain included for practitioner review.</p>' + serverSupplementPrintRows(additionalItems, primaryItems.length) : '') +
+      serverRecommendationAuditPrintRows();
     var section = mode === "doc"
-      ? '<h3 style="font-size:15px;margin:20px 0 6px">3 · Supplement Recommendations — Practitioner Review Checklist</h3>' + serverSupplementPrintRows(items)
-      : '<h3 style="font-size:16px;margin:22px 0 6px">Supplement Recommendations — Practitioner Review Checklist</h3>' + serverSupplementPrintRows(items);
+      ? '<h3 style="font-size:15px;margin:20px 0 6px">3 · Supplement Considerations — Practitioner Review Checklist</h3>' + supplementSections
+      : '<h3 style="font-size:16px;margin:22px 0 6px">Supplement Considerations — Practitioner Review Checklist</h3>' + supplementSections;
     if (mode === "doc") {
       return html.replace(
         /<h3 style="font-size:15px;margin:20px 0 6px">3 · Supplements currently recommended<\/h3>[\s\S]*?(?=<h3 style="font-size:15px;margin:20px 0 6px">4 · Findings)/,
@@ -566,11 +670,91 @@ const DATABASE_ADAPTER = String.raw`
     };
   }
 
+  function supplementQuestionRoute(question) {
+    var text = String(question || "").toLowerCase();
+    var supported = [];
+    var unsupported = [];
+    function add(list, value) {
+      if (list.indexOf(value) === -1) list.push(value);
+    }
+    if (/\biron\b/.test(text)) add(supported, "iron");
+    if (/\b(?:vitamin\s*)?b[-\s]?12\b|\bcobalamin\b/.test(text)) add(supported, "vitamin-b12");
+    if (/\bfolate\b|\bfolic acid\b|\bvitamin[-\s]?b9\b|\bb9\b/.test(text)) add(supported, "folate");
+    if (/\bomega[-\s]?3\b|\bfish oil\b|\bepa\b|\bdha\b/.test(text)) add(supported, "omega-3");
+    if (/\bcholine\b|\bphosphatidylcholine\b|\blecithin\b/.test(text)) add(supported, "choline");
+    if (/\bvitamin[-\s]?d3?\b|\bvit(?:amin)?\s+d3?\b|\bd3\b/.test(text)) add(supported, "vitamin-d");
+    [
+      ["magnesium", /\bmagnesium\b/],
+      ["calcium", /\bcalcium\b/],
+      ["vitamin A", /\bvitamin[-\s]?a\b|\bretinol\b|\bbeta[-\s]?carotene\b/],
+      ["vitamin C", /\bvitamin[-\s]?c\b|\bascorbic acid\b/],
+      ["vitamin E", /\bvitamin[-\s]?e\b|\btocopherol\b/],
+      ["vitamin K", /\bvitamin[-\s]?k(?:1|2)?\b|\bk1\b|\bk2\b/],
+      ["B-complex", /\bb[-\s]?complex\b/],
+      ["vitamin B1", /\bvitamin[-\s]?b1\b|\bthiamine\b/],
+      ["vitamin B2", /\bvitamin[-\s]?b2\b|\briboflavin\b/],
+      ["vitamin B3", /\bvitamin[-\s]?b3\b|\bniacin\b/],
+      ["vitamin B5", /\bvitamin[-\s]?b5\b|\bpantothenic acid\b/],
+      ["vitamin B6", /\bvitamin[-\s]?b6\b|\bpyridoxine\b/],
+      ["vitamin B7", /\bvitamin[-\s]?b7\b|\bbiotin\b/],
+      ["zinc", /\bzinc\b/],
+      ["selenium", /\bselenium\b/],
+      ["copper", /\bcopper\b/],
+      ["iodine", /\biodine\b|\biodide\b/],
+      ["potassium", /\bpotassium\b/],
+      ["multivitamin", /\bmultivitamin\b/],
+      ["creatine", /\bcreatine\b/],
+      ["glycine", /\bglycine\b/],
+      ["sulforaphane", /\bsulforaphane\b/],
+      ["DAO", /\bdao\b/]
+    ].forEach(function (entry) {
+      if (entry[1].test(text)) add(unsupported, entry[0]);
+    });
+    var genericCatalogueQuestion = /\b(?:what|which|show|list)\b[^?]{0,50}\bsupplements?\b[^?]{0,50}\b(?:recommend|recommended|active|available|report|raised|consider)/.test(text) ||
+      /\b(?:recommended|active|available)\s+supplements?\b/.test(text);
+    var genericSupplementObject = /\b(?:take|use|add|try)\s+(?:an?\s+|any\s+|some\s+)?supplements?\b/.test(text);
+    var explicitProductRequest = /\b(?:should|can|could|may|do|would)\s+i\s+(?:take|use|add|try)\s+/.test(text) ||
+      /\bwhat\s+about\s+(?!supplements?\b)/.test(text) ||
+      /\bsupplement(?:ing)?\s+with\s+/.test(text);
+    if (
+      explicitProductRequest &&
+      !genericCatalogueQuestion &&
+      !genericSupplementObject &&
+      !supported.length &&
+      !unsupported.length
+    ) {
+      add(unsupported, "the requested nutrient or product");
+    }
+    return {
+      supported: supported,
+      unsupported: unsupported,
+      nutrientSpecific: supported.length > 0 || unsupported.length > 0
+    };
+  }
+
+  function supplementItemMatchesNutrient(item, nutrient) {
+    if (!item) return false;
+    if (nutrient === "vitamin-b12") return item.id === "vitamin-b12" || item.id === "folate-b12";
+    if (nutrient === "folate") return item.id === "folate-b12";
+    return item.id === nutrient;
+  }
+
+  function supplementItemsForQuestion(question, items) {
+    var candidates = Array.isArray(items) ? items : [];
+    var route = supplementQuestionRoute(question);
+    if (!route.nutrientSpecific) return candidates;
+    if (!route.supported.length) return [];
+    return candidates.filter(function (item) {
+      return route.supported.some(function (nutrient) {
+        return supplementItemMatchesNutrient(item, nutrient);
+      });
+    });
+  }
+
   function isSupplementQuestion(question) {
     var text = String(question || "").toLowerCase();
-    if (/supplement|pill|capsule|dose|dosage|should i take/.test(text)) return true;
-    var nutrient = /omega[- ]?3|fish oil|epa|dha|vitamin d|\bd3\b|vitamin k2|\bk2\b|magnesium|choline|folate|folic acid|b[- ]?complex|vitamin b12|\bb12\b|cobalamin|iron|zinc|creatine|glycine|sulforaphane|\bdao\b/;
-    return nutrient.test(text);
+    var route = supplementQuestionRoute(question);
+    return route.nutrientSpecific || /supplement|pill|capsule|dose|dosage|should i take/.test(text);
   }
 
   if (originalAnswer) {
@@ -579,19 +763,54 @@ const DATABASE_ADAPTER = String.raw`
         return originalAnswer(question);
       }
       var plan = serverRecommendations && serverRecommendations.supplements;
-      var items = plan && Array.isArray(plan.items) ? plan.items : [];
-      if (!items.length) {
+      var items = supplementPlanItems(plan);
+      var route = supplementQuestionRoute(question);
+      var answerItems = supplementItemsForQuestion(question, items);
+      var approvalLead = "<b>Do not start any supplement from this report without recorded practitioner approval.</b>";
+      if (route.nutrientSpecific && !answerItems.length) {
+        var unavailableName = route.unsupported.length ? route.unsupported.join(", ") : route.supported.join(", ");
         return {
-          t: "No supplement review reached the approved genetic convergence threshold in this report. Only completed, interpretable markers can contribute. If you suspect a deficiency, use the measurement list or speak to a qualified clinician rather than guessing from DNA.",
+          t: approvalLead + "<br><br>No approved supplement recommendation for <b>" + safe(unavailableName) + "</b> is active in this report. Do not infer one from another nutrient review or from DNA alone. Use symptoms, diet, medicines, examination and clinically appropriate measurement with a qualified practitioner.",
           src: "server supplement rules " + safe((plan && plan.rulesVersion) || serverRecommendations.rulesVersion)
         };
       }
+      if (!items.length) {
+        return {
+          t: approvalLead + "<br><br>No supplement review reached the approved genetic convergence threshold in this report. Only completed, interpretable markers can contribute. If you suspect a deficiency, use the measurement list or speak to a qualified clinician rather than guessing from DNA.",
+          src: "server supplement rules " + safe((plan && plan.rulesVersion) || serverRecommendations.rulesVersion)
+        };
+      }
+      var unsupportedCopy = route.unsupported.length
+        ? "<br><br><b>No approved supplement recommendation for " + safe(route.unsupported.join(", ")) + " is active in this report.</b> Do not infer one from the approved review candidates below."
+        : "";
       return {
-        t: "Your called markers raised " + safe(items.length) + " genetics-guided review " + (items.length === 1 ? "item" : "items") + ":<br><br>" +
-          items.map(function (item) {
-            return "<b>" + safe(item.name) + "</b> — practitioner approval required; " + safe(supplementDecisionLabel(item.decision)) + ". " + safe(item.whatRefinesDecision || item.whatConfirmsNeed) + (item.ageContext ? " " + safe(item.ageContext) : "") + (Array.isArray(item.interactionWarnings) && item.interactionWarnings.length ? " Important: " + safe(item.interactionWarnings.join(" ")) : "");
+        t: approvalLead + unsupportedCopy + "<br><br>Your called markers raised " + safe(answerItems.length) + " relevant genetics-guided practitioner " + (answerItems.length === 1 ? "review" : "reviews") + ":<br><br>" +
+          answerItems.map(function (item) {
+            var guidance = item.measurementGuidance || {};
+            var warnings = Array.isArray(item.interactionWarnings) ? item.interactionWarnings : [];
+            var contraindications = Array.isArray(item.contraindications) ? item.contraindications : [];
+            var checks = Array.isArray(item.checksBeforeStarting) ? item.checksBeforeStarting : [];
+            var contexts = Array.isArray(item.clinicalContextChecklist) ? item.clinicalContextChecklist : [];
+            var checklist = Array.isArray(item.practitionerChecklist) ? item.practitionerChecklist : [];
+            return "<b>" + safe(item.name) + "</b> — " + safe(item.considerationLabel || "CONSIDER / PRACTITIONER REVIEW") + "; " + safe(supplementDecisionLabel(item.decision)) + "." +
+              (item.decision === "clinician-only" ? " <b>Clinician-gated — do not initiate independently.</b>" : "") +
+              "<br><b>Reason for practitioner review:</b> " + safe(item.plainReason) +
+              "<br><b>Population nutrition context — not a prescribed dose:</b> " + safe(item.referenceAmount) +
+              "<br><b>Form context — if approved:</b> " + safe(item.preferredForm || "No genotype-selected form") + " " + safe(item.formRationale || "") +
+              "<br><b>Timing context — if approved:</b> " + safe(item.timing) + " " + safe(item.timingRationale || "") +
+              "<br><b>Age considerations:</b> " + safe(supplementAgeConsiderations(item)) +
+              "<br><b>Medication interaction check:</b> " + safe(item.medicationInteractionCheck || "Practitioner or pharmacist review required.") +
+              "<br><b>Current supplement interaction check:</b> " + safe(item.currentSupplementInteractionCheck || "Review total intake from every current product.") +
+              (warnings.length ? "<br><b>Important interaction warnings:</b> " + safe(warnings.join(" ")) : "") +
+              (contraindications.length ? "<br><b>Contraindications and safety cautions:</b> " + safe(contraindications.join(" ")) : "") +
+              "<br><b>Measurement status:</b> " + safe(supplementMeasurementStatusLabel(guidance)) +
+              "<br><b>Baseline:</b> " + safe(guidance.baseline || item.whatRefinesDecision || item.whatConfirmsNeed) +
+              "<br><b>Follow-up:</b> " + safe(guidance.followUp || item.review) +
+              (checks.length ? "<br><b>Before implementation:</b> " + safe(checks.join(" ")) : "") +
+              (contexts.length ? "<br><b>Clinical context to consider:</b> " + safe(contexts.join(" ")) : "") +
+              (checklist.length ? "<br><b>Practitioner approval checklist:</b> " + safe(checklist.join(" ")) : "");
           }).join("<br><br>") +
-          "<br><br>Open the Supplements tab for the general adult reference, timing, duration, interaction warnings and the full Practitioner Review Checklist. These are not proof of deficiency or doses calculated from DNA.",
+          "<br><br>Open the Supplements tab for the primary and Additional Supplement Considerations, full rationale, SAM systems, safety checks and Practitioner Review Checklist. These are not proof of deficiency or doses calculated from DNA.",
         src: "server supplement rules " + safe(plan.rulesVersion || serverRecommendations.rulesVersion)
       };
     };
@@ -981,8 +1200,8 @@ const DATABASE_ADAPTER = String.raw`
     });
     serverPriorities = Array.isArray(payload.priorities) ? payload.priorities : [];
     serverRecommendations = payload.recommendations || null;
-    window.SAM_ACTIVE_SUPPLEMENTS = serverRecommendations && serverRecommendations.supplements && Array.isArray(serverRecommendations.supplements.items)
-      ? serverRecommendations.supplements.items
+    window.SAM_ACTIVE_SUPPLEMENTS = serverRecommendations && serverRecommendations.supplements
+      ? supplementPlanItems(serverRecommendations.supplements)
       : [];
     serverMode = true;
     appendSourceOnlyMarkers(payload);

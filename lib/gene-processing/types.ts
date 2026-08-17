@@ -176,12 +176,11 @@ export interface NearThresholdRecommendation {
   score: number;
   contributorCount: number;
   domainCount: number;
+  contributors: RecommendationContributor[];
   reason:
     | "below-threshold"
     | "too-few-markers"
-    | "too-few-genes"
-    | "too-few-systems"
-    | "outside-shortlist";
+    | "display-cap";
 }
 
 export type SupplementDecision =
@@ -189,27 +188,63 @@ export type SupplementDecision =
   | "measure-first"
   | "clinician-only";
 
+export type SupplementEligibilityBasis =
+  | "genetic-convergence"
+  | "genetic-convergence-plus-age"
+  | "safety-review-marker";
+
+export interface SupplementRanking {
+  rank: number;
+  geneticRationaleScore: number;
+  clinicalRelevance: number;
+  safetyPriority: number;
+  actionability: number;
+}
+
+export interface SupplementMeasurementGuidance {
+  /** Compatibility summary: true only when measurement is required before implementation. */
+  advisable: boolean;
+  status:
+    | "not-routinely-needed"
+    | "clinically-indicated"
+    | "required-before-implementation";
+  baseline: string;
+  followUp: string;
+}
+
 export interface SupplementRecommendation {
   id: string;
   name: string;
+  considerationLabel: "CONSIDER / PRACTITIONER REVIEW";
   decision: SupplementDecision;
+  eligibilityBasis: SupplementEligibilityBasis;
   plainReason: string;
+  supportingPathway: string;
   /** Compatibility copy for older renderers; wording must not make this a gate. */
   whatConfirmsNeed: string;
   whatRefinesDecision: string;
   referenceAmount: string;
+  preferredForm: string;
+  formRationale: string;
   timing: string;
+  timingRationale: string;
   duration: string;
   foodFirst: string;
   checksBeforeStarting: string[];
   interactionWarnings: string[];
+  medicationInteractionCheck: string;
+  currentSupplementInteractionCheck: string;
+  contraindications: string[];
+  measurementGuidance: SupplementMeasurementGuidance;
   practitionerApprovalRequired: true;
   practitionerChecklist: string[];
   clinicalContextChecklist: string[];
   ageStrengthened: boolean;
   ageContext: string | null;
+  ageConsiderations: string;
   review: string;
   score: number;
+  ranking: SupplementRanking;
   domainIds: string[];
   contributors: RecommendationContributor[];
   executiveFitnessIds: string[];
@@ -221,6 +256,9 @@ export interface SupplementPlan {
   framing: string;
   practitionerChecklist: string[];
   clinicalContextChecklist: string[];
+  primaryLimit: number;
+  primaryItems: SupplementRecommendation[];
+  additionalItems: SupplementRecommendation[];
   items: SupplementRecommendation[];
 }
 

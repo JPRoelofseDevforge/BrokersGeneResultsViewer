@@ -6,6 +6,10 @@ import type {
   ProcessedMarker,
 } from "../lib/gene-processing/types";
 import {
+  CLINICAL_CONTEXT_CHECKLIST,
+  PRACTITIONER_APPROVAL_CHECKLIST,
+} from "../lib/gene-processing/supplements";
+import {
   buildReferenceReportPayload,
   referenceMarkerKey,
 } from "../lib/reports/reference-report-payload";
@@ -82,8 +86,11 @@ function report(markers: ProcessedMarker[]): GeneReport {
         rulesVersion: "2026.07-s1",
         outcome: "none",
         framing: "Genetics sets review priority, not need.",
-        practitionerChecklist: [],
-        clinicalContextChecklist: [],
+        practitionerChecklist: [...PRACTITIONER_APPROVAL_CHECKLIST],
+        clinicalContextChecklist: [...CLINICAL_CONTEXT_CHECKLIST],
+        primaryLimit: 5,
+        primaryItems: [],
+        additionalItems: [],
         items: [],
       },
     },

@@ -95,15 +95,47 @@ test("database domains and recommendations remain server authoritative", () => {
   assert.match(bridge, /function renderServerNecessary\(\)/);
   assert.match(bridge, /Server-authoritative recommendations/);
   assert.match(bridge, /function renderDatabaseSupplements\(\)/);
-  assert.match(bridge, /Supplement Recommendations — Practitioner Review Checklist/);
-  assert.match(bridge, /General adult reference — not your prescribed dose/);
+  assert.match(bridge, /Supplement Considerations — Practitioner Review Checklist/);
+  assert.match(bridge, /Population nutrition context — not your prescribed dose/);
   assert.match(bridge, /What can refine the decision/);
-  assert.match(bridge, /Practitioner approval required/);
-  assert.match(bridge, /Important interactions or contraindications/);
+  assert.match(bridge, /CONSIDER \/ PRACTITIONER REVIEW/);
+  assert.match(bridge, /Primary Supplement Considerations/);
+  assert.match(bridge, /Additional Supplement Considerations/);
+  assert.match(bridge, /Form context — if approved/);
+  assert.match(bridge, /Timing context — if approved/);
+  assert.match(bridge, /Reason for practitioner review/);
+  assert.match(bridge, /Supporting genetic markers \/ pathway/);
+  assert.match(bridge, /Medication interaction check/);
+  assert.match(bridge, /Current supplement interaction check/);
+  assert.match(bridge, /Baseline and follow-up measurement/);
+  assert.match(bridge, /Clinician-gated — do not initiate independently/);
+  assert.match(bridge, /Important interaction warnings/);
   assert.match(bridge, /item\.practitionerChecklist/);
   assert.match(bridge, /item\.clinicalContextChecklist/);
   assert.match(bridge, /item\.interactionWarnings/);
-  assert.match(bridge, /item\.ageContext/);
+  assert.match(bridge, /item\.ageConsiderations \|\| item\.ageContext/);
+  assert.match(bridge, /supplementAgeConsiderations\(item\)/);
+  assert.match(bridge, /supplementMeasurementStatusLabel\(guidance\)/);
+  assert.match(bridge, /required-before-implementation/);
+  assert.match(bridge, /clinically-indicated/);
+  assert.match(bridge, /not-routinely-needed/);
+  assert.match(
+    bridge,
+    /Only when clinically indicated, not routinely from DNA alone/,
+  );
+  assert.match(
+    bridge,
+    /Do not start any supplement from this report without recorded practitioner approval/,
+  );
+  assert.match(bridge, /supplementPlanItems/);
+  assert.match(bridge, /supplementPrimaryItems/);
+  assert.match(bridge, /supplementAdditionalItems/);
+  assert.match(bridge, /Practitioner audit — supported candidates not displayed/);
+  assert.match(bridge, /Ranking:/);
+  assert.match(bridge, /clinical relevance/);
+  assert.match(bridge, /safety priority/);
+  assert.match(bridge, /actionability/);
+  assert.match(bridge, /recommendationExclusionLabel/);
   assert.doesNotMatch(bridge, />What confirms a need</);
   assert.match(bridge, /window\.SAM_ACTIVE_SUPPLEMENTS/);
   assert.match(bridge, /injectServerSupplementPrint/);
@@ -115,27 +147,161 @@ test("database domains and recommendations remain server authoritative", () => {
   assert.doesNotMatch(bridge, /lev: result\.leverage[\s\S]*?entry \? entry\[0\]/);
 });
 
-test("natural supplement questions stay on the server-authoritative answer path", () => {
-  const matcher = bridge.match(
-    /function isSupplementQuestion\(question\) \{[\s\S]*?\n  \}/,
-  );
-  assert.ok(matcher, "supplement intent matcher should be present");
-  const isSupplementQuestion = new Function(
-    `${matcher[0]}; return isSupplementQuestion;`,
-  )() as (question: string) => boolean;
+test("natural supplement questions use nutrient-specific server-authoritative routing", () => {
+  const routeStart = bridge.indexOf("  function supplementQuestionRoute(question)");
+  const routeEnd = bridge.indexOf("\n\n  if (originalAnswer)", routeStart);
+  assert.ok(routeStart >= 0, "supplement route helper should be present");
+  assert.ok(routeEnd > routeStart, "supplement route helper block should be complete");
+  const helpers = new Function(
+    `${bridge.slice(routeStart, routeEnd)}; return { supplementQuestionRoute, supplementItemsForQuestion, isSupplementQuestion };`,
+  )() as {
+    supplementQuestionRoute: (question: string) => {
+      supported: string[];
+      unsupported: string[];
+      nutrientSpecific: boolean;
+    };
+    supplementItemsForQuestion: <T extends { id: string }>(
+      question: string,
+      items: T[],
+    ) => T[];
+    isSupplementQuestion: (question: string) => boolean;
+  };
 
-  assert.equal(isSupplementQuestion("Do I need omega-3?"), true);
-  assert.equal(isSupplementQuestion("Can I use iron?"), true);
-  assert.equal(isSupplementQuestion("What about folate/B12/choline/D3?"), true);
-  assert.equal(isSupplementQuestion("Is omega-3 safe with warfarin?"), true);
+  const candidates = [
+    { id: "vitamin-d" },
+    { id: "omega-3" },
+    { id: "choline" },
+    { id: "folate-b12" },
+    { id: "vitamin-b12" },
+    { id: "iron" },
+  ];
+
+  assert.equal(helpers.isSupplementQuestion("Do I need omega-3?"), true);
+  assert.equal(helpers.isSupplementQuestion("Can I use iron?"), true);
   assert.equal(
-    isSupplementQuestion("Does iron interact with my thyroid medicine?"),
+    helpers.isSupplementQuestion("What about folate/B12/choline/D3?"),
     true,
   );
-  assert.equal(isSupplementQuestion("What does my HFE marker mean?"), false);
+  assert.equal(
+    helpers.isSupplementQuestion("Is omega-3 safe with warfarin?"),
+    true,
+  );
+  assert.equal(
+    helpers.isSupplementQuestion("Does iron interact with my thyroid medicine?"),
+    true,
+  );
+  assert.equal(helpers.isSupplementQuestion("What does my HFE marker mean?"), false);
+
+  assert.equal(
+    helpers.supplementQuestionRoute("Can I use iron?").supported.join(","),
+    "iron",
+  );
+  assert.equal(
+    helpers
+      .supplementItemsForQuestion("Can I use iron?", candidates)
+      .map((item) => item.id)
+      .join(","),
+    "iron",
+  );
+  assert.equal(
+    helpers
+      .supplementItemsForQuestion("Should I take vitamin B12?", candidates)
+      .map((item) => item.id)
+      .join(","),
+    "folate-b12,vitamin-b12",
+  );
+  assert.equal(
+    helpers
+      .supplementItemsForQuestion("Is omega-3 safe with warfarin?", candidates)
+      .map((item) => item.id)
+      .join(","),
+    "omega-3",
+  );
+  assert.equal(
+    helpers
+      .supplementItemsForQuestion("What about choline?", candidates)
+      .map((item) => item.id)
+      .join(","),
+    "choline",
+  );
+  assert.equal(
+    helpers
+      .supplementItemsForQuestion("Can we review vitamin D3?", candidates)
+      .map((item) => item.id)
+      .join(","),
+    "vitamin-d",
+  );
+  assert.equal(
+    helpers
+      .supplementItemsForQuestion("Is folate relevant?", candidates)
+      .map((item) => item.id)
+      .join(","),
+    "folate-b12",
+  );
+  const magnesiumRoute = helpers.supplementQuestionRoute(
+    "Should I take magnesium?",
+  );
+  assert.equal(magnesiumRoute.supported.length, 0);
+  assert.equal(magnesiumRoute.unsupported.join(","), "magnesium");
+  assert.equal(
+    helpers.supplementItemsForQuestion("Should I take magnesium?", candidates)
+      .length,
+    0,
+  );
+  assert.equal(helpers.isSupplementQuestion("Should I take magnesium?"), true);
+
+  for (const question of [
+    "Should I take calcium?",
+    "Should I take vitamin A?",
+    "Can I use vitamin C?",
+    "What about vitamin E?",
+  ]) {
+    const route = helpers.supplementQuestionRoute(question);
+    assert.equal(route.supported.length, 0, question);
+    assert.equal(route.unsupported.length, 1, question);
+    assert.equal(
+      helpers.supplementItemsForQuestion(question, candidates).length,
+      0,
+      question,
+    );
+    assert.equal(helpers.isSupplementQuestion(question), true, question);
+  }
+
+  const unknownProductQuestion = "Should I take ashwagandha?";
+  const unknownProductRoute = helpers.supplementQuestionRoute(
+    unknownProductQuestion,
+  );
+  assert.equal(unknownProductRoute.supported.length, 0);
+  assert.equal(
+    unknownProductRoute.unsupported.join(","),
+    "the requested nutrient or product",
+  );
+  assert.equal(
+    helpers.supplementItemsForQuestion(unknownProductQuestion, candidates)
+      .length,
+    0,
+  );
+
+  const genericQuestion = "What supplements are recommended?";
+  const genericRoute = helpers.supplementQuestionRoute(genericQuestion);
+  assert.equal(genericRoute.nutrientSpecific, false);
+  assert.equal(
+    helpers
+      .supplementItemsForQuestion(genericQuestion, candidates)
+      .map((item) => item.id)
+      .join(","),
+    candidates.map((item) => item.id).join(","),
+  );
+  assert.equal(helpers.isSupplementQuestion(genericQuestion), true);
+
   assert.match(bridge, /!serverMode \|\| !isSupplementQuestion\(question\)/);
   assert.match(bridge, /whatRefinesDecision \|\| item\.whatConfirmsNeed/);
-  assert.match(bridge, /full Practitioner Review Checklist/);
+  assert.match(bridge, /Practitioner Review Checklist/);
+  assert.match(bridge, /No approved supplement recommendation for/);
+  assert.match(bridge, /item\.medicationInteractionCheck/);
+  assert.match(bridge, /item\.currentSupplementInteractionCheck/);
+  assert.match(bridge, /item\.contraindications/);
+  assert.match(bridge, /item\.checksBeforeStarting/);
 });
 
 test("recommendation-only changes invalidate the iframe report key", () => {

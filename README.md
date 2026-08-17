@@ -34,13 +34,35 @@ ephemeral browser inputs only. Imported pathology rows require a recognised
 unit; missing or unsupported units are not guessed. A verified sex-at-birth
 value from Broker Day enables the matching sex-specific ranges; if it is
 missing, X-linked scoring and Pathology remain unavailable. Sample wearable
-nights are never mixed into an authenticated member report. Supplement review
-is now server-authoritative: exact called markers from at least three genes must
-converge before a nutrient appears (apart from an exact HFE safety call). Every
-card separates the genetic reason, what would confirm a real need, a general
-adult reference amount, timing, duration, food context and safety checks.
-Genetics never establishes a deficiency or calculates a personal dose; iron is
-clinician-only, and adult amounts are withheld for a confirmed minor.
+nights are never mixed into an authenticated member report. Recommendation
+scores are server-authoritative and use `Σ((leverage - 1) × rule weight)` over
+called, interpreted markers only. Behaviours and foods need score 3 from three
+markers; measurements need score 2 from two markers. The member lists are
+capped at three behaviours, two foods and five measurements, while every
+genetically supported item excluded by a threshold or display cap remains in
+the practitioner audit with its score and reason.
+
+Supplement review is also server-authoritative. Cross-gene convergence can
+raise a nutrient for `CONSIDER / PRACTITIONER REVIEW` without requiring a food
+gap, symptom or abnormal laboratory result; selected older-adult rules can use
+age to escalate an already susceptible two-marker pathway, never age alone.
+Every item separates genetic rationale, supporting markers and SAM systems,
+preferred form and timing with their rationale, population nutrition context,
+age context, interaction and contraindication checks, and baseline/follow-up
+measurement advice. Measurement status is structured as not routinely needed,
+clinically indicated, or required before implementation; vitamin D screening is
+not inferred from DNA alone. Every item carries non-null age and life-stage
+context: displayed population references describe an ordinary adult, while
+pregnancy planning, pregnancy, and breastfeeding require the applicable
+guidance. The explicit exception is CDC public-health guidance that anyone who
+could become pregnant should get 400 micrograms of folic acid daily even with a
+common MTHFR variant. The five highest-ranked eligible items appear as Primary
+Supplement Considerations and every remainder appears as Additional Supplement
+Considerations. All entries use the same consider-only, practitioner-review
+semantics. An exact HFE result can raise iron only as a safety-review marker,
+never as a recommendation to take iron. Genetics never establishes a
+deficiency or calculates a therapeutic dose; iron and vitamin B12 are
+clinician-gated, and adult amounts are withheld for a confirmed minor.
 
 The earlier `sam_report-12.html`, `sam_report-11.html`, `sam_report-7.html`,
 `sam_report-new.html`, and original `sam_report-3.html` remain archived design

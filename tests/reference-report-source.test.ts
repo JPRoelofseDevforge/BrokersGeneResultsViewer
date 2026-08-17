@@ -61,7 +61,7 @@ test("uses report 15 with 21 matched and sequentially numbered panels", () => {
     assert.equal(Number(section[1]), index + 1, `wrong visible number for ${tab}`);
   });
 
-  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.5"/);
+  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.7"/);
   assert.match(source, /const KB_VERSION = "2026\.08\.16"/);
   assert.match(extractor, /sam_report-15\.html/);
 });
@@ -346,6 +346,11 @@ test("Executive Fitness cards open an accessible plain-language detail modal", (
   assert.match(bridge, /tabindex="-1"/);
   assert.doesNotMatch(source, /Only established gaps appear above/);
   assert.doesNotMatch(source, /any established supplement gaps/);
+  assert.doesNotMatch(source, /supplement\s+appears only after explicit intake/i);
+  assert.doesNotMatch(source, /A supplement appears only after explicit intake/i);
+  assert.doesNotMatch(source, /never produces a recommendation alone/i);
+  assert.match(source, /Food intake and pathology\s+refine the decision but are not required first/);
+  assert.match(source, /CONSIDER \/ PRACTITIONER REVIEW item/);
   assert.match(source, /genetics-guided supplement review priorities/);
   assert.equal(
     [...source.matchAll(/actions:\[(.*?)\]/g)].filter((match) =>

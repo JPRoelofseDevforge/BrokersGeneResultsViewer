@@ -8,7 +8,7 @@ import type {
 } from "./types";
 import { buildSupplementPlan } from "./supplements";
 
-export const RECOMMENDATION_RULES_VERSION = "2026.08.17";
+export const RECOMMENDATION_RULES_VERSION = "2026.08.17-r2";
 
 interface RecommendationCriterion {
   variantId: string;
@@ -26,7 +26,6 @@ interface RecommendationRule {
   canUnlock: string | null;
   criteria: RecommendationCriterion[];
   order: number;
-  minimumDomainCount?: number;
 }
 
 interface SafetyRule {
@@ -43,7 +42,6 @@ interface ScoredRule {
   score: number;
   domainIds: string[];
   contributors: Array<{ gene: string; variantId: string }>;
-  geneCount: number;
 }
 
 const RULES: RecommendationRule[] = [
@@ -157,7 +155,6 @@ const RULES: RecommendationRule[] = [
     note: "Whether support is ever needed is decided by a measured shortfall, not by these genes.",
     canUnlock: null,
     order: 7,
-    minimumDomainCount: 1,
     criteria: [
       { variantId: "rs1801133", genotypes: ["AA", "AG"], weight: 2 },
       { variantId: "rs1801131", genotypes: ["GG", "GT"], weight: 1 },
@@ -369,7 +366,7 @@ function scoreRule(
   markersByVariant: Map<string, ProcessedMarker>,
 ): ScoredRule {
   const contributors: Array<{ gene: string; variantId: string }> = [];
-  const genes = new Set<string>();
+  const contributedVariants = new Set<string>();
   const domains = new Set<string>();
   let score = 0;
 
@@ -382,14 +379,15 @@ function scoreRule(
       marker.sourceOnly ||
       !marker.genotype ||
       marker.leverage === null ||
-      !criterion.genotypes.includes(marker.genotype)
+      !criterion.genotypes.includes(marker.genotype) ||
+      contributedVariants.has(marker.variantId.toLowerCase())
     ) {
       continue;
     }
 
-    score += criterion.weight * (marker.leverage >= 3 ? 1.5 : 1);
+    score += (marker.leverage - 1) * criterion.weight;
+    contributedVariants.add(marker.variantId.toLowerCase());
     contributors.push({ gene: marker.gene, variantId: marker.variantId });
-    genes.add(marker.gene);
     marker.domainIds.forEach((domainId) => domains.add(domainId));
   }
 
@@ -398,7 +396,6 @@ function scoreRule(
     score,
     domainIds: [...domains].sort(),
     contributors,
-    geneCount: genes.size,
   };
 }
 
@@ -420,17 +417,14 @@ function projectRecommendation(scored: ScoredRule): WholeReportRecommendation {
 function qualifiesAction(scored: ScoredRule) {
   return (
     scored.score >= 3 &&
-    scored.contributors.length >= 3 &&
-    scored.geneCount >= 3 &&
-    scored.domainIds.length >= (scored.rule.minimumDomainCount ?? 2)
+    scored.contributors.length >= 3
   );
 }
 
 function qualifiesMeasurement(scored: ScoredRule) {
   return (
     scored.score >= 2 &&
-    scored.contributors.length >= 2 &&
-    scored.geneCount >= 2
+    scored.contributors.length >= 2
   );
 }
 
@@ -440,19 +434,11 @@ function nearThresholdReason(
 ): NearThresholdRecommendation["reason"] {
   const measurement = scored.rule.kind === "measurement";
   const markerMinimum = measurement ? 2 : 3;
-  const geneMinimum = measurement ? 2 : 3;
   const scoreMinimum = measurement ? 2 : 3;
 
   if (scored.contributors.length < markerMinimum) return "too-few-markers";
-  if (scored.geneCount < geneMinimum) return "too-few-genes";
-  if (
-    !measurement &&
-    scored.domainIds.length < (scored.rule.minimumDomainCount ?? 2)
-  ) {
-    return "too-few-systems";
-  }
   if (scored.score < scoreMinimum) return "below-threshold";
-  if (!selected.has(scored.rule.id)) return "outside-shortlist";
+  if (!selected.has(scored.rule.id)) return "display-cap";
   return "below-threshold";
 }
 
@@ -517,9 +503,10 @@ export function buildRecommendationSynthesis(
     [...actions, ...measurements].map((item) => item.rule.id),
   );
   const nearThreshold = scored
-    .filter((item) => item.score > 0 && !selected.has(item.rule.id))
+    .filter(
+      (item) => item.contributors.length > 0 && !selected.has(item.rule.id),
+    )
     .sort(compareScored)
-    .slice(0, 5)
     .map((item) => ({
       id: item.rule.id,
       kind: item.rule.kind,
@@ -527,6 +514,7 @@ export function buildRecommendationSynthesis(
       score: item.score,
       contributorCount: item.contributors.length,
       domainCount: item.domainIds.length,
+      contributors: [...item.contributors],
       reason: nearThresholdReason(item, selected),
     }));
   const actionRuleVariants = new Set(
