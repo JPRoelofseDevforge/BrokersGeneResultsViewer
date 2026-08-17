@@ -61,7 +61,7 @@ test("uses report 15 with 21 matched and sequentially numbered panels", () => {
     assert.equal(Number(section[1]), index + 1, `wrong visible number for ${tab}`);
   });
 
-  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.3"/);
+  assert.match(source, /const REPORT_VERSION = "2026\.08\.17-r15\.4"/);
   assert.match(source, /const KB_VERSION = "2026\.08\.16"/);
   assert.match(extractor, /sam_report-15\.html/);
 });
@@ -311,13 +311,22 @@ test("matches the report-15 catalogue and Executive Fitness taxonomy", () => {
 
 test("Executive Fitness cards open an accessible plain-language detail modal", () => {
   assert.match(source, /<dialog class="ef-dialog" id="efDetailDialog"/);
+  assert.match(source, /\.ef-dialog\[open\]\{display:grid;grid-template-rows:auto minmax\(0,1fr\)\}/);
+  assert.match(source, /\.ef-dialog\{[^}]*height:min\(88dvh,900px\)/);
+  assert.match(source, /\.ef-modal-body\{[^}]*min-height:0;max-height:none[^}]*overflow-y:auto[^}]*overscroll-behavior:contain/);
+  assert.match(source, /html\.ef-modal-open,html\.ef-modal-open body\{overflow:hidden;overscroll-behavior:none\}/);
+  assert.match(source, /@media\(max-width:680px\)[^\n]*\.ef-dialog\{[^}]*height:94dvh/);
+  assert.doesNotMatch(source, /\.ef-modal-body\{[^}]*max-height:calc\(/);
   assert.match(source, /aria-labelledby="efDetailTitle"/);
+  assert.match(source, /id="efDetailBody" role="region" aria-label="Executive fitness details" tabindex="0"/);
   assert.match(source, /id="efDetailClose"[^>]+aria-label="Close executive fitness details"/);
   assert.match(source, /class="card stack ef-card" role="button" tabindex="0"/);
   assert.match(source, /aria-haspopup="dialog" aria-controls="efDetailDialog"/);
   assert.match(source, /event\.key==="Enter"\|\|event\.key===" "/);
   assert.match(source, /function openEFDetail\(index,trigger\)/);
   assert.match(source, /function closeEFDetail\(restoreFocus=true\)/);
+  assert.match(source, /document\.documentElement\.classList\.add\("ef-modal-open"\)/);
+  assert.match(source, /requestAnimationFrame\(\(\)=>body\.focus\(\{preventScroll:true\}\)\)/);
   assert.match(source, /What this can look like/);
   assert.match(source, /Three useful next steps/);
   assert.match(source, /What shaped this result/);

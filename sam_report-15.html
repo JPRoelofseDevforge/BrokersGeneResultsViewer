@@ -86,14 +86,17 @@ nav.tabs{position:sticky;top:62px;z-index:55;background:var(--bone);border-botto
 .ef-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(21,24,27,.08);border-color:rgba(226,88,34,.42)}
 .ef-card:focus-visible{outline:3px solid var(--blood);outline-offset:3px}
 .ef-open{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--blood)}
-.ef-dialog{width:min(820px,calc(100vw - 32px));max-height:min(88vh,900px);padding:0;border:1px solid var(--ink-14);border-radius:18px;background:var(--bone);color:var(--ink);box-shadow:0 30px 90px rgba(21,24,27,.28);overflow:hidden}
+.ef-dialog{width:min(820px,calc(100vw - 32px));height:min(88vh,900px);height:min(88dvh,900px);padding:0;border:1px solid var(--ink-14);border-radius:18px;background:var(--bone);color:var(--ink);box-shadow:0 30px 90px rgba(21,24,27,.28);overflow:hidden}
+.ef-dialog[open]{display:grid;grid-template-rows:auto minmax(0,1fr)}
 .ef-dialog::backdrop{background:rgba(21,24,27,.72);backdrop-filter:blur(3px)}
+html.ef-modal-open,html.ef-modal-open body{overflow:hidden;overscroll-behavior:none}
 .ef-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;padding:26px 28px 22px;border-bottom:1px solid var(--ink-14);background:#fff}
 .ef-modal-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .ef-modal-close{flex:0 0 auto;width:40px;height:40px;border:1px solid var(--ink-14);border-radius:50%;background:transparent;color:var(--ink);font:24px/1 var(--body);cursor:pointer}
 .ef-modal-close:hover{background:var(--ink-07)}
 .ef-modal-close:focus-visible{outline:3px solid var(--blood);outline-offset:2px}
-.ef-modal-body{padding:26px 28px 30px;overflow-y:auto;max-height:calc(88vh - 108px)}
+.ef-modal-body{min-height:0;max-height:none;padding:26px 28px 30px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.ef-modal-body:focus-visible{outline:3px solid var(--blood);outline-offset:-3px}
 .ef-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .ef-modal-block{background:#fff;border:1px solid var(--ink-14);border-radius:12px;padding:18px}
 .ef-modal-block h3{font-size:18px;margin-bottom:9px}
@@ -106,7 +109,7 @@ nav.tabs{position:sticky;top:62px;z-index:55;background:var(--bone);border-botto
 .ef-supp-match .btn{flex:0 0 auto}
 .sam-focus-flash{animation:samFocusFlash 1.4s ease}
 @keyframes samFocusFlash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 5px rgba(226,88,34,.22)}}
-@media(max-width:680px){.ef-modal-grid{grid-template-columns:1fr}.ef-modal-head,.ef-modal-body{padding-left:20px;padding-right:20px}.ef-supp-match{flex-direction:column}.ef-dialog{width:calc(100vw - 18px);max-height:94vh}.ef-modal-body{max-height:calc(94vh - 100px)}}
+@media(max-width:680px){.ef-modal-grid{grid-template-columns:1fr}.ef-modal-head,.ef-modal-body{padding-left:20px;padding-right:20px}.ef-supp-match{flex-direction:column}.ef-dialog{width:calc(100vw - 18px);height:94vh;height:94dvh}}
 @media(prefers-reduced-motion:reduce){.ef-card,.sam-focus-flash{transition:none;animation:none}}
 .grid{display:grid;gap:16px}
 .grid>*{min-width:0}
@@ -592,7 +595,7 @@ missing = if the anchor is absent, the domain reports "not evaluated"
         </div>
         <button class="ef-modal-close" id="efDetailClose" type="button" aria-label="Close executive fitness details">×</button>
       </div>
-      <div class="ef-modal-body" id="efDetailBody"></div>
+      <div class="ef-modal-body" id="efDetailBody" role="region" aria-label="Executive fitness details" tabindex="0"></div>
     </dialog>
 
     <div class="sechead" style="margin-top:52px"><span class="eyebrow">Marker detail</span><span class="rule"></span></div>
@@ -915,7 +918,7 @@ REASON  an unauditable number cannot carry a clinical decision</div>
    Every clinical statement in this report lives here, versioned, and is
    retrieved at render time. Nothing is authored inside a model prompt.
    ===================================================================== */
-const REPORT_VERSION = "2026.08.17-r15.3";
+const REPORT_VERSION = "2026.08.17-r15.4";
 const KB_VERSION = "2026.08.16";
 const CATALOGUE_SEMANTICS_VERSION = "2026.08.16";
 
@@ -2389,7 +2392,7 @@ function closeEFDetail(restoreFocus=true){
   const dialog=$("#efDetailDialog");
   if(!restoreFocus)efLastTrigger=null;
   if(dialog&&dialog.open)dialog.close();
-  else if(restoreFocus&&efLastTrigger){const trigger=efLastTrigger;efLastTrigger=null;setTimeout(()=>trigger.focus(),0);}
+  else {document.documentElement.classList.remove("ef-modal-open");if(restoreFocus&&efLastTrigger){const trigger=efLastTrigger;efLastTrigger=null;setTimeout(()=>trigger.focus(),0);}}
 }
 function goToSupplement(id){
   closeEFDetail(false);
@@ -2432,10 +2435,12 @@ function openEFDetail(index,trigger){
     $("#efDetailClose").addEventListener("click",()=>closeEFDetail());
     dialog.addEventListener("click",event=>{if(event.target===dialog)closeEFDetail();});
     dialog.addEventListener("cancel",event=>{event.preventDefault();closeEFDetail();});
-    dialog.addEventListener("close",()=>{if(efLastTrigger){const target=efLastTrigger;efLastTrigger=null;target.focus();}});
+    dialog.addEventListener("close",()=>{document.documentElement.classList.remove("ef-modal-open");if(efLastTrigger){const target=efLastTrigger;efLastTrigger=null;target.focus();}});
   }
+  document.documentElement.classList.add("ef-modal-open");
   if(typeof dialog.showModal==="function"){if(!dialog.open)dialog.showModal();}
   else dialog.setAttribute("open","");
+  requestAnimationFrame(()=>body.focus({preventScroll:true}));
 }
 function buildEF(){
   const el=$("#efcats"); if(!el) return;
