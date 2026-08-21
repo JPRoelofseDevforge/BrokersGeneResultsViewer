@@ -76,6 +76,8 @@ Broker Day private link
   → browser immediately removes the fragment
   → POST /api/reports/resolve
   → Broker Day POST /api/person validates the token and returns identity
+    → if Broker Day has no person profile, SAM authenticates the same token
+      locally and uses its email to resolve an approved gene-only recipient
   → Azure SQL stored procedure resolves that email to one exact IG number
   → canonical calls for the current ready profile are processed server-side
   → the browser receives only that member's report
@@ -94,6 +96,9 @@ The database migration is split into:
   read-only procedures, indexes, and the narrow executor role.
 - `database/002_broker_gene_import.sql`: an administrator-only, transactional,
   idempotent importer for the approved long-form source contract.
+- `database/003_broker_gene_profile_identity.sql`: a rerunnable runtime upgrade
+  that projects the recipient's stored display name without exposing email or
+  widening the App Service database role.
 
 The first production batch preserves all 2,414 workbook rows and selects one
 canonical row for each profile/variant pair. Exact duplicates are retained for
@@ -182,13 +187,17 @@ GENE_RESULTS_SOURCE=azure-sql
 AZURE_SQL_SERVER=rxg.database.windows.net
 AZURE_SQL_DATABASE=BrokerDay
 BROKER_DAY_PROFILE_API_URL=https://<broker-day-origin>/api/person
+# Required for direct SAM links whose recipients have no Broker Day person row.
+# Use the same shared key as a Key Vault-backed App Service setting.
+QR_TOKEN_KEY=<base64-encoded-32-byte-shared-key>
 PHASE_ONE_PREVIEW=false
 PHASE_ONE_TOKEN_TEST=false
 ```
 
 Leave `AZURE_CLIENT_ID` unset for the system-assigned App Service identity.
-Do not configure a SQL password or copy `QR_TOKEN_KEY` into this App Service
-when the Broker Day profile endpoint owns token decryption.
+Do not configure a SQL password. Keep `QR_TOKEN_KEY` unset when Broker Day owns
+all token decryption; configure it through Key Vault only when gene-only direct
+links need the explicit profile-not-found fallback.
 
 ## Deployment
 

@@ -224,10 +224,16 @@ test("keeps Phase 1 token lookup behind a second explicit test gate", async () =
 });
 
 test("applies Broker Day identity only to a production gene source", async () => {
+  const databaseProfile = {
+    ...profile,
+    displayName: "Heinrich Rix",
+    firstName: "",
+    lastName: "",
+  };
   const productionSource: GeneResultsSource = {
     sourceMode: "production",
-    getProfile: async () => profile,
-    getProfileByEmail: async () => profile,
+    getProfile: async () => databaseProfile,
+    getProfileByEmail: async () => databaseProfile,
     getGenotypeRecords: async () => [
       {
         profileId: profile.id,
@@ -259,6 +265,13 @@ test("applies Broker Day identity only to a production gene source", async () =>
     JSON.stringify(report.profile),
     /dateOfBirth|sampleId|reportAccessStatus/i,
   );
+
+  const geneOnlyReport = await getGeneReportByEmail(
+    "hrix@therxgroup.co.za",
+    undefined,
+    productionSource,
+  );
+  assert.equal(geneOnlyReport?.profile.displayName, "Heinrich Rix");
 });
 
 test("resolves reverse-strand calls before interpretation", () => {

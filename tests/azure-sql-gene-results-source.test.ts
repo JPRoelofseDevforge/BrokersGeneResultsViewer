@@ -10,6 +10,7 @@ import { GeneResultsIntegrityError } from "../lib/data/gene-results-source";
 const readyProfile = {
   profileId: "101",
   memberNumber: "IG8185",
+  displayName: "Heinrich Rix",
   sampleId: "IG8185",
   assayName: "Intelligene broker genetic panel",
   assayVersion: "695eb6fa8f93",
@@ -49,6 +50,7 @@ test("projects a ready Azure SQL profile and its canonical calls", async () => {
 
   assert.ok(profile);
   assert.equal(profile.id, "101");
+  assert.equal(profile.displayName, "Heinrich Rix");
   assert.equal(profile.dateOfBirth, null);
   assert.equal(profile.sexAtBirth, "male");
   assert.equal(profile.assayStrand, "unknown");

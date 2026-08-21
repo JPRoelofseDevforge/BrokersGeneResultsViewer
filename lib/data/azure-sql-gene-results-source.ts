@@ -105,6 +105,7 @@ function projectProfile(rows: readonly DbRow[]): GeneProfile | null {
   const row = rows[0];
   const id = cleanString(row.profileId, 32);
   const memberNumber = cleanString(row.memberNumber, 20);
+  const displayName = cleanString(row.displayName, 200);
   const sampleId = cleanString(row.sampleId, 100);
   const assayName = cleanString(row.assayName, 160);
   const assayVersion = cleanString(row.assayVersion, 40);
@@ -139,6 +140,7 @@ function projectProfile(rows: readonly DbRow[]): GeneProfile | null {
     memberNumber: memberNumber.toUpperCase(),
     firstName: "",
     lastName: "",
+    ...(displayName ? { displayName } : {}),
     dateOfBirth: isoDate(row.dateOfBirth),
     sexAtBirth: sexAtBirth(row.sexAtBirth),
     sampleId,

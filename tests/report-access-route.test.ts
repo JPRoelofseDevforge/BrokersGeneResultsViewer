@@ -156,6 +156,143 @@ describe("private report route boundary", () => {
       }
     }
   });
+
+  it("falls back to a locally authenticated email only for a missing Broker Day profile", async () => {
+    const previousEndpoint = process.env.BROKER_DAY_PROFILE_API_URL;
+    const previousGeneSource = process.env.GENE_RESULTS_SOURCE;
+    const previousKey = process.env.QR_TOKEN_KEY;
+    const previousEmail = process.env.PHASE_ONE_PROFILE_EMAIL;
+    const previousTokenTest = process.env.PHASE_ONE_TOKEN_TEST;
+    const previousFetch = globalThis.fetch;
+
+    try {
+      process.env.BROKER_DAY_PROFILE_API_URL =
+        "https://sam.example.com/api/person";
+      delete process.env.GENE_RESULTS_SOURCE;
+      process.env.QR_TOKEN_KEY = KEY;
+      process.env.PHASE_ONE_TOKEN_TEST = "true";
+      process.env.PHASE_ONE_PROFILE_EMAIL = "gene-only@example.com";
+      globalThis.fetch = async () => new Response(null, { status: 404 });
+
+      const now = Math.floor(Date.now() / 1000);
+      const token = encryptBrokerDayToken(
+        {
+          email: "gene-only@example.com",
+          iat: now - 10,
+          exp: now + 600,
+        },
+        KEY,
+        Buffer.alloc(12, 4),
+      );
+      const response = await resolveReport(
+        postRequest(JSON.stringify({ token })),
+      );
+      const body = (await response.json()) as {
+        ok: boolean;
+        data?: { id?: string; profile?: { firstName?: string } };
+      };
+
+      assert.equal(response.status, 200);
+      assert.equal(body.ok, true);
+      assert.equal(body.data?.id, "report-sam-240184-2026.08.16");
+      assert.equal(body.data?.profile?.firstName, "Sam");
+    } finally {
+      globalThis.fetch = previousFetch;
+
+      if (previousEndpoint === undefined) {
+        delete process.env.BROKER_DAY_PROFILE_API_URL;
+      } else {
+        process.env.BROKER_DAY_PROFILE_API_URL = previousEndpoint;
+      }
+
+      if (previousGeneSource === undefined) {
+        delete process.env.GENE_RESULTS_SOURCE;
+      } else {
+        process.env.GENE_RESULTS_SOURCE = previousGeneSource;
+      }
+
+      if (previousKey === undefined) delete process.env.QR_TOKEN_KEY;
+      else process.env.QR_TOKEN_KEY = previousKey;
+
+      if (previousEmail === undefined) {
+        delete process.env.PHASE_ONE_PROFILE_EMAIL;
+      } else {
+        process.env.PHASE_ONE_PROFILE_EMAIL = previousEmail;
+      }
+
+      if (previousTokenTest === undefined) {
+        delete process.env.PHASE_ONE_TOKEN_TEST;
+      } else {
+        process.env.PHASE_ONE_TOKEN_TEST = previousTokenTest;
+      }
+    }
+  });
+
+  it("does not fall back when Broker Day rejects the token or is unavailable", async () => {
+    const previousEndpoint = process.env.BROKER_DAY_PROFILE_API_URL;
+    const previousKey = process.env.QR_TOKEN_KEY;
+    const previousFetch = globalThis.fetch;
+
+    try {
+      process.env.BROKER_DAY_PROFILE_API_URL =
+        "https://sam.example.com/api/person";
+      process.env.QR_TOKEN_KEY = KEY;
+      const now = Math.floor(Date.now() / 1000);
+      const token = encryptBrokerDayToken(
+        {
+          email: "gene-only@example.com",
+          iat: now - 10,
+          exp: now + 600,
+        },
+        KEY,
+        Buffer.alloc(12, 5),
+      );
+
+      for (const scenario of [
+        {
+          upstreamStatus: 400,
+          expectedStatus: 400,
+          expectedError: "invalid-or-expired-link",
+        },
+        {
+          upstreamStatus: 500,
+          expectedStatus: 503,
+          expectedError: "profile-service-unavailable",
+        },
+      ]) {
+        globalThis.fetch = async () =>
+          new Response(null, { status: scenario.upstreamStatus });
+        const response = await resolveReport(
+          postRequest(JSON.stringify({ token })),
+        );
+        const body = (await response.json()) as { error?: string };
+
+        assert.equal(response.status, scenario.expectedStatus);
+        assert.equal(body.error, scenario.expectedError);
+      }
+
+      globalThis.fetch = async () => new Response(null, { status: 404 });
+      const invalidLocalToken = await resolveReport(
+        postRequest(JSON.stringify({ token: "not-a-valid-token" })),
+      );
+      const invalidBody = (await invalidLocalToken.json()) as {
+        error?: string;
+      };
+      assert.equal(invalidLocalToken.status, 400);
+      assert.equal(invalidBody.error, "invalid-or-expired-link");
+    } finally {
+      globalThis.fetch = previousFetch;
+
+      if (previousEndpoint === undefined) {
+        delete process.env.BROKER_DAY_PROFILE_API_URL;
+      } else {
+        process.env.BROKER_DAY_PROFILE_API_URL = previousEndpoint;
+      }
+
+      if (previousKey === undefined) delete process.env.QR_TOKEN_KEY;
+      else process.env.QR_TOKEN_KEY = previousKey;
+    }
+  });
 });
 
 describe("Phase 1 preview boundary", () => {

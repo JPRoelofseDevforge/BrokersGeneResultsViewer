@@ -80,7 +80,16 @@ export async function POST(request: Request) {
   }
 
   try {
-    const brokerDayIdentity = await resolveBrokerDayIdentity(token);
+    const brokerDayIdentity = await resolveBrokerDayIdentity(token).catch(
+      (error: unknown) => {
+        // A direct SAM recipient can have a valid shared token without a
+        // qualifying Broker Day /api/person record. Only that explicit 404
+        // falls back to local authenticated decryption; rejection and service
+        // failures continue to fail closed in the outer error boundary.
+        if (error instanceof BrokerDayProfileNotFoundError) return null;
+        throw error;
+      },
+    );
     const email =
       brokerDayIdentity?.email ?? decryptBrokerDayToken(token).email;
     const report = await getGeneReportByEmail(
@@ -150,13 +159,6 @@ export async function POST(request: Request) {
       return Response.json(
         { ok: false, error: "invalid-or-expired-link" },
         { status: 400, headers: PRIVATE_HEADERS },
-      );
-    }
-
-    if (error instanceof BrokerDayProfileNotFoundError) {
-      return Response.json(
-        { ok: false, error: "profile-not-found" },
-        { status: 404, headers: PRIVATE_HEADERS },
       );
     }
 
